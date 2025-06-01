@@ -27,7 +27,7 @@ async function ValidateUserLogin(user) {
                 role: userData.Role
             },
             process.env.SECRET_KEY,
-            { expiresIn: '4h' }
+            { expiresIn: '24h' }
         );
         return token
     } catch (error) {

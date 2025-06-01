@@ -4,9 +4,10 @@ import type { Admin, Client } from '../types/User';
 export type User = Admin  | Client;
 
 export function adaptarUsuario(data: any): User {
+  console.log('Adaptando usuario:', data);
   const base = {
     id: data.userId ?? data.id ?? '',
-    nombre: data.nombre ?? 'Sin nombre',
+    nombre: data.name ?? 'Sin Nombre',
     rol: data.rol ?? 'cliente',
   };
 
@@ -24,7 +25,8 @@ export function adaptarUsuario(data: any): User {
         ...base,
         rol: 'Client',
         email: data.email ?? '',
-        direccion: data.direccion ?? 'Sin dirección',
+        direccion: data.address ?? 'Sin dirección',
+        telefono: data.phone ?? 'Sin teléfono',
       } as Client;
   }
 }

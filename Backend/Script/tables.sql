@@ -9,7 +9,6 @@ CREATE TABLE Users (
     UserId INT PRIMARY KEY IDENTITY,
     Cedula VARCHAR(10) NOT NULL CHECK (LEN(Cedula) = 10 AND Cedula NOT LIKE '%[^0-9]%'),
     Email VARCHAR(100) UNIQUE NOT NULL,
-    Phone VARCHAR(15),
     PasswordHash VARBINARY(64) NOT NULL,
     RoleId INT NOT NULL,
     RegistrationDate DATETIME DEFAULT GETDATE(),
@@ -18,14 +17,26 @@ CREATE TABLE Users (
     CONSTRAINT FK_Users_Roles FOREIGN KEY (RoleId) REFERENCES Roles(RoleId)
 );
 
--- Tabla Clientes (datos adicionales de clientes)
+-- Tabla Clients: datos específicos para clientes
 CREATE TABLE Clients (
     ClientId INT PRIMARY KEY IDENTITY,
     UserId INT UNIQUE NOT NULL,
     FirstName VARCHAR(100) NOT NULL,
     LastName VARCHAR(100) NOT NULL,
-    Address VARCHAR(200),
+    Address VARCHAR(200) NULL,
+    Phone VARCHAR(15) NULL,
     CONSTRAINT FK_Clients_Users FOREIGN KEY (UserId) REFERENCES Users(UserId)
+);
+
+-- Tabla Admins: datos específicos para administradores
+CREATE TABLE Admins (
+    AdminId INT PRIMARY KEY IDENTITY,
+    UserId INT UNIQUE NOT NULL,
+    FirstName VARCHAR(100) NOT NULL,
+    LastName VARCHAR(100) NOT NULL,
+    Address VARCHAR(200) NULL,
+    Phone VARCHAR(15) NULL,
+    CONSTRAINT FK_Admins_Users FOREIGN KEY (UserId) REFERENCES Users(UserId)
 );
 
 -- Tabla Categories

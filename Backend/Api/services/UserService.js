@@ -19,11 +19,13 @@ async function ValidateUserLogin(user) {
         if (!userData.UserId) {
             return userData;
         }
-
         const token = jwt.sign(
             {
                 userId: userData.UserId,
                 email: userData.Email,
+                name: userData.Name,
+                address: userData.Address,
+                phone: userData.Phone,
                 role: userData.Role
             },
             process.env.SECRET_KEY,

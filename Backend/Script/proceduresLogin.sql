@@ -1,60 +1,71 @@
 -----------------------------------------------------------------------------------
 -- Procedimiento para registrar usuario con password hasheado
-GO
 CREATE OR ALTER PROCEDURE RegisterUser
     @Cedula VARCHAR(10),
     @Email VARCHAR(100),
-    @Phone VARCHAR(15),
     @Password VARCHAR(255),
     @RoleName VARCHAR(50),
-    @FirstName VARCHAR(100) = NULL,
-    @LastName VARCHAR(100) = NULL,
-    @Address VARCHAR(200) = NULL
+    @FirstName VARCHAR(100),
+    @LastName VARCHAR(100),
+    @Address VARCHAR(200) = NULL,
+    @Phone VARCHAR(15) = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    -- Validar rol
+    -- Validar rol y obtener RoleId
     DECLARE @RoleId INT;
     SELECT @RoleId = RoleId FROM Roles WHERE RoleName = @RoleName;
+
     IF @RoleId IS NULL
     BEGIN
         RAISERROR('Role does not exist.', 16, 1);
         RETURN;
     END
 
-    -- Verificar email o cedula duplicados
-    IF EXISTS (SELECT 1 FROM Users WHERE  Cedula = @Cedula)
+    -- Validar que no exista cedula ni email duplicados
+    IF EXISTS (SELECT 1 FROM Users WHERE Cedula = @Cedula)
     BEGIN
         RAISERROR('Cedula already registered.', 16, 1);
         RETURN;
     END
+
     IF EXISTS (SELECT 1 FROM Users WHERE Email = @Email)
     BEGIN
-        RAISERROR('Email  already registered.', 16, 1);
+        RAISERROR('Email already registered.', 16, 1);
         RETURN;
     END
 
-    -- Insertar usuario
-    INSERT INTO Users (Cedula, Email, Phone, PasswordHash, RoleId)
+    -- Insertar en Users
+    INSERT INTO Users (Cedula, Email, PasswordHash, RoleId)
     VALUES (
         @Cedula,
         @Email,
-        @Phone,
         HASHBYTES('SHA2_256', CONVERT(VARBINARY(MAX), @Password)),
         @RoleId
     );
 
     DECLARE @UserId INT = SCOPE_IDENTITY();
 
-    -- Si es cliente, insertar datos en Clients
+    -- Insertar en tabla específica según rol
     IF @RoleName = 'Client'
     BEGIN
-        INSERT INTO Clients (UserId, FirstName, LastName, Address)
-        VALUES (@UserId, @FirstName, @LastName, @Address);
+        INSERT INTO Clients (UserId, FirstName, LastName, Address, Phone)
+        VALUES (@UserId, @FirstName, @LastName, @Address, @Phone);
+    END
+    ELSE IF @RoleName = 'Admin'
+    BEGIN
+        INSERT INTO Admins (UserId, FirstName, LastName, Address, Phone)
+        VALUES (@UserId, @FirstName, @LastName, @Address, @Phone);
+    END
+    ELSE
+    BEGIN
+        -- Si hay otros roles, manejar o dejar pasar
+        -- Por ahora, si el rol no es Admin o Client, no se insertan datos específicos
+        PRINT 'No additional user data to insert for this role.';
     END
 END;
-GO
+
 
 -----------------------------------------------------------------------------------
 -- Procedimiento para validar login
@@ -71,13 +82,15 @@ BEGIN
     DECLARE @IsBlocked BIT;
     DECLARE @FailedAttempts INT;
 
+    -- Obtener datos comunes de Users
     SELECT 
         @UserId = UserId,
         @StoredPassword = PasswordHash,
         @RoleId = RoleId,
         @IsBlocked = IsBlocked,
         @FailedAttempts = FailedLoginAttempts
-    FROM Users WHERE Email = @Email;
+    FROM Users 
+    WHERE Email = @Email;
 
     IF @UserId IS NULL
     BEGIN
@@ -93,24 +106,50 @@ BEGIN
 
     IF @StoredPassword = HASHBYTES('SHA2_256', CONVERT(VARBINARY(MAX), @Password))
     BEGIN
-        -- Login correcto: resetear contador de intentos fallidos
+        -- Login correcto: resetear contador
         UPDATE Users SET FailedLoginAttempts = 0 WHERE UserId = @UserId;
 
-        SELECT 
-            u.UserId,
-            u.Email,
-            r.RoleName,
-            'Login successful' AS Message
-        FROM Users u
-        JOIN Roles r ON u.RoleId = r.RoleId
-        WHERE u.UserId = @UserId;
+        -- Dependiendo del rol, obtener info extendida
+        IF @RoleId = (SELECT RoleId FROM Roles WHERE RoleName = 'Admin')
+        BEGIN
+            SELECT 
+                u.UserId,
+                u.Email,
+                r.RoleName AS Role,
+                a.FirstName + ' '+ a.LastName as Name,
+                a.Address,
+                a.Phone,
+                'Login successful' AS Message
+            FROM Users u
+            JOIN Roles r ON u.RoleId = r.RoleId
+            JOIN Admins a ON a.UserId = u.UserId
+            WHERE u.UserId = @UserId;
+        END
+        ELSE IF @RoleId = (SELECT RoleId FROM Roles WHERE RoleName = 'Client')
+        BEGIN
+            SELECT 
+                u.UserId,
+                u.Email,
+                r.RoleName AS Role,
+                c.FirstName + ' '+ c.LastName as Name,
+                c.Address,
+                c.Phone,
+                'Login successful' AS Message
+            FROM Users u
+            JOIN Roles r ON u.RoleId = r.RoleId
+            JOIN Clients c ON c.UserId = u.UserId
+            WHERE u.UserId = @UserId;
+        END
+        ELSE
+        BEGIN
+            SELECT 'Rol no reconocido' AS Message;
+        END
     END
     ELSE
     BEGIN
-        -- Login fallido: incrementar contador
+        -- Login fallido: aumentar contador e intentar bloqueo
         UPDATE Users SET FailedLoginAttempts = FailedLoginAttempts + 1 WHERE UserId = @UserId;
 
-        -- Bloquear usuario si supera 3 intentos
         UPDATE Users
         SET IsBlocked = CASE WHEN FailedLoginAttempts >= 3 THEN 1 ELSE 0 END
         WHERE UserId = @UserId;

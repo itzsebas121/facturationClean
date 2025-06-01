@@ -1,0 +1,95 @@
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  backdrop-filter: blur(4px);
+  border-bottom: 1px solid;  border-color: var(--border-color);
+  background-color: var(--background-light);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;  color: var(--primary-color);
+}
+
+.logoIcon {
+  width: 2rem;  /* 8 */
+  height: 2rem; /* 8 */
+  color: var(--accent-color);
+}
+
+.logoText {
+  color: var(--primary-color);
+  font-weight: 500;
+  font-size: 1.25rem; /* text-xl */
+}
+
+.navLinks {
+  display: none;
+  gap: 2rem;
+  align-items: center;
+  
+  @media (min-width: 768px) {
+    display: flex;
+  }}
+
+.navLink {
+  color: var(--text-secondary);
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+.navLink:hover {
+  color: var(--primary-color);
+}
+.navLinkUnderline {
+
+  position: absolute;
+  bottom: -0.25rem; /* -1 */
+  left: 0;
+  width: 0;
+  height: 0.125rem; /* 0.5 */
+  background-color: var(--accent-color);
+  transition: width 0.3s ease;
+}
+
+.navLinkGroupHover:hover .navLinkUnderline {
+  width: 100%;
+}
+
+.authButtons {
+  @apply hidden md:flex items-center space-x-4;
+}
+
+.signInButton {
+  background: transparent;
+  color: var(--primary-color);
+  transition: color 0.3s ease;
+}
+
+.signInButton:hover {
+  color: var(--accent-light);
+}
+
+.getStartedButton {
+  background-color: var(--accent-color);
+  color: var(--secondary-color);
+  transition: background-color 0.3s ease;
+}
+
+.getStartedButton:hover {
+  background-color: var(--accent-light);
+}
+
+.mobileMenuButton {
+
+  display: none;
+  @media (min-width: 768px) {
+    display: block;
+  }  color: var(--primary-color);
+}

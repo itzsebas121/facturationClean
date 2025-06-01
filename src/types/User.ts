@@ -13,6 +13,7 @@ export interface Client extends BaseUser {
   rol: 'Client';
   email: string;
   direccion: string;
+  telefono: string;
 }
 
 export type User = Admin | Client;

@@ -1,10 +1,10 @@
 const express = require("express");
 const cors = require("cors");
+const app = express();
+const port = process.env.PORT || 3000;
 
 const productosRouter = require("./routes/Product");
 const userRouter = require("./routes/User");
-const app = express();
-const port = process.env.PORT || 3000;
 
 app.use(cors({
   origin: "*",

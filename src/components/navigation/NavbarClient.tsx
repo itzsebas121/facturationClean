@@ -1,56 +1,50 @@
-"use client";
+import { Sparkles, Menu, X } from 'lucide-react';
+    import './Navbar.css'
+    import '../../index.css'
 
-import { Bot, Menu } from "lucide-react";
-import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
-import React from "react";
-import './Navbar.module.css'
+import { useState } from 'react';
 
-export default function Navbar() {
-    const navigate = useNavigate();
+export function Navbar() {
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     return (
-        <motion.nav
-            initial={{ y: -100 }}
-            animate={{ y: 0 }}
-            className={styles.navbar}
-        >
-            <Link href="/" className={styles.logo}>
-                <Bot className={styles.logoIcon} />
-                <span className={styles.logoText}>ResearchAI</span>
-            </Link>
+        <header className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md border-b border-white/10">
+            <div className="container mx-auto px-4 py-4">
+                <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                        <Sparkles className="h-6 w-6 text-purple-500" />
+                        <span className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-cyan-400">
+                            NEURALUX
+                        </span>
+                    </div>
 
-            <div className={styles.navLinks}>
-                <NavLink href="/features">Features</NavLink>
-                <NavLink href="/how-it-works">How it Works</NavLink>
-                <NavLink href="/examples">Examples</NavLink>
-                <NavLink href="/pricing">Pricing</NavLink>
+                    {/* Desktop Navigation */}
+                    <nav className="hidden md:flex items-center space-x-8">
+                        <a href="#services" className="text-sm hover:text-purple-400 transition-colors">
+                            Services
+                        </a>
+                        <a href="#about" className="text-sm hover:text-purple-400 transition-colors">
+                            About
+                        </a>
+                        <a href="#team" className="text-sm hover:text-purple-400 transition-colors">
+                            Team
+                        </a>
+                        <a href="#process" className="text-sm hover:text-purple-400 transition-colors">
+                            Process
+                        </a>
+                        <a href="#contact" className="text-sm hover:text-purple-400 transition-colors">
+                            Contact
+                        </a>
+                        <button className="bg-gradient-to-r from-purple-600 to-cyan-500 hover:from-purple-700 hover:to-cyan-600 text-white px-4 py-2 rounded font-semibold transition-colors">
+                            Get Started
+                        </button>
+                    </nav>
+
+                    {/* Mobile Menu Button */}
+                    <button className="md:hidden menu-button" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+                        {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                    </button>
+                </div>
             </div>
-
-            <div className={styles.authButtons}>
-                <Button variant="ghost" className={styles.signInButton}>
-                    Sign In
-                </Button>
-                <Button className={styles.getStartedButton}>Get Started</Button>
-            </div>
-
-            <Button variant="ghost" size="icon" className={styles.mobileMenuButton}>
-                <Menu className="w-6 h-6" />
-            </Button>
-        </motion.nav>
-    );
-}
-
-function NavLink({
-    href,
-    children,
-}: {
-    href: string;
-    children: React.ReactNode;
-}) {
-    return (
-        <Link href={href} className={`${styles.navLink} group`}>
-            {children}
-            <span className={styles.navLinkUnderline} />
-        </Link>
+        </header>
     );
 }

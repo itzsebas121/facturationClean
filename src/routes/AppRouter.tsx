@@ -5,6 +5,10 @@ import { LoginPage } from '../features/login/LoginPage';
 import { AdminDashboard } from '../features/admin/AdminDashboard';
 import { ClientDashboard } from '../features/client/ClientDashboard';
 
+import { HomeClient } from '../features/client/Home/HomeClient';
+import { HistoryClient } from '../features/client/History/HistoryClient';
+import { ProductPageClient } from '../features/client/Products/ProductPageClient';
+
 function PrivateRoute({ children, allowedRoles }: { children: React.ReactNode; allowedRoles: string[] }) {
   const { user, loading } = useAuth();
 
@@ -38,8 +42,12 @@ export default function AppRouter() {
               <ClientDashboard />
             </PrivateRoute>
           }
-        />
-
+        >
+          <Route index element={<HomeClient />} />
+          <Route path='home' element={<HomeClient />} />
+          <Route path='history' element={<HistoryClient />} />
+          <Route path='products' element={<ProductPageClient />} />
+        </Route>
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>

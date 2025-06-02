@@ -1,11 +1,12 @@
 import { loginService } from '../../api/services/userService';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../auth/AuthContext';
-import {jwtDecode} from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
 
 export function LoginPage() {
-  const { login, user, loading} = useAuth();
+  const [submitting, setSubmitting] = useState(false);
+  const { login, user, loading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -22,14 +23,15 @@ export function LoginPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
+    setSubmitting(true);
     try {
       const { token } = await loginService({ email, password });
       if (token.Message) {
         setError(token.Message || 'Error al iniciar sesión');
         return;
       }
-      login(token);
 
+      login(token);
       const decoded: any = jwtDecode(token);
       const role = decoded.role;
 
@@ -42,8 +44,11 @@ export function LoginPage() {
       }
     } catch (err: any) {
       setError(err.message || 'Error inesperado');
+    } finally {
+      setSubmitting(false);
     }
   };
+
   if (loading) {
     return <div>Cargando...</div>;
   }
@@ -51,7 +56,10 @@ export function LoginPage() {
     <form onSubmit={handleSubmit}>
       <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required />
       <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required />
-      <button type="submit">Entrar</button>
+      <button type="submit" disabled={submitting}>
+        {submitting ? 'Entrando...' : 'Entrar'}
+      </button>
+
       {error && <p style={{ color: 'red' }}>{error}</p>}
     </form>
   );

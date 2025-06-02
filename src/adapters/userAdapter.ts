@@ -4,7 +4,6 @@ import type { Admin, Client } from '../types/User';
 export type User = Admin  | Client;
 
 export function adaptarUsuario(data: any): User {
-  console.log('Adaptando usuario:', data);
   const base = {
     id: data.userId ?? data.id ?? '',
     nombre: data.name ?? 'Sin Nombre',

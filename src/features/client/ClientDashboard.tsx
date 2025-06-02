@@ -1,19 +1,16 @@
-import { useAuth } from "../../auth/AuthContext";
-import {Navbar} from "../../components/navigation/NavbarClient";
+import { NavbarClient } from "../../components/navigation/NavbarClient";
+import { Outlet } from "react-router-dom";
 export function ClientDashboard() {
-  
-  const { user, loading, logout } = useAuth();
-  if (loading) {
-    return <div>Cargando...</div>;
-  }
-  
   return (
-    <div>
-      <Navbar />
-      <h1>Dashboard de Cliente</h1>
-      <p>Bienvenido, {user?.nombre}!</p>
-      <button onClick={logout}>Log out</button>
+    <div className="container">
+      <div className="navbar">
+
+        <NavbarClient />
+      </div>
+      <div className="content">
+        <Outlet />
+        <div />
+      </div>
     </div>
   )
 }
- 

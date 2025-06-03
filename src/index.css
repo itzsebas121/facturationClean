@@ -1,26 +1,38 @@
 :root {
   color-scheme: light dark;
 
-  --primary-color: #2C3E50;        
-  --secondary-color: #ECF0F1;      
-  --accent-color: #E67E22;
-  --accent-light: #F39C12;         
-  --background-light: #FFFFFF;     
-  --text-primary: #34495E;         
-  --text-secondary: #7F8C8D;
-  --border-color: #BDC3C7;
-  --shadow-color: rgba(44, 62, 80, 0.2); 
-  
-  --primary-color-dark: #ECF0F1;   
-  --secondary-color-dark: #2C3E50; 
-  --accent-color-dark: #E67E22;    
-  --accent-light-dark: #F39C12;    
-  --background-dark: #1A252F;      
-  --text-primary-dark: #ECF0F1;    
-  --text-secondary-dark: #95A5A6;  
-  --border-color-dark: #34495E;    
-  --shadow-color-dark: rgba(236, 240, 241, 0.2); 
+  --primary-color: #2E3A2F;         /* Verde oscuro sobrio */
+  --secondary-color: #F5F7F4;       /* Blanco con tinte cálido */
+  --accent-color: #379d3a;          /* Verde hoja moderno */
+  --accent-light: #81C784;          /* Verde suave claro */
+  --background-light: #FFFFFF;
+  --text-primary: #1C1C1C;          /* Casi negro */
+  --text-secondary: #5F5F5F;        /* Gris medio elegante */
+  --border-color: #DDE2DC;          /* Gris verdoso claro */
+  --shadow-color: rgba(0, 0, 0, 0.05);
+
+  --primary-color-dark: #F5F7F4;
+  --secondary-color-dark: #111511;
+  --accent-color-dark: #73d078;
+  --accent-light-dark: #A5D6A7;
+  --background-dark: #111311;       /* Verde casi negro */
+  --text-primary-dark: #F0F3EF;
+  --text-secondary-dark: #AAB1A9;
+  --border-color-dark: #3C4A3E;
+  --shadow-color-dark: rgba(255, 255, 255, 0.05);
+
+  /* Navbar */
+  --navbar-bg: #FFFFFF;
+  --navbar-bg-dark: #121712;
+  --navbar-border: rgba(221, 226, 220, 0.2);
+  --navbar-shadow: rgba(0, 0, 0, 0.04);
+  --navbar-text: #2E3A2F;
+  --navbar-text-dark: #F5F7F4;
+  --navbar-hover: #4CAF50;
+  --navbar-active: #81C784;
 }
+
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -34,8 +46,8 @@
   color: var(--text-primary);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
-  
 }
+
 @media (prefers-color-scheme: dark) {
   :root {
     --primary-color: var(--primary-color-dark);
@@ -47,5 +59,21 @@
     --text-secondary: var(--text-secondary-dark);
     --border-color: var(--border-color-dark);
     --shadow-color: var(--shadow-color-dark);
+    --navbar-bg: var(--navbar-bg-dark);
+    --navbar-text: var(--navbar-text-dark);
   }
+}
+
+body {
+  background-color: var(--secondary-color);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.app-container {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
 }

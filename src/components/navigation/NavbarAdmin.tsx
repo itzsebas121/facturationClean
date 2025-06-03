@@ -1,9 +1,10 @@
 
 import { useState, useEffect } from 'react';
+import { Home, History, LogOut, Menu, X } from 'lucide-react';
 import { useAuth } from '../../auth/AuthContext';
-import { Home, Package, History, LogOut, Menu, X } from 'lucide-react';
+import './Navbar.css'; 
 
-export function NavbarClient() {
+export function NavbarAdmin() {
   const { user, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -23,8 +24,6 @@ export function NavbarClient() {
     };
   }, [isOpen]);
 
-
-
   const closeMenu = () => {
     setIsOpen(false);
   };
@@ -42,19 +41,13 @@ export function NavbarClient() {
           <div className="navbar-center">
             <ul className="nav-links-desktop">
               <li>
-                <a href="/client/home" className="nav-link">
+                <a href="/admin/home" className="nav-link">
                   <Home size={18} />
                   <span>Home</span>
                 </a>
               </li>
               <li>
-                <a href="/client/products" className="nav-link">
-                  <Package size={18} />
-                  <span>Products</span>
-                </a>
-              </li>
-              <li>
-                <a href="/client/history" className="nav-link">
+                <a href="/admin/history" className="nav-link">
                   <History size={18} />
                   <span>History</span>
                 </a>
@@ -79,7 +72,7 @@ export function NavbarClient() {
       {/* Mobile Menu Sliding from Left */}
       <div className={`mobile-menu ${isOpen ? 'mobile-menu-open' : ''}`}>
         <div className="mobile-menu-header">
-          <span className="mobile-brand-text">Client Portal</span>
+          <span className="mobile-brand-text">Admin Portal</span>
           <button className="mobile-close-button" onClick={closeMenu}>
             <X size={20} />
           </button>
@@ -87,19 +80,13 @@ export function NavbarClient() {
         
         <ul className="mobile-nav-links">
           <li>
-            <a href="/client/home" className="mobile-nav-link" onClick={closeMenu}>
+            <a href="/admin/home" className="mobile-nav-link" onClick={closeMenu}>
               <Home size={18} />
               <span>Home</span>
             </a>
           </li>
           <li>
-            <a href="/client/products" className="mobile-nav-link" onClick={closeMenu}>
-              <Package size={18} />
-              <span>Products</span>
-            </a>
-          </li>
-          <li>
-            <a href="/client/history" className="mobile-nav-link" onClick={closeMenu}>
+            <a href="/admin/history" className="mobile-nav-link" onClick={closeMenu}>
               <History size={18} />
               <span>History</span>
             </a>

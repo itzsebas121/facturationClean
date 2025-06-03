@@ -1,8 +1,19 @@
+import { Outlet } from "react-router-dom";
+import { NavbarAdmin } from "../../components/navigation/NavbarAdmin";
+import '../index.css';
+
 export function AdminDashboard() {
+
   return (
-    <div>
-      <h1>Dashboard de Administrador</h1>
-      <p>Bienvenido, administrador!</p>
+    <div className="container">
+
+      <div className="navbar">
+        <NavbarAdmin />
+      </div>
+      <div className="content">
+
+        <Outlet />
+      </div>
     </div>
   );
 }

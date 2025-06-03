@@ -5,13 +5,14 @@ import { LoginPage } from '../features/login/LoginPage';
 import { AdminDashboard } from '../features/admin/AdminDashboard';
 import { ClientDashboard } from '../features/client/ClientDashboard';
 
+import { HomeAdmin } from '../features/admin/HomeAdmin/HomeAdmin';
+
 import { HomeClient } from '../features/client/Home/HomeClient';
 import { HistoryClient } from '../features/client/History/HistoryClient';
 import { ProductPageClient } from '../features/client/Products/ProductPageClient';
 
 function PrivateRoute({ children, allowedRoles }: { children: React.ReactNode; allowedRoles: string[] }) {
   const { user, loading } = useAuth();
-
   if (loading) return <div>Cargando...</div>;
 
   if (!user) return <Navigate to="/login" replace />;
@@ -27,13 +28,13 @@ export default function AppRouter() {
         <Route path="/login" element={<LoginPage />} />
 
         <Route
-          path="/admin/*"
-          element={
-            <PrivateRoute allowedRoles={['Admin']}>
-              <AdminDashboard />
-            </PrivateRoute>
-          }
-        />
+          path="/admin/*" element={<PrivateRoute allowedRoles={['Admin']}>
+            <AdminDashboard />
+          </PrivateRoute>
+          }>
+          <Route index element={<HomeAdmin />} />
+          <Route path='home' element={<HomeAdmin />} />
+        </Route>
 
         <Route
           path="/client/*"

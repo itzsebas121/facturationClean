@@ -4,7 +4,7 @@ import { useAuth } from '../../auth/AuthContext';
 import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
-import './login.css';
+import './Login.css';
 
 export function LoginPage() {
   const [submitting, setSubmitting] = useState(false);

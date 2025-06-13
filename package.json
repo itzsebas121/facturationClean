@@ -14,14 +14,14 @@
     "framer-motion": "^12.15.0",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.511.0",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "react-router-dom": "^7.6.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",
-    "@types/react": "^19.1.6",
-    "@types/react-dom": "^19.1.5",
+    "@types/react": "^18.3.23",
+    "@types/react-dom": "^18.3.7",
     "@types/react-router-dom": "^5.3.3",
     "@typescript-eslint/eslint-plugin": "^8.33.0",
     "@typescript-eslint/parser": "^8.33.0",

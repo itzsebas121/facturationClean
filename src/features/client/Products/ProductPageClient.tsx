@@ -11,7 +11,7 @@ import { SearchFilters } from "./SearchFilters"
 import { ProductGrid } from "../../../components/Products/ProductGrid"
 import { Pagination } from "../../../components/Pagination/Pagination"
 import { Loader2 } from "lucide-react"
-import "./ProductPage.css"
+import "./productPage.css"
 
 export function ProductPageClient() {
   const [products, setProducts] = useState<Product[]>([])

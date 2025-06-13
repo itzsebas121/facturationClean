@@ -1,0 +1,137 @@
+/* Product Page Client Styles */
+.product-page {
+  width: 100%;
+  max-width: none;
+  padding: 1.5rem 2rem;
+  min-height: 100vh;
+}
+
+.product-page-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding: 1.5rem 0;
+}
+
+.page-title {
+  color: var(--text-primary);
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.01em;
+}
+
+.page-subtitle {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  font-weight: 400;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  gap: 1rem;
+}
+
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  color: var(--accent-color);
+  animation: spin 1s linear infinite;
+}
+
+.loading-text {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.products-summary {
+  margin-bottom: 1.5rem;
+}
+
+.products-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.products-count {
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.page-info {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-weight: 400;
+}
+
+/* Dark Mode */
+@media (prefers-color-scheme: dark) {
+  .page-title {
+    color: var(--text-primary-dark);
+  }
+
+  .page-subtitle {
+    color: var(--text-secondary-dark);
+  }
+
+  .loading-text {
+    color: var(--text-secondary-dark);
+  }
+
+  .products-info {
+    border-color: var(--border-color-dark);
+  }
+
+  .products-count {
+    color: var(--text-primary-dark);
+  }
+
+  .page-info {
+    color: var(--text-secondary-dark);
+  }
+
+  .loading-spinner {
+    color: var(--accent-color-dark);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .product-page {
+    padding: 1rem;
+  }
+
+  .page-title {
+    font-size: 1.75rem;
+  }
+
+  .page-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .products-info {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+}

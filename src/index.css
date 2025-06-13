@@ -1,27 +1,27 @@
 :root {
   color-scheme: light dark;
 
-  --primary-color: #2E3A2F;         /* Verde oscuro sobrio */
-  --secondary-color: #F5F7F4;       /* Blanco con tinte cálido */
-  --accent-color: #379d3a;          /* Verde hoja moderno */
-  --accent-light: #81C784;          /* Verde suave claro */
+  --primary-color: #2E3A2F; 
+  --secondary-color: #F5F7F4;     
+  --accent-color: #379d3a;          
+  --accent-light: #81C784;          
   --background-light: #FFFFFF;
-  --text-primary: #1C1C1C;          /* Casi negro */
-  --text-secondary: #5F5F5F;        /* Gris medio elegante */
-  --border-color: #DDE2DC;          /* Gris verdoso claro */
+  --text-primary: #1C1C1C;       
+  --text-secondary: #5F5F5F;     
+  --border-color: #DDE2DC;       
   --shadow-color: rgba(0, 0, 0, 0.05);
 
   --primary-color-dark: #F5F7F4;
   --secondary-color-dark: #111511;
   --accent-color-dark: #73d078;
   --accent-light-dark: #A5D6A7;
-  --background-dark: #111311;       /* Verde casi negro */
+  --background-dark: #111311;   
   --text-primary-dark: #F0F3EF;
   --text-secondary-dark: #AAB1A9;
   --border-color-dark: #3C4A3E;
   --shadow-color-dark: rgba(255, 255, 255, 0.05);
 
-  /* Navbar */
+
   --navbar-bg: #FFFFFF;
   --navbar-bg-dark: #121712;
   --navbar-border: rgba(221, 226, 220, 0.2);

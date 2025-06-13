@@ -1,17 +1,16 @@
 const productosService = require('../services/ProductService');
 
 async function getAll(req, res) {
-  const { filtro, page = 1, pageSize = 10 } = req.query;
+  const { filtro, page = 1, pageSize = 10, categoryId } = req.query;
 
   try {
-    const productos = await productosService.getAllProductos(filtro, page, pageSize);
+    const productos = await productosService.getAllProductos(filtro, page, pageSize, categoryId);
     res.json(productos);
   } catch (error) {
     console.error("❌ Error al obtener productos:", error);
     res.status(500).json({ message: "Error al obtener productos", error });
   }
 }
-
 
 
 async function create(req, res) {

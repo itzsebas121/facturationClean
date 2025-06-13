@@ -1,17 +1,22 @@
 const { poolPromise, sql } = require('../db/db');
 
-async function getAllProductos(filtro, page = 1, pageSize = 10) {
+async function getAllProductos(filtro, page = 1, pageSize = 10, categoryId = null) {
   const pool = await poolPromise;
 
   const result = await pool
     .request()
     .input("FiltroGeneral", filtro || null)
+    .input("CategoryId", categoryId ? parseInt(categoryId) : null)
     .input("Page", parseInt(page))
     .input("PageSize", parseInt(pageSize))
     .execute("getProducts");
+  return {
+    products: result.recordsets[0],
+    total: result.recordsets[1][0]?.Total || 0
+  };
 
-  return result.recordset;
 }
+
 //Pendiente editar
 async function createProducto(producto) {
   const { CategoryId, Name, Description, Price, Stock, ImageUrl } = producto;

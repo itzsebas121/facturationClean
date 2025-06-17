@@ -6,6 +6,7 @@ const port = process.env.PORT || 3000;
 const productsRouter = require("./routes/Product");
 const userRouter = require("./routes/User");
 const categoriesRoute = require("./routes/Categorie");
+const clientsRoute = require("./routes/Client");
 app.use(cors({
   origin: "*",
   methods: ["GET", "POST", "PUT", "DELETE"],
@@ -16,6 +17,7 @@ app.use(express.json());
 app.use("/api/products", productsRouter);
 app.use("/api/user", userRouter);
 app.use("/api/categories", categoriesRoute);
+app.use("/api/clients", clientsRoute);
 
 app.listen(port, () => {
   console.log(`🚀 Server ready on http://localhost:${port}`);

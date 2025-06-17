@@ -1,10 +1,10 @@
-const productosService = require('../services/ProductService');
+const productsService = require('../services/ProductService');
 
 async function getAll(req, res) {
   const { filtro, page = 1, pageSize = 10, categoryId } = req.query;
 
   try {
-    const productos = await productosService.getAllProductos(filtro, page, pageSize, categoryId);
+    const productos = await productsService.getAllProductos(filtro, page, pageSize, categoryId);
     res.json(productos);
   } catch (error) {
     console.error("❌ Error al obtener productos:", error);
@@ -16,7 +16,7 @@ async function getAll(req, res) {
 async function create(req, res) {
   try {
     const producto = req.body;
-    const newProducto = await productosService.createProducto(producto);
+    const newProducto = await productsService.createProducto(producto);
     if (!newProducto) {
       return res.status(400).json({ create: false });
     }
@@ -32,7 +32,7 @@ async function update(req, res) {
     if (isNaN(id)) return res.status(400).json({ message: "ID inválido" });
 
     const producto = req.body;
-    const result = await productosService.updateProducto(id, producto);
+    const result = await productsService.updateProducto(id, producto);
     if (!result) {
       return res.status(400).json({ update: false, message: "No se pudo actualizar el producto" });
     }
@@ -47,7 +47,7 @@ async function remove(req, res) {
     const id = parseInt(req.params.id, 10);
     if (isNaN(id)) return res.status(400).json({ message: "ID inválido" });
 
-    const result = await productosService.deleteProducto(id);
+    const result = await productsService.deleteProducto(id);
     if (!result) 
       return res.status(400).json({ delete: false, message: "No se pudo eliminar el producto" });
     

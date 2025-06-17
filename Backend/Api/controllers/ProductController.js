@@ -17,7 +17,10 @@ async function create(req, res) {
   try {
     const producto = req.body;
     const newProducto = await productosService.createProducto(producto);
-    res.status(201).json(newProducto);
+    if (!newProducto) {
+      return res.status(400).json({ create: false });
+    }
+    res.status(201).json({create: true, message: "Producto creado exitosamente", productId: newProducto.ProductId });
   } catch (error) {
     res.status(500).json({ message: "Error al crear producto", error });
   }
@@ -29,8 +32,11 @@ async function update(req, res) {
     if (isNaN(id)) return res.status(400).json({ message: "ID inválido" });
 
     const producto = req.body;
-    await productosService.updateProducto(id, producto);
-    res.json({ message: "Producto actualizado" });
+    const result = await productosService.updateProducto(id, producto);
+    if (!result) {
+      return res.status(400).json({ update: false, message: "No se pudo actualizar el producto" });
+    }
+    res.json({ update: true, message: "Producto actualizado" });
   } catch (error) {
     res.status(500).json({ message: "Error al actualizar producto", error });
   }
@@ -41,8 +47,11 @@ async function remove(req, res) {
     const id = parseInt(req.params.id, 10);
     if (isNaN(id)) return res.status(400).json({ message: "ID inválido" });
 
-    await productosService.deleteProducto(id);
-    res.json({ message: "Producto eliminado" });
+    const result = await productosService.deleteProducto(id);
+    if (!result) 
+      return res.status(400).json({ delete: false, message: "No se pudo eliminar el producto" });
+    
+    res.json({ delete:true, message: "Producto eliminado" });
   } catch (error) {
     res.status(500).json({ message: "Error al eliminar producto", error });
   }

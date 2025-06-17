@@ -7,6 +7,7 @@ export function adaptarUsuario(data: any): User {
   const base = {
     id: data.userId ?? data.id ?? '',
     nombre: data.name ?? 'Sin Nombre',
+    telefono: data.phone ?? 'Sin teléfono',
     rol: data.role ?? 'cliente',
   };
 

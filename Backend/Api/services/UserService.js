@@ -12,7 +12,7 @@ async function ValidateUserLogin(user) {
             .execute('ValidateUserLogin');
 
         if (result.recordset.length === 0) {
-            return null; // Login inválido
+            return null; 
         }
 
         const userData = result.recordset[0];

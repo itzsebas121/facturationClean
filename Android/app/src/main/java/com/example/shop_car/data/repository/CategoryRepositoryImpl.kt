@@ -1,5 +1,6 @@
 package com.example.shop_car.data.repository
 
+import com.example.shop_car.data.remote.CategoryApi
 import com.example.shop_car.domain.repository.CategoryRepository
 import com.example.shop_car.domain.model.Category
 import com.example.shop_car.data.remote.dto.toDto
@@ -19,7 +20,7 @@ class CategoryRepositoryImpl(
         api.createCategory(category.toDto())
 
     override suspend fun updateCategory(category: Category): Boolean =
-        api.updateCategory(category.toDto())
+        api.updateCategory(category.categoryId,category.toDto())
 
     override suspend fun deleteCategory(id: Int): Boolean =
         api.deleteCategory(id)

@@ -1,4 +1,5 @@
 package com.example.shop_car.data.repository
+import com.example.shop_car.data.remote.ClientApi
 import com.example.shop_car.data.remote.dto.toDto
 import com.example.shop_car.data.remote.dto.toDomain
 import com.example.shop_car.domain.model.Client
@@ -15,7 +16,7 @@ class ClientRepositoryImpl (private val api: ClientApi): ClientRepository {
         api.createClient(client.toDto())
 
     override suspend fun updateClient(client: Client): Boolean =
-        api.updateClient(client.toDto())
+        api.updateClient(client.clientId,client.toDto())
 
     override suspend fun deleteClient(id: Int): Boolean =
         api.deleteClient(id)

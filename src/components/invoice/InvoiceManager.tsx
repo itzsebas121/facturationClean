@@ -81,14 +81,14 @@ export default function InvoiceManager() {
 
     if (existingItemIndex >= 0) {
       const newQuantity = invoiceData.items[existingItemIndex].quantity + quantity
-      if (newQuantity > (product.stock??0)) {
-        showAlert("warning", `No hay suficiente stock. Stock disponible: ${(product.stock??0)}`)
+      if (newQuantity > (product.stock ?? 0)) {
+        showAlert("warning", `No hay suficiente stock. Stock disponible: ${(product.stock ?? 0)}`)
         return
       }
       updateItemQuantity(String(product.id), newQuantity)
     } else {
-      if (quantity > (product.stock??0)) {
-        showAlert("warning", `No hay suficiente stock. Stock disponible: ${(product.stock??0)}`)
+      if (quantity > (product.stock ?? 0)) {
+        showAlert("warning", `No hay suficiente stock. Stock disponible: ${(product.stock ?? 0)}`)
         return
       }
       const newItem: InvoiceItem = {
@@ -115,8 +115,8 @@ export default function InvoiceManager() {
       ...prev,
       items: prev.items.map((item) => {
         if (String(item.product.id) === String(productId)) {
-          if (newQuantity > (item.product.stock??0)) {
-            showAlert("warning", `No hay suficiente stock. Stock disponible: ${(item.product.stock??0)}`)
+          if (newQuantity > (item.product.stock ?? 0)) {
+            showAlert("warning", `No hay suficiente stock. Stock disponible: ${(item.product.stock ?? 0)}`)
             return item
           }
           return {
@@ -199,25 +199,27 @@ export default function InvoiceManager() {
 
       {alert && <Alert type={alert.type} message={alert.message} onClose={() => setAlert(null)} />}
 
-      <div className="invoice-content">
-        {/* Replace the client selection button section with: */}
-        <div className="invoice-actions">
-          {invoiceData.client ? (
-            <ClientDisplay client={invoiceData.client} onEdit={() => setShowClientModal(true)} />
-          ) : (
+      <div className="invoice-actions">
+        {invoiceData.client ? (
+          <ClientDisplay client={invoiceData.client} onEdit={() => setShowClientModal(true)} />
+        ) : (
+          <>
             <button className="btn btn-primary" onClick={() => setShowClientModal(true)}>
               Seleccionar Cliente
             </button>
-          )}
+          </>
+        )}
 
-          <button
-            className="btn btn-secondary"
-            onClick={() => setShowProductModal(true)}
-            disabled={!invoiceData.client}
-          >
-            Agregar Productos
-          </button>
-        </div>
+      </div>
+      <div className="invoice-content">
+
+        <button
+          className="btn btn-secondary"
+          onClick={() => setShowProductModal(true)}
+          disabled={!invoiceData.client}
+        >
+          Agregar Productos
+        </button>
 
         <InvoiceForm
           invoiceData={invoiceData}

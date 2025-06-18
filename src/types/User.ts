@@ -1,6 +1,7 @@
 export interface BaseUser {
   id: string;
   nombre: string;
+  telefono: string;
   rol: 'Admin' | 'Client';
 }
 

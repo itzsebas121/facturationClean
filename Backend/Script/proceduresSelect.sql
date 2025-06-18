@@ -44,7 +44,20 @@ BEGIN
 
     DROP TABLE #ProductosFiltrados;
 END;
-
+CREATE OR ALTER PROCEDURE getClients
+AS
+BEGIN
+    SELECT 
+        c.ClientId,
+        c.FirstName+' '+c.LastName as Name,
+        c.Address,
+        c.Phone,
+        u.Cedula,
+        u.Email,
+        u.IsBlocked
+    FROM Clients c
+    Join Users u on u.UserId = c.UserId
+END;
 CREATE PROCEDURE getCategories
 AS
 BEGIN
@@ -52,5 +65,26 @@ BEGIN
         CategoryId,
         CategoryName
     FROM Categories
+END;
+CREATE OR ALTER PROCEDURE getOrders
+    @ClientId INT = NULL
+AS
+BEGIN
+    SELECT 
+        u.Cedula,
+        c.FirstName + ' ' + c.LastName AS Name,
+        c.ClientId,
+        c.Address,
+        c.Phone,
+        u.Email,
+        o.OrderDate,
+        o.SubTotal,
+        o.Tax,
+        o.Total
+    FROM Orders o
+    JOIN Clients c ON c.ClientId = o.ClientId
+    JOIN Users u ON u.UserId = c.UserId
+    WHERE (@ClientId IS NULL OR c.ClientId = @ClientId)
+    ORDER BY o.OrderDate DESC;
 END;
 

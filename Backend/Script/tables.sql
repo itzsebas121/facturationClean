@@ -81,3 +81,23 @@ CREATE TABLE OrderDetails (
 
 ALTER TABLE Products
 ADD ImageUrl VARCHAR(255) NULL;
+
+
+CREATE TABLE Carts (
+    CartId INT PRIMARY KEY IDENTITY,
+    ClientId INT NOT NULL,
+    IsActive BIT DEFAULT 1,
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    Total DECIMAL(12,2) NOT NULL DEFAULT 0,
+    CONSTRAINT FK_Carts_Clients FOREIGN KEY (ClientId) REFERENCES Clients(ClientId)
+);
+CREATE TABLE CartItems (
+    CartItemId INT PRIMARY KEY IDENTITY,
+    CartId INT NOT NULL,
+    ProductId INT NOT NULL,
+    Quantity INT NOT NULL CHECK (Quantity > 0),
+    UnitPrice DECIMAL(12,2) NOT NULL, 
+    SubTotal DECIMAL(12,2) NOT NULL,
+    CONSTRAINT FK_CartItems_Carts FOREIGN KEY (CartId) REFERENCES Carts(CartId),
+    CONSTRAINT FK_CartItems_Products FOREIGN KEY (ProductId) REFERENCES Products(ProductId)
+);

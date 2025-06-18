@@ -1,5 +1,6 @@
 package com.example.shop_car.data.repository
 
+import com.example.shop_car.data.remote.AdminApi
 import com.example.shop_car.data.remote.dto.toDto
 import com.example.shop_car.data.remote.dto.toDomain
 import com.example.shop_car.domain.model.Admin
@@ -19,7 +20,7 @@ class AdminRepositoryImpl(
         api.createAdmin(admin.toDto())
 
     override suspend fun updateAdmin(admin: Admin): Boolean =
-        api.updateAdmin(admin.toDto())
+        api.updateAdmin(admin.adminId, admin.toDto())
 
     override suspend fun deleteAdmin(id: Int): Boolean =
         api.deleteAdmin(id)

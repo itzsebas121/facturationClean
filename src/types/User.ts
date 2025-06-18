@@ -15,6 +15,8 @@ export interface Client extends BaseUser {
   email: string;
   direccion: string;
   telefono: string;
+  cedula: string;
+  isBlocked: boolean;
 }
 
 export type User = Admin | Client;

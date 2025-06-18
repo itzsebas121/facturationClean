@@ -30,3 +30,15 @@ export function adaptarUsuario(data: any): User {
       } as Client;
   }
 }
+export function adaptarCliente(data: any): Client {
+  return {
+    id: data.ClientId ?? data.id ?? '',
+    nombre: data.Name ?? 'Sin Nombre',
+    rol: 'Client',
+    email: data.Email ?? '',
+    direccion: data.Address ?? 'Sin dirección',
+    telefono: data.Phone ?? 'Sin teléfono',
+    cedula: data.Cedula ?? '',
+    isBlocked: data.IsBlocked ?? false
+  };
+}

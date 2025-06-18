@@ -4,9 +4,9 @@ import { Suspense, lazy } from "react"
 import { useAuth } from "../../../auth/AuthContext"
 import { Loader2 } from "lucide-react"
 
-const InvoiceManager = lazy(() => import("../../../components/invoice/InvoiceManager"))
+const OrderHistory = lazy(() => import("../../../components/Orders/OrderHistory"))
 
-export default function HomeAdmin() {
+export default function HistoryAdmin() {
   const { user, loading } = useAuth()
 
   if (loading) {
@@ -23,16 +23,16 @@ export default function HomeAdmin() {
   }
 
   return (
-    <div className="admin-page">
+    <div className="history-page">
       <Suspense
         fallback={
           <div className="loading-container">
             <Loader2 className="loading-spinner" />
-            <p>Cargando sistema de facturación...</p>
+            <p>Cargando historial de pedidos...</p>
           </div>
         }
       >
-        <InvoiceManager />
+        <OrderHistory />
       </Suspense>
     </div>
   )

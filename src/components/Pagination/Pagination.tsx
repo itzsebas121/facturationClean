@@ -53,15 +53,7 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
 
   return (
     <nav className="pagination" aria-label="Navegación de páginas">
-      <div className="pagination-info">
-        <span className="page-info">
-          Página {currentPage} de {totalPages.toLocaleString("es-ES")}
-        </span>
-        <span className="results-info">
-          Mostrando {(currentPage - 1) * 12 + 1} - {Math.min(currentPage * 12, totalPages * 12)} productos
-        </span>
-      </div>
-
+      
       <div className="pagination-controls">
        
 

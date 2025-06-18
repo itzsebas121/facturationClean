@@ -5,11 +5,11 @@ import { LoginPage } from '../features/login/LoginPage';
 import { AdminDashboard } from '../features/admin/AdminDashboard';
 import { ClientDashboard } from '../features/client/ClientDashboard';
 
-import { HomeAdmin } from '../features/admin/HomeAdmin/HomeAdmin';
-
+import HomeAdmin from '../features/admin/HomeAdmin/HomeAdmin';
 import { HomeClient } from '../features/client/Home/HomeClient';
 import { HistoryClient } from '../features/client/History/HistoryClient';
 import { ProductPageClient } from '../features/client/Products/ProductPageClient';
+import HistoryAdmin from '../features/admin/HistoryAdmin/HistoryAdmin';
 
 function PrivateRoute({ children, allowedRoles }: { children: React.ReactNode; allowedRoles: string[] }) {
   const { user, loading } = useAuth();
@@ -34,6 +34,7 @@ export default function AppRouter() {
           }>
           <Route index element={<HomeAdmin />} />
           <Route path='home' element={<HomeAdmin />} />
+          <Route path='history' element={<HistoryAdmin />} />
         </Route>
 
         <Route

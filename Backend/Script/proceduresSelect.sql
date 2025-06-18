@@ -58,6 +58,8 @@ BEGIN
     FROM Clients c
     Join Users u on u.UserId = c.UserId
 END;
+
+
 CREATE PROCEDURE getCategories
 AS
 BEGIN
@@ -66,11 +68,16 @@ BEGIN
         CategoryName
     FROM Categories
 END;
+
+
 CREATE OR ALTER PROCEDURE getOrders
     @ClientId INT = NULL
 AS
 BEGIN
+    SET NOCOUNT ON;
+
     SELECT 
+        o.OrderId,
         u.Cedula,
         c.FirstName + ' ' + c.LastName AS Name,
         c.ClientId,
@@ -87,4 +94,3 @@ BEGIN
     WHERE (@ClientId IS NULL OR c.ClientId = @ClientId)
     ORDER BY o.OrderDate DESC;
 END;
-

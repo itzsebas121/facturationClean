@@ -30,7 +30,8 @@ BEGIN
          CAST(p.Price AS NVARCHAR) LIKE '%' + @FiltroGeneral + '%' OR
          CAST(p.Stock AS NVARCHAR) LIKE '%' + @FiltroGeneral + '%')
     )
-    AND (@CategoryId IS NULL OR p.CategoryId = @CategoryId);
+    AND (@CategoryId IS NULL OR p.CategoryId = @CategoryId)
+    AND STOCK > 0;
 
     -- Resultado paginado
     SELECT *

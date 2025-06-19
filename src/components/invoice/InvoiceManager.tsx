@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import type { Client } from "../../types/User"
 import type { Product } from "../../types/Product"
 import { getClientsService } from "../../api/services/ClientService"
-import { createOrderService } from "../../api/services/OrderService"
+import { createOrderService, addDetailService } from "../../api/services/OrderService"
 import { adaptarCliente } from "../../adapters/userAdapter"
 import ClientSelector from "./ClientSelector"
 import ProductSelector from "./ProductSelector"
@@ -173,15 +173,21 @@ export default function InvoiceManager() {
         customerAddress: invoiceData.client.direccion,
       }
 
-      await createOrderService(orderData)
-      showAlert("success", "Orden creada exitosamente")
-
-      // Reset invoice
-      setInvoiceData({
-        client: null,
-        items: [],
-        total: 0,
-      })
+      const result = await createOrderService(orderData)
+      if (result.create) {
+        const resulDetail = await addDetailService(orderData.items, result.orderid);
+        if (resulDetail.error)
+          showAlert("error", resulDetail.error)
+        else {
+          setInvoiceData({
+            client: null,
+            items: [],
+            total: 0,
+          }
+          )
+          showAlert("success", "Orden creada exitosamente")
+        }
+      }
     } catch (error) {
       console.error("Error creating order:", error)
       showAlert("error", "Error al crear la orden")

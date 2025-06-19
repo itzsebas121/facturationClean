@@ -118,12 +118,12 @@ export default function InvoiceForm({
                         <span>${invoiceData.total.toFixed(2)}</span>
                     </div>
                     <div className="total-line">
-                        <span>IVA (19%):</span>
-                        <span>${(invoiceData.total * 0.19).toFixed(2)}</span>
+                        <span>IVA (12%):</span>
+                        <span>${(invoiceData.total * 0.12).toFixed(2)}</span>
                     </div>
                     <div className="total-line total-final">
                         <span>Total:</span>
-                        <span>${(invoiceData.total * 1.19).toFixed(2)}</span>
+                        <span>${(invoiceData.total * 1.12).toFixed(2)}</span>
                     </div>
                 </div>
 

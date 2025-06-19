@@ -38,7 +38,13 @@ async function addProductToOrder(orderId, productId, quantity) {
             .input('ProductId', sql.Int, productId)
             .input('Quantity', sql.Int, quantity)
             .execute('AddOrUpdateOrderDetail');
+        if (result.recordset[0].error) {
+            await deleteOrder(orderId);
+
+            return result.recordset[0]
+        };
         return result.recordset[0];
+
     } catch (err) {
         console.error('Error en addProductToOrder:', err);
         throw err;
@@ -47,7 +53,18 @@ async function addProductToOrder(orderId, productId, quantity) {
 //Pedientes agregarlos a la base de datos
 async function getOrderById(orderId) {
 }
-
+async function deleteOrder(orderId) {
+    try {
+        const pool = await poolPromise;
+        await pool.request()
+            .input('OrderId', sql.Int, orderId)
+            .execute('DeleteOrder');
+        return true;
+    } catch (err) {
+        console.error('Error en deleteOrder:', err);
+        throw err;
+    }
+}
 module.exports = {
     getOrders,
     createOrder,

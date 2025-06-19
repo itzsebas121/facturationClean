@@ -21,14 +21,27 @@ export async function createOrderService(order: any) {
     }
     return await res.json();
 }
-export async function addDetailService(orderDetail: any) {
-    const res = await fetch(ORDER_ENDPOINTS.AddDetail, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(orderDetail),
-    });
-    if (!res.ok) {
-        throw new Error('Failed to add detail');
+export async function addDetailService(orderDetail: any, orderId: number) {
+    try {
+        for (const detail of orderDetail) {
+            const res = await fetch(ORDER_ENDPOINTS.AddDetail, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    orderId: orderId,
+                    productId: detail.productId,
+                    quantity: detail.quantity,
+                }),
+            });
+
+            if (!res.ok) {
+                const errorData = await res.json();
+                return errorData;
+            }
+        }
+
+        return true;
+    } catch (error) {
+        return false; // Error inesperado
     }
-    return await res.json();
 }

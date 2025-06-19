@@ -22,3 +22,23 @@ BEGIN
     )
     WHERE CartId = @CartId;
 END
+
+
+CREATE OR ALTER PROCEDURE DeleteOrder
+    @OrderId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF EXISTS (SELECT 1 FROM Orders WHERE OrderId = @OrderId)
+    BEGIN
+        DELETE FROM OrderDetails
+        WHERE OrderId = @OrderId;
+        DELETE FROM Orders
+        WHERE OrderId = @OrderId;
+    END
+    ELSE
+    BEGIN
+        SELECT 'Orden no encontrada' AS Error;
+    END
+END;

@@ -34,11 +34,11 @@ async function addProductToOrder(req, res) {
         if (result.Message) {
             res.status(200).json({ message: result.Message });
         } else {
-            res.status(400).json({ message: result.error || 'Error al agregar el producto a la orden' });
+            res.status(400).json({ error: result.error || 'Error al agregar el producto a la orden' });
         }
     } catch (error) {
         console.error('Error al agregar el producto a la orden:', error);
-        res.status(500).json({ message: 'Error interno del servidor' });
+        res.status(500).json({ error: error.message || 'Error interno del servidor' });
     }
 
 }

@@ -1,0 +1,81 @@
+/*
+    recuerda usar la URL DE VERCEL 
+
+
+    Para obtener el carrito de un cliente 
+    http://localhost:3000/api/carts/9
+    [
+    {
+        "Name": "Económico Silla",
+        "ImageUrl": "https://picsum.photos/seed/3/150/150",
+        "CartItemId": 4,
+        "CartId": 2,
+        "ProductId": 11003,
+        "Quantity": 2,
+        "UnitPrice": 436.33,
+        "SubTotal": 872.66
+    },
+    {
+        "Name": "Producto nuevo",
+        "ImageUrl": "https://ejemplo.com/img.png",
+        "CartItemId": 5,
+        "CartId": 2,
+        "ProductId": 11001,
+        "Quantity": 6,
+        "UnitPrice": 29.99,
+        "SubTotal": 179.94
+    }
+]
+    
+
+
+
+
+    Para agregar un item al carrito:
+    http://localhost:3000/api/carts
+    con el metodo POST
+    el body sera un json con la siguiente estructura:
+    esta automatizado para que si no hay carrito lo cree
+    {
+    "clientId": 9,
+    "productId": 11045,
+    "quantity": 2
+    }
+
+
+
+    para actuualizar el un item del carrito:
+    http://localhost:3000/api/carts
+    con el metodo PUT
+    el body sera un json con la siguiente estructura:
+    {
+        "cartID": 6,
+        "productId": 11045,
+        "quantity": 10
+    }
+
+
+
+
+
+
+
+
+    Para hacer la compra de los items del carrito:
+    http://localhost:3000/api/carts/convert
+    con el un json con la siguiente estructura:
+    {
+  "cartID": 6
+    }
+    te devolvera esto si fue exitoso;
+        {
+        "resultado": "Orden creada correctamente.",
+        "OrderId": 106
+    }
+
+    si no fue exitoso te devolvera esto:
+    {
+        "error": "Error al convertir el carrito a orden."
+    }
+
+*/

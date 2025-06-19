@@ -95,3 +95,19 @@ BEGIN
     WHERE (@ClientId IS NULL OR c.ClientId = @ClientId)
     ORDER BY o.OrderDate DESC;
 END;
+
+
+CREATE OR ALTER PROCEDURE getCartClient
+    @ClientID int
+AS
+BEGIN
+    SELECT
+        p.Name,
+        p.ImageUrl,
+        c.* 
+    FROM CartItems c
+    JOIN Products p on p.ProductId = c.ProductId
+    JOIN Carts cs on cs.CartId = c.CartId
+    JOIN Clients cl on cl.ClientId = cs.ClientId
+    where cl.ClientId = @ClientID
+END;

@@ -1,75 +1,87 @@
-.order-card {
-  background-color: var(--background-light);
+.order-card-enhanced {
+  background: linear-gradient(135deg, var(--background-light) 0%, var(--secondary-color) 100%);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
-  padding: 1.5rem;
-  transition: all 0.2s ease;
+  border-radius: 16px;
+  padding: 20px;
+  transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.25rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 8px var(--shadow-color);
 }
 
-.order-card:hover {
+.order-card-enhanced::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent-color) 0%, var(--accent-light) 100%);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.order-card-enhanced:hover {
   border-color: var(--accent-color);
-  box-shadow: 0 4px 12px var(--shadow-color);
-  transform: translateY(-2px);
+  box-shadow: 0 8px 25px var(--shadow-color);
+  transform: translateY(-4px);
 }
 
-.order-header {
+.order-card-enhanced:hover::before {
+  transform: scaleX(1);
+}
+
+.order-header-enhanced {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-bottom: 1px solid var(--border-color);
 }
 
-.order-id {
+.order-id-section {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-weight: 600;
+}
+
+.order-id-section svg {
+  color: var(--accent-color);
+}
+
+.order-id {
+  font-weight: 700;
+  font-size: 1.2rem;
   color: var(--text-primary);
-  font-size: 1.1rem;
 }
 
-.order-status {
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  text-transform: uppercase;
+.order-date {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  background-color: var(--secondary-color);
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
 }
 
-.status-pending {
-  background-color: #fbbf24;
-  color: #92400e;
-}
-
-.status-processing {
-  background-color: #60a5fa;
-  color: #1e40af;
-}
-
-.status-shipped {
-  background-color: #a78bfa;
-  color: #5b21b6;
-}
-
-.status-delivered {
-  background-color: #34d399;
-  color: #065f46;
-}
-
-.status-cancelled {
-  background-color: #f87171;
-  color: #991b1b;
-}
-
-.order-details {
+.customer-info-section {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
 }
 
-.detail-item {
+
+.customer-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.detail-row {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -77,105 +89,186 @@
   font-size: 0.9rem;
 }
 
-.order-total {
+.detail-row svg {
+  color: var(--accent-color);
+  flex-shrink: 0;
+}
+
+.detail-text {
+  word-break: break-word;
+}
+
+.address-row {
+  background-color: var(--secondary-color);
+  padding: 0.5rem;
+  border-radius: 6px;
+  border-left: 3px solid var(--accent-color);
+}
+
+.order-financial-section {
+  background-color: var(--secondary-color);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.financial-row-od {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.75rem;
-  background-color: var(--secondary-color);
-  border-radius: 8px;
-  border-left: 4px solid var(--accent-color);
 }
 
-.total-label {
+.financial-label {
   color: var(--text-secondary);
-  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.financial-value {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.total-row {
+  border-top: 1px solid var(--border-color);
+  padding-top: 0.5rem;
+  margin-top: 0.5rem;
 }
 
 .total-amount {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
   color: var(--accent-color);
   font-weight: 700;
   font-size: 1.1rem;
 }
 
-.items-summary {
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-  font-style: italic;
+.total-amount svg {
+  color: var(--accent-color);
 }
 
-.order-actions {
+.order-actions-enhanced {
   display: flex;
-  gap: 0.5rem;
-  justify-content: flex-end;
+  gap: 0.75rem;
+  justify-content: center;
   margin-top: auto;
 }
 
-.action-btn {
-  background-color: var(--secondary-color);
+.action-btn-enhanced-od {
+  background-color: var(--background-light);
   border: 1px solid var(--border-color);
-  border-radius: 6px;
-  padding: 0.5rem;
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
-  justify-content: center;
-  color: var(--text-secondary);
+  gap: 0.5rem;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border: none;
 }
 
-.action-btn:hover {
+.action-btn-enhanced-od:hover {
   transform: translateY(-1px);
-  box-shadow: 0 2px 4px var(--shadow-color);
+  box-shadow: 0 4px 8px var(--shadow-color);
 }
-
+.view-btn{
+  background-color: #10b981;
+}
+.print-btn{
+  background-color:#3d65a7 ;
+}
+.download-btn{
+  background-color: rgb(197, 20, 20);
+}
 .view-btn:hover {
-  background-color: var(--accent-color);
+  background-color: #0348b8;
   color: white;
-  border-color: var(--accent-color);
 }
 
 .print-btn:hover {
   background-color: #3b82f6;
   color: white;
-  border-color: #3b82f6;
 }
 
 .download-btn:hover {
-  background-color: #10b981;
+  background-color: #f00;
   color: white;
-  border-color: #10b981;
 }
 
 @media (prefers-color-scheme: dark) {
-  .order-card {
-    background-color: var(--background-dark);
+  .order-card-enhanced {
+    background: linear-gradient(135deg, var(--background-dark) 0%, var(--secondary-color-dark) 100%);
     border-color: var(--border-color-dark);
+  }
+
+  .order-header-enhanced {
+    border-bottom-color: var(--border-color-dark);
   }
 
   .order-id {
     color: var(--text-primary-dark);
   }
 
-  .detail-item {
+  .order-date {
+    background-color: var(--secondary-color-dark);
     color: var(--text-secondary-dark);
   }
 
-  .order-total {
+  .customer-name {
+    color: var(--text-primary-dark);
+  }
+
+  .detail-row {
+    color: var(--text-secondary-dark);
+  }
+
+  .address-row {
     background-color: var(--secondary-color-dark);
   }
 
-  .total-label {
-    color: var(--text-secondary-dark);
-  }
-
-  .items-summary {
-    color: var(--text-secondary-dark);
-  }
-
-  .action-btn {
+  .order-financial-section {
     background-color: var(--secondary-color-dark);
-    border-color: var(--border-color-dark);
+  }
+
+  .financial-label {
     color: var(--text-secondary-dark);
+  }
+
+  .financial-value {
+    color: var(--text-primary-dark);
+  }
+
+  .total-row {
+    border-top-color: var(--border-color-dark);
+  }
+
+}
+
+@media (max-width: 768px) {
+  .order-card-enhanced {
+    padding: 1rem;
+  }
+
+  .order-header-enhanced {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+
+  .customer-details {
+    margin-left: 0;
+  }
+
+  .order-actions-enhanced {
+    justify-content: stretch;
+  }
+
+  .action-btn-enhanced-od {
+    flex: 1;
+    justify-content: center;
   }
 }

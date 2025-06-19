@@ -1,7 +1,7 @@
 "use client"
 
 import type { Order } from "../../types/Order"
-import { Calendar, MapPin, Package, Download, Printer, Eye } from "lucide-react"
+import { Calendar, MapPin, Package, Download, Printer, Eye, User, Mail, Phone, DollarSign } from 'lucide-react'
 import "./OrderCard.css"
 
 interface OrderCardProps {
@@ -12,85 +12,80 @@ interface OrderCardProps {
 }
 
 export default function OrderCard({ order, onView, onPrint, onDownloadPDF }: OrderCardProps) {
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "pending":
-        return "status-pending"
-      case "processing":
-        return "status-processing"
-      case "shipped":
-        return "status-shipped"
-      case "delivered":
-        return "status-delivered"
-      case "cancelled":
-        return "status-cancelled"
-      default:
-        return "status-pending"
-    }
-  }
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case "pending":
-        return "Pendiente"
-      case "processing":
-        return "Procesando"
-      case "shipped":
-        return "Enviado"
-      case "delivered":
-        return "Entregado"
-      case "cancelled":
-        return "Cancelado"
-      default:
-        return "Pendiente"
-    }
-  }
-
   return (
-    <div className="order-card">
-      <div className="order-header">
-        <div className="order-id">
-          <Package size={16} />
-          <span>#{order.orderId}</span>
+    <div className="order-card-enhanced">
+      <div className="order-header-enhanced">
+        <div className="order-id-section">
+          <Package size={18} />
+          <span className="order-id">#{order.orderId}</span>
         </div>
-      </div>
-
-      <div className="order-details">
-        <div className="detail-item">
+        <div className="order-date">
           <Calendar size={14} />
           <span>
             {new Date(order.orderDate).toLocaleDateString("es-ES", {
+              day: "2-digit",
+              month: "short",
               year: "numeric",
-              month: "long",
-              day: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
             })}
           </span>
         </div>
-
-        <div className="detail-item">
-          <MapPin size={14} />
-          <span>{order.customerAddress}</span>
-        </div>
-
-        <div className="order-total">
-          <span className="total-label">Total:</span>
-          <span className="total-amount">${order.orderTotal?.toFixed(2) || "0.00"}</span>
-        </div>
-
-        
       </div>
 
-      <div className="order-actions">
-        <button className="action-btn view-btn" onClick={onView} title="Ver detalles">
+      <div className="customer-info-section">
+        
+        <div className="customer-details">
+        <div className="detail-row">
+          <User size={16} />
+          <span>{order.customerName}</span>
+        </div>
+          <div className="detail-row">
+            <Mail size={12} />
+            <span className="detail-text">{order.customerEmail}</span>
+          </div>
+          
+          <div className="detail-row">
+            <Phone size={12} />
+            <span className="detail-text">{order.customerPhone}</span>
+          </div>
+          
+          <div className="detail-row">
+            <MapPin size={12} />
+            <span className="detail-text">{order.customerAddress}</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="order-financial-section">
+        <div className="financial-row-od">
+          <span className="financial-label">Subtotal:</span>
+          <span className="financial-value">${order.orderSubtotal?.toFixed(2) || "0.00"}</span>
+        </div>
+        
+        <div className="financial-row-od">
+          <span className="financial-label">Impuestos:</span>
+          <span className="financial-value">${order.orderTax?.toFixed(2) || "0.00"}</span>
+        </div>
+        
+        <div className="financial-row-od total-row">
+          <span className="financial-label">Total:</span>
+          <span className="financial-value total-amount">
+            ${order.orderTotal?.toFixed(2) || "0.00"}
+          </span>
+        </div>
+      </div>
+
+      <div className="order-actions-enhanced">
+        <button className="action-btn-enhanced-od view-btn" onClick={onView} title="Ver detalles">
           <Eye size={16} />
+          <span>Ver</span>
         </button>
-        <button className="action-btn print-btn" onClick={onPrint} title="Imprimir">
+        <button className="action-btn-enhanced-od print-btn" onClick={onPrint} title="Imprimir">
           <Printer size={16} />
+          <span>Imprimir</span>
         </button>
-        <button className="action-btn download-btn" onClick={onDownloadPDF} title="Descargar PDF">
+        <button className="action-btn-enhanced-od download-btn" onClick={onDownloadPDF} title="Descargar PDF">
           <Download size={16} />
+          <span>PDF</span>
         </button>
       </div>
     </div>

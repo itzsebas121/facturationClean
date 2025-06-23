@@ -35,5 +35,5 @@ async function ValidateUserLogin(user) {
 }
 
 module.exports = {
-    ValidateUserLogin
+    ValidateUserLogin,
 };

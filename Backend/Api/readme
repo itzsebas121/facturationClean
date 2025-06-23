@@ -78,4 +78,31 @@
         "error": "Error al convertir el carrito a orden."
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    para crar cliente metodo post /api/clients
+    {
+        "cedula": "0104030405",
+        "email": "ejemplo@correo.com",
+        "password": "MiClaveSegura123",
+        "firstName": "Juan",
+        "lastName": "Pérez",
+        "address": "Av. Siempre Viva 742",
+        "phone": "0987654321"
+    }
+
 */

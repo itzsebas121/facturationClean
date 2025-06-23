@@ -78,9 +78,13 @@
         "error": "Error al convertir el carrito a orden."
     }
 
-
-
-
+    Para eliminar un item del carrito:
+    http://localhost:3000/api/carts/13/11009
+    en donde el primer 13 es el id del carrito y el 11009 es el id del producto
+    te devolvera esto si fue exitoso;
+    { Message: 'Producto eliminado correctamente' }
+    si no fue exitoso te devolvera esto:
+    { Error: 'El producto no existe en el carrito' 
 
 
 

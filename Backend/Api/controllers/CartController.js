@@ -37,6 +37,19 @@ async function insertItem(req, res) {
     res.status(500).json({ error: 'Error al agregar producto al carrito.' });
   }
 }
+async function deleteItem(req, res) {
+  const { cartID, productID } = req.params;
+  try {
+    const result = await cartsService.deleteItem(cartID, productID);
+    if (!result) {
+      res.status(400).json({ error: result.Error });
+    } else {
+      res.status(200).json(result);
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Error al eliminar el producto del carrito.' });
+  }
+}
 
 async function convertCartToOrder(req, res) {
   const { cartID } = req.body;
@@ -57,5 +70,6 @@ module.exports = {
   getCart,
   insertItem,
   update,
+  deleteItem,
   convertCartToOrder
 };

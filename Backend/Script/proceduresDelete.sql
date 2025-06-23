@@ -14,14 +14,42 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    DELETE FROM CartItems WHERE CartId = @CartId AND ProductId = @ProductId;
+    BEGIN TRY
+        IF EXISTS (
+            SELECT 1 FROM Carts
+            WHERE CartId = @CartId AND IsActive = 1
+        )
+        BEGIN
+            DELETE C
+            FROM CartItems C
+            JOIN Carts cs ON cs.CartId = C.CartId
+            WHERE C.CartId = @CartId AND C.ProductId = @ProductId AND cs.IsActive = 1;
 
-    UPDATE Carts
-    SET Total = (
-        SELECT ISNULL(SUM(SubTotal), 0) FROM CartItems WHERE CartId = @CartId
-    )
-    WHERE CartId = @CartId;
+            IF @@ROWCOUNT = 0
+            BEGIN
+                SELECT 'El producto no existe en el carrito' AS Error;
+                RETURN;
+            END
+            UPDATE Carts
+            SET Total = (
+                SELECT ISNULL(SUM(SubTotal), 0)
+                FROM CartItems
+                WHERE CartId = @CartId
+            )
+            WHERE CartId = @CartId;
+
+            SELECT 'Producto eliminado correctamente' AS Message;
+        END
+        ELSE
+        BEGIN
+            SELECT 'El carrito no está activo o no existe' AS Error;
+        END
+    END TRY
+    BEGIN CATCH
+        SELECT ERROR_MESSAGE() AS Error;
+    END CATCH
 END
+
 
 
 CREATE OR ALTER PROCEDURE DeleteOrder

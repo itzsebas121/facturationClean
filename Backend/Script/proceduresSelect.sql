@@ -110,4 +110,5 @@ BEGIN
     JOIN Carts cs on cs.CartId = c.CartId
     JOIN Clients cl on cl.ClientId = cs.ClientId
     where cl.ClientId = @ClientID
+    AND CS.IsActive = 1
 END;

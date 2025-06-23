@@ -134,6 +134,7 @@ BEGIN
                 c.FirstName + ' '+ c.LastName as Name,
                 c.Address,
                 c.Phone,
+                c.ClientId,
                 'Login successful' AS Message
             FROM Users u
             JOIN Roles r ON u.RoleId = r.RoleId

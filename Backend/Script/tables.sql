@@ -45,7 +45,6 @@ CREATE TABLE Categories (
     CategoryName VARCHAR(100) NOT NULL UNIQUE
 );
 
--- Tabla Products con FK a Categories
 CREATE TABLE Products (
     ProductId INT PRIMARY KEY IDENTITY,
     CategoryId INT NOT NULL,
@@ -56,7 +55,6 @@ CREATE TABLE Products (
     CONSTRAINT FK_Products_Categories FOREIGN KEY (CategoryId) REFERENCES Categories(CategoryId)
 );
 
--- Tabla Orders (órdenes de venta)
 CREATE TABLE Orders (
     OrderId INT PRIMARY KEY IDENTITY,
     ClientId INT NOT NULL,

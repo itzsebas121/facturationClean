@@ -11,27 +11,24 @@ async function ValidateUserLogin(user) {
             .input('Password', sql.VarChar(150), password)
             .execute('ValidateUserLogin');
 
-        if (result.recordset.length === 0) {
-            return null; 
-        }
-
         const userData = result.recordset[0];
-        if (!userData.UserId) {
-            return userData;
+
+        if (!userData) return null;
+        if (!userData.UserId) return userData;
+
+        const payload = {
+            userId: userData.UserId,
+            email: userData.Email,
+            name: userData.Name,
+            address: userData.Address,
+            phone: userData.Phone,
+            role: userData.Role
+        };
+
+        if (userData.Role === 'Client') {
+            payload.clientId = userData.ClientId;
         }
-        const token = jwt.sign(
-            {
-                userId: userData.UserId,
-                email: userData.Email,
-                name: userData.Name,
-                address: userData.Address,
-                phone: userData.Phone,
-                role: userData.Role
-            },
-            process.env.SECRET_KEY,
-            { expiresIn: '24h' }
-        );
-        return token
+        return jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: '24h' });
     } catch (error) {
         throw error;
     }

@@ -24,10 +24,11 @@ async function create(req, res) {
     try {
         const client = req.body;
         const newClient = await clientService.createClient(client);
-        res.status(201).json(newClient);
+        res.status(201).json({message: "Cliente creado con éxito", newClient});
     }
     catch (error) {
-        res.status(500).json({ message: "Error al crear cliente", error });
+        console.log("Error al crear cliente:", error);
+        res.status(500).json({ error: "Error al crear cliente", error });
     }
 }
 async function update(req, res) {
@@ -37,7 +38,7 @@ async function update(req, res) {
         res.json(updatedClient);
     }
     catch (error) {
-        res.status(500).json({ message: "Error al actualizar cliente", error });
+        res.status(500).json({ error: "Error al actualizar cliente", error });
     }
 }
 async function changePassword(req, res) {
@@ -60,11 +61,41 @@ async function recoverPassword(req, res) {
         res.status(500).json({ message: "Error al recuperar contraseña", error });
     }
 }
+async function enable(req, res) {
+    try {
+        const clientId = req.params.id;
+        const updatedClient = await clientService.enableClient(clientId);
+        if (!updatedClient) {
+            return res.status(404).json({ enable: false, error: "No se pudo habilitar el cliente" });
+        }
+        return res.json({ enable: true, message: "Cliente habilitado exitosamente" });
+    }
+    catch (error) {
+        res.status(500).json({ error: "Error al habilitar cliente", error });
+    }
+
+}
+async function disable(req, res) {
+    try {
+        const clientId = req.params.id;
+        const updatedClient = await clientService.disableClient(clientId);
+        if (!updatedClient) {
+            return res.status(404).json({ disable: false, error: "No se pudo deshabilitar el cliente" });
+        }
+        return res.json({ disable: true, message: "Cliente deshabilitado exitosamente" });
+    }
+    catch (error) {
+        res.status(500).json({ error: "Error al deshabilitar cliente", error });
+    }
+
+}
 module.exports = {
     getAll,
     create,
     update,
     getById,
     changePassword,
-    recoverPassword
+    recoverPassword,
+    enable,
+    disable
 };

@@ -1,8 +1,6 @@
-"use client"
-
 import type React from "react"
 import { useState, useEffect } from "react"
-import { X, Save } from "lucide-react"
+import { X, Save, Lock, Eye } from "lucide-react"
 import type { Client } from "../../../types/User"
 import "./ClientModal.css"
 
@@ -10,40 +8,51 @@ interface ClientModalProps {
   client: Client | null
   isOpen: boolean
   onClose: () => void
-  onSave: (client: Omit<Client, "id"> | Client) => void
+  onSave: (client: any) => void
   isCreating: boolean
   loading: boolean
 }
 
 export function ClientModal({ client, isOpen, onClose, onSave, isCreating, loading }: ClientModalProps) {
   const [formData, setFormData] = useState({
-    nombre: "",
+    firstName: "",
+    lastName: "",
     email: "",
-    telefono: "",
     cedula: "",
-    direccion: "",
+    address: "",
+    phone: "",
+    password: "",
     isBlocked: false,
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [showPassword, setShowPassword] = useState(false)
 
   useEffect(() => {
     if (client) {
+      const nameParts = client.nombre.split(" ")
+      const firstName = nameParts[0] || ""
+      const lastName = nameParts.slice(1).join(" ") || ""
+
       setFormData({
-        nombre: client.nombre,
+        firstName,
+        lastName,
         email: client.email,
-        telefono: client.telefono,
         cedula: client.cedula,
-        direccion: client.direccion,
+        address: client.direccion,
+        phone: client.telefono,
+        password: "",
         isBlocked: client.isBlocked,
       })
     } else {
       setFormData({
-        nombre: "",
+        firstName: "",
+        lastName: "",
         email: "",
-        telefono: "",
         cedula: "",
-        direccion: "",
+        address: "",
+        phone: "",
+        password: "",
         isBlocked: false,
       })
     }
@@ -53,8 +62,12 @@ export function ClientModal({ client, isOpen, onClose, onSave, isCreating, loadi
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
 
-    if (!formData.nombre.trim()) {
-      newErrors.nombre = "El nombre es requerido"
+    if (!formData.firstName.trim()) {
+      newErrors.firstName = "El nombre es requerido"
+    }
+
+    if (!formData.lastName.trim()) {
+      newErrors.lastName = "El apellido es requerido"
     }
 
     if (!formData.email.trim()) {
@@ -63,16 +76,18 @@ export function ClientModal({ client, isOpen, onClose, onSave, isCreating, loadi
       newErrors.email = "El email no es válido"
     }
 
-    if (!formData.telefono.trim()) {
-      newErrors.telefono = "El teléfono es requerido"
-    }
-
     if (!formData.cedula.trim()) {
       newErrors.cedula = "La cédula es requerida"
+    } else if (formData.cedula.length !== 10) {
+      newErrors.cedula = "La cédula debe tener 10 dígitos"
     }
 
-    if (!formData.direccion.trim()) {
-      newErrors.direccion = "La dirección es requerida"
+    if (isCreating && !formData.password.trim()) {
+      newErrors.password = "La contraseña es requerida"
+    }
+
+    if (isCreating && formData.password && formData.password.length < 6) {
+      newErrors.password = "La contraseña debe tener al menos 6 caracteres"
     }
 
     setErrors(newErrors)
@@ -88,14 +103,10 @@ export function ClientModal({ client, isOpen, onClose, onSave, isCreating, loadi
 
     const clientData = {
       ...formData,
-      rol: "Client" as const,
+      clientId: client?.id, 
     }
 
-    if (isCreating) {
-      onSave(clientData)
-    } else {
-      onSave({ ...clientData, id: client!.id })
-    }
+    onSave(clientData)
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -105,7 +116,6 @@ export function ClientModal({ client, isOpen, onClose, onSave, isCreating, loadi
       [name]: type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
     }))
 
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }))
     }
@@ -114,7 +124,7 @@ export function ClientModal({ client, isOpen, onClose, onSave, isCreating, loadi
   if (!isOpen) return null
 
   return (
-    <div className="client-modal__overlay" onClick={onClose}>
+    <div className="client-modal__overlay" >
       <div className="client-modal__content" onClick={(e) => e.stopPropagation()}>
         <div className="client-modal__header">
           <h2 className="client-modal__title">{isCreating ? "Crear Cliente" : "Editar Cliente"}</h2>
@@ -126,19 +136,35 @@ export function ClientModal({ client, isOpen, onClose, onSave, isCreating, loadi
         <form onSubmit={handleSubmit} className="client-modal__form">
           <div className="client-modal__form-grid">
             <div className="client-modal__form-group">
-              <label htmlFor="nombre" className="client-modal__label">
+              <label htmlFor="firstName" className="client-modal__label">
                 Nombre *
               </label>
               <input
                 type="text"
-                id="nombre"
-                name="nombre"
-                value={formData.nombre}
+                id="firstName"
+                name="firstName"
+                value={formData.firstName}
                 onChange={handleInputChange}
-                className={`client-modal__input ${errors.nombre ? "error" : ""}`}
+                className={`client-modal__input ${errors.firstName ? "error" : ""}`}
                 disabled={loading}
               />
-              {errors.nombre && <span className="client-modal__error">{errors.nombre}</span>}
+              {errors.firstName && <span className="client-modal__error">{errors.firstName}</span>}
+            </div>
+
+            <div className="client-modal__form-group">
+              <label htmlFor="lastName" className="client-modal__label">
+                Apellido *
+              </label>
+              <input
+                type="text"
+                id="lastName"
+                name="lastName"
+                value={formData.lastName}
+                onChange={handleInputChange}
+                className={`client-modal__input ${errors.lastName ? "error" : ""}`}
+                disabled={loading}
+              />
+              {errors.lastName && <span className="client-modal__error">{errors.lastName}</span>}
             </div>
 
             <div className="client-modal__form-group">
@@ -158,22 +184,6 @@ export function ClientModal({ client, isOpen, onClose, onSave, isCreating, loadi
             </div>
 
             <div className="client-modal__form-group">
-              <label htmlFor="telefono" className="client-modal__label">
-                Teléfono *
-              </label>
-              <input
-                type="tel"
-                id="telefono"
-                name="telefono"
-                value={formData.telefono}
-                onChange={handleInputChange}
-                className={`client-modal__input ${errors.telefono ? "error" : ""}`}
-                disabled={loading}
-              />
-              {errors.telefono && <span className="client-modal__error">{errors.telefono}</span>}
-            </div>
-
-            <div className="client-modal__form-group">
               <label htmlFor="cedula" className="client-modal__label">
                 Cédula *
               </label>
@@ -183,44 +193,93 @@ export function ClientModal({ client, isOpen, onClose, onSave, isCreating, loadi
                 name="cedula"
                 value={formData.cedula}
                 onChange={handleInputChange}
+                maxLength={10}
+                pattern="[0-9]{10}"
+                title="Debe tener exactamente 10 dígitos numéricos"
                 className={`client-modal__input ${errors.cedula ? "error" : ""}`}
                 disabled={loading}
               />
+
               {errors.cedula && <span className="client-modal__error">{errors.cedula}</span>}
             </div>
+
+            <div className="client-modal__form-group">
+              <label htmlFor="phone" className="client-modal__label">
+                Teléfono
+              </label>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                value={formData.phone}
+                onChange={handleInputChange}
+                className="client-modal__input"
+                disabled={loading}
+                maxLength={10}
+                pattern="09[0-9]{8}"
+                title="Debe comenzar con 09 y tener 10 dígitos"
+              />
+
+            </div>
+
+            {isCreating && (
+              <div className="client-modal__form-group">
+                <label htmlFor="password" className="client-modal__label">
+                  Contraseña *
+                </label>
+
+                <div style={{ position: "relative" }}>
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    id="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    className={`client-modal__input ${errors.password ? "error" : ""}`}
+                    disabled={loading}
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(prev => !prev)}
+                    className="show-password-button"
+                    style={{
+                      position: "absolute",
+                      top: "50%",
+                      right: "10px",
+                      transform: "translateY(-50%)",
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      fontSize: "16px",
+                    }}
+                  >
+                    {showPassword ? <Lock /> : <Eye />}
+                  </button>
+                </div>
+
+                {errors.password && <span className="client-modal__error">{errors.password}</span>}
+              </div>
+            )}
+
           </div>
 
           <div className="client-modal__form-group">
-            <label htmlFor="direccion" className="client-modal__label">
-              Dirección *
+            <label htmlFor="address" className="client-modal__label">
+              Dirección
             </label>
             <textarea
-              id="direccion"
-              name="direccion"
-              value={formData.direccion}
+              id="address"
+              name="address"
+              value={formData.address}
               onChange={handleInputChange}
-              className={`client-modal__textarea ${errors.direccion ? "error" : ""}`}
+              className="client-modal__textarea"
               rows={3}
               disabled={loading}
+              required
             />
-            {errors.direccion && <span className="client-modal__error">{errors.direccion}</span>}
           </div>
 
-          {!isCreating && (
-            <div className="client-modal__form-group">
-              <label className="client-modal__checkbox-label">
-                <input
-                  type="checkbox"
-                  name="isBlocked"
-                  checked={formData.isBlocked}
-                  onChange={handleInputChange}
-                  className="client-modal__checkbox"
-                  disabled={loading}
-                />
-                Cliente bloqueado
-              </label>
-            </div>
-          )}
 
           <div className="client-modal__actions">
             <button type="button" onClick={onClose} className="client-modal__cancel-btn" disabled={loading}>

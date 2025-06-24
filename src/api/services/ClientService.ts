@@ -1,4 +1,3 @@
-import { Client } from "../../types/User";
 import { CLIENTS_ENDPOINTS } from "../endpoints/Clients";
 
 export async function getClientsService() {
@@ -12,7 +11,7 @@ export async function getClientsService() {
     return await res.json();
 }
 
-export async function createClientService(client: Client) {
+export async function createClientService(client: any) {
     const res = await fetch(CLIENTS_ENDPOINTS.Client, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -20,17 +19,32 @@ export async function createClientService(client: Client) {
     });
     return await res.json();
 }
-export async function updateClientService(client: Client) {
-    const res = await fetch(`${CLIENTS_ENDPOINTS.Client}/${client.id}`, {
+export async function updateClientService(client: any) {
+    const res = await fetch(`${CLIENTS_ENDPOINTS.Client}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(client),
+        body: JSON.stringify({ 
+            clientId: client.clientId, 
+            firstName: client.firstName, 
+            cedula: client.cedula,
+            lastName: client.lastName, 
+            email: client.email, 
+            phone: client.phone, 
+            address: client.address, 
+        }),
     });
     return await res.json();
 }
-export async function deleteClientService(id: number) {
-    const res = await fetch(`${CLIENTS_ENDPOINTS.Client}/${id}`, {
-        method: 'DELETE',
+export async function enableClientService(id: number) {
+    const res = await fetch(`${CLIENTS_ENDPOINTS.Client}/enable/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+    });
+    return await res.json();
+}
+export async function disableClientService(id: number) {
+    const res = await fetch(`${CLIENTS_ENDPOINTS.Client}/disable/${id}`, {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
     });
     return await res.json();

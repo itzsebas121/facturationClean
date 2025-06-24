@@ -1,11 +1,46 @@
-CREATE PROCEDURE DeleteProduct
+CREATE OR ALTER PROCEDURE disableProduct
     @ProductId INT
 AS
 BEGIN
-    DELETE FROM Products
-    WHERE ProductId = @ProductId;
+    UPDATE PRODUCTS
+    SET ISACTIVE = 0
+    where ProductId = @ProductId
 END;
 
+CREATE PROCEDURE enableProduct
+    @ProductId INT
+AS
+BEGIN
+    UPDATE PRODUCTS
+    SET ISACTIVE = 1
+    where ProductId = @ProductId
+END;
+
+
+CREATE OR ALTER PROCEDURE disableClient
+    @ClientID INT
+AS
+BEGIN
+    UPDATE U
+    SET U.IsBlocked = 1
+    FROM Users U
+    JOIN Clients C ON C.UserId = U.UserId
+    WHERE C.ClientId = @ClientId;
+
+END;
+
+
+CREATE OR ALTER PROCEDURE enableClient
+    @ClientID INT
+AS
+BEGIN
+    UPDATE U
+    SET U.IsBlocked = 0, FailedLoginAttempts = 0
+    FROM Users U
+    JOIN Clients C ON C.UserId = U.UserId
+    WHERE C.ClientId = @ClientId;
+
+END;
 
 CREATE OR ALTER PROCEDURE DeleteCartItem
     @CartId INT,
@@ -49,8 +84,6 @@ BEGIN
         SELECT ERROR_MESSAGE() AS Error;
     END CATCH
 END
-
-
 
 CREATE OR ALTER PROCEDURE DeleteOrder
     @OrderId INT

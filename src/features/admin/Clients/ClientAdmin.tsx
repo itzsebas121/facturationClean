@@ -1,14 +1,33 @@
-"use client"
-
 import type React from "react"
 import { useState, useEffect } from "react"
-import { Edit, Plus, Ban, Check, Search, Filter } from 'lucide-react'
+import { Edit, Plus, Ban, Check, Search, Filter, RotateCcw } from "lucide-react"
 import "./ClientAdmin.css"
 import type { Client } from "../../../types/User"
-import { createClientService, getClientsService, updateClientService } from "../../../api/services/ClientService"
+import {
+  createClientService,
+  disableClientService,
+  enableClientService,
+  getClientsService,
+  updateClientService,
+} from "../../../api/services/ClientService"
 import { Pagination } from "../../../components/Pagination/Pagination"
 import { ClientModal } from "./ClientModal"
 import { adaptarCliente } from "../../../adapters/userAdapter"
+import { Alert } from "../../../components/UI/Alert"
+import { ConfirmDialog } from "../../../components/UI/ConfirmDialog"
+
+interface AlertState {
+  show: boolean
+  type: "success" | "error" | "info" | "warning"
+  message: string
+}
+
+interface ConfirmState {
+  show: boolean
+  title: string
+  message: string
+  onConfirm: () => void
+}
 
 export function ClientAdmin() {
   const [clients, setClients] = useState<Client[]>([])
@@ -21,45 +40,61 @@ export function ClientAdmin() {
   const [selectedClient, setSelectedClient] = useState<Client | null>(null)
   const [isCreating, setIsCreating] = useState(false)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
+  const [alert, setAlert] = useState<AlertState>({ show: false, type: "info", message: "" })
+  const [confirm, setConfirm] = useState<ConfirmState>({ show: false, title: "", message: "", onConfirm: () => {} })
 
-  const pageSize = 10
+  const pageSize = 20 // Increased for more compact view
 
   useEffect(() => {
     fetchClients()
   }, [currentPage, searchTerm])
 
+  const showAlert = (type: AlertState["type"], message: string) => {
+    setAlert({ show: true, type, message })
+  }
+
+  const hideAlert = () => {
+    setAlert({ show: false, type: "info", message: "" })
+  }
+
+  const showConfirm = (title: string, message: string, onConfirm: () => void) => {
+    setConfirm({ show: true, title, message, onConfirm })
+  }
+
+  const hideConfirm = () => {
+    setConfirm({ show: false, title: "", message: "", onConfirm: () => {} })
+  }
+
   const fetchClients = async () => {
     setLoading(true)
     try {
-      // Get all clients from API (no server-side pagination)
-      const allClientsData = await getClientsService()
-      
-      // Adapt all clients
-      const adaptedClients = allClientsData.map(adaptarCliente)
-      
-      // Apply client-side filtering
-      let filteredClients = adaptedClients
-      if (searchTerm.trim()) {
-        const searchLower = searchTerm.toLowerCase()
-        filteredClients = adaptedClients.filter((client: Client) => 
-          client.nombre.toLowerCase().includes(searchLower) ||
-          client.email.toLowerCase().includes(searchLower) ||
-          client.cedula.toLowerCase().includes(searchLower)
-        )
+      const response = await getClientsService()
+
+      if (response.error) {
+        showAlert("error", response.error)
+      } else {
+        const adaptedClients = response.map(adaptarCliente)
+        let filteredClients = adaptedClients
+        if (searchTerm.trim()) {
+          const searchLower = searchTerm.toLowerCase()
+          filteredClients = adaptedClients.filter(
+            (client: Client) =>
+              client.nombre.toLowerCase().includes(searchLower) ||
+              client.email.toLowerCase().includes(searchLower) ||
+              client.cedula.toLowerCase().includes(searchLower),
+          )
+        }
+        const total = filteredClients.length
+        const startIndex = (currentPage - 1) * pageSize
+        const endIndex = startIndex + pageSize
+        const paginatedClients = filteredClients.slice(startIndex, endIndex)
+
+        setClients(paginatedClients)
+        setTotalClients(total)
+        setTotalPages(Math.ceil(total / pageSize))
       }
-      
-      // Calculate pagination
-      const total = filteredClients.length
-      const startIndex = (currentPage - 1) * pageSize
-      const endIndex = startIndex + pageSize
-      const paginatedClients = filteredClients.slice(startIndex, endIndex)
-      
-      // Update state
-      setClients(paginatedClients)
-      setTotalClients(total)
-      setTotalPages(Math.ceil(total / pageSize))
     } catch (error) {
-      console.error("Error fetching clients:", error)
+      showAlert("error", "Error al cargar los clientes")
     } finally {
       setLoading(false)
     }
@@ -69,6 +104,14 @@ export function ClientAdmin() {
     e.preventDefault()
     setCurrentPage(1)
     fetchClients()
+  }
+
+  const handleClearFilters = () => {
+    setSearchTerm("")
+    setCurrentPage(1)
+    setTimeout(() => {
+      fetchClients()
+    }, 0)
   }
 
   const handleCreateClient = () => {
@@ -83,31 +126,56 @@ export function ClientAdmin() {
     setIsModalOpen(true)
   }
 
-  const handleToggleBlockClient = async (client: Client) => {
+  const handleToggleBlockClient = (client: Client) => {
+    const action = client.isBlocked ? "desbloquear" : "bloquear"
+    showConfirm("Confirmar acción", `¿Estás seguro de que deseas ${action} al cliente "${client.nombre}"?`, () =>
+      confirmToggleBlockClient(client),
+    )
+  }
+
+  const confirmToggleBlockClient = async (client: Client) => {
     setActionLoading(client.id)
     try {
-      const updatedClient = { ...client, isBlocked: !client.isBlocked }
-      await updateClientService(updatedClient)
-      await fetchClients()
+      let response
+      if (client.isBlocked) {
+        response = await enableClientService(Number(client.id))
+      } else {
+        response = await disableClientService(Number(client.id))
+      }
+
+      if (response.error || response.Error) {
+        showAlert("error", response.error || response.Error || "Error al actualizar el estado del cliente")
+      } else {
+        showAlert("success", response.message || response.Message)
+        await fetchClients()
+      }
     } catch (error) {
-      console.error("Error toggling client block status:", error)
+      showAlert("error", "Error al actualizar el estado del cliente")
     } finally {
       setActionLoading(null)
+      hideConfirm()
     }
   }
 
-  const handleSaveClient = async (clientData: Omit<Client, "id"> | Client) => {
+  const handleSaveClient = async (clientData: any) => {
     setActionLoading("modal")
     try {
+      let response
       if (isCreating) {
-        await createClientService(clientData as Client)
+        response = await createClientService(clientData)
       } else {
-        await updateClientService(clientData as Client)
+        response = await updateClientService(clientData)
       }
-      setIsModalOpen(false)
-      await fetchClients()
+      console.log(response)
+      if (response.error || response.Error) {
+        showAlert("error", response.error || response.Error)
+      } else {
+        showAlert("success", response.message || response.Message)
+        setIsModalOpen(false)
+        await fetchClients()
+      }
     } catch (error) {
-      console.error("Error saving client:", error)
+      showAlert("error", `Error al ${isCreating ? "crear" : "actualizar"} el cliente`)
     } finally {
       setActionLoading(null)
     }
@@ -117,8 +185,25 @@ export function ClientAdmin() {
     setCurrentPage(page)
   }
 
+  const getClientInitial = (name: string) => {
+    return name.charAt(0).toUpperCase()
+  }
+
+  const hasActiveFilters = searchTerm.trim() !== ""
+
   return (
     <div className="client-admin">
+      {alert.show && <Alert type={alert.type} message={alert.message} onClose={hideAlert} />}
+
+      <ConfirmDialog
+        isOpen={confirm.show}
+        title={confirm.title}
+        message={confirm.message}
+        onConfirm={confirm.onConfirm}
+        onCancel={hideConfirm}
+        type="warning"
+      />
+
       <div className="client-admin__header">
         <h1 className="client-admin__title">Gestión de Clientes</h1>
         <button className="client-admin__create-btn" onClick={handleCreateClient} disabled={loading}>
@@ -143,12 +228,19 @@ export function ClientAdmin() {
             <Filter size={20} />
             Filtrar
           </button>
+          {hasActiveFilters && (
+            <button type="button" className="client-admin__clear-btn" onClick={handleClearFilters} disabled={loading}>
+              <RotateCcw size={20} />
+              Limpiar
+            </button>
+          )}
         </form>
       </div>
 
       <div className="client-admin__stats">
         <p className="client-admin__stats-text">
           Total de clientes: <span className="client-admin__stats-number">{totalClients}</span>
+          {hasActiveFilters && <span className="client-admin__filter-indicator">(filtrado)</span>}
         </p>
       </div>
 
@@ -159,46 +251,47 @@ export function ClientAdmin() {
         </div>
       ) : (
         <>
-          <div className="client-admin__grid">
+          <div className="client-admin__list">
             {clients.map((client) => (
-              <div key={client.id} className="client-admin__card">
-                <div className="client-admin__card-header">
-                  <h3 className="client-admin__card-title">{client.nombre}</h3>
-                  <div className={`client-admin__status ${client.isBlocked ? "blocked" : "active"}`}>
-                    {client.isBlocked ? "Bloqueado" : "Activo"}
+              <div key={client.id} className="client-item">
+                <div className="client-item__avatar">
+                  <div className="client-initial">{getClientInitial(client.nombre)}</div>
+                </div>
+
+                <div className="client-item__content">
+                  <div className="client-item__main">
+                    <h3 className="client-item__name">{client.nombre}</h3>
+                    <div className={`client-item__status ${client.isBlocked ? "blocked" : "active"}`}>
+                      {client.isBlocked ? "Bloqueado" : "Activo"}
+                    </div>
+                  </div>
+
+                  <div className="client-item__details">
+                    <div className="client-item__info">
+                      <span className="client-item__email">{client.email}</span>
+                      <span className="client-item__cedula">CI: {client.cedula}</span>
+                    </div>
+                    <div className="client-item__contact">
+                      <span className="client-item__phone">{client.telefono}</span>
+                      <span className="client-item__address">{client.direccion}</span>
+                    </div>
                   </div>
                 </div>
 
-                <div className="client-admin__card-content">
-                  <div className="client-admin__card-info">
-                    <p>
-                      <strong>Email:</strong> {client.email}
-                    </p>
-                    <p>
-                      <strong>Teléfono:</strong> {client.telefono}
-                    </p>
-                    <p>
-                      <strong>Cédula:</strong> {client.cedula}
-                    </p>
-                    <p>
-                      <strong>Dirección:</strong> {client.direccion}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="client-admin__card-actions">
+                <div className="client-item__actions">
                   <button
-                    className="client-admin__edit-btn"
+                    className="client-item__edit-btn"
                     onClick={() => handleEditClient(client)}
                     disabled={actionLoading === client.id}
+                    title="Editar cliente"
                   >
                     <Edit size={16} />
-                    Editar
                   </button>
                   <button
-                    className={`client-admin__toggle-btn ${client.isBlocked ? "unblock" : "block"}`}
+                    className={`client-item__toggle-btn ${client.isBlocked ? "unblock" : "block"}`}
                     onClick={() => handleToggleBlockClient(client)}
                     disabled={actionLoading === client.id}
+                    title={client.isBlocked ? "Desbloquear cliente" : "Bloquear cliente"}
                   >
                     {actionLoading === client.id ? (
                       <div className="client-admin__button-spinner"></div>
@@ -207,7 +300,6 @@ export function ClientAdmin() {
                     ) : (
                       <Ban size={16} />
                     )}
-                    {client.isBlocked ? "Desbloquear" : "Bloquear"}
                   </button>
                 </div>
               </div>
@@ -217,6 +309,12 @@ export function ClientAdmin() {
           {clients.length === 0 && !loading && (
             <div className="client-admin__empty">
               <p>No se encontraron clientes</p>
+              {hasActiveFilters && (
+                <button className="client-admin__clear-empty-btn" onClick={handleClearFilters}>
+                  <RotateCcw size={16} />
+                  Limpiar filtros
+                </button>
+              )}
             </div>
           )}
 

@@ -5,6 +5,9 @@ import { LoginPage } from '../features/login/LoginPage';
 import { AdminDashboard } from '../features/admin/AdminDashboard';
 import { ClientDashboard } from '../features/client/ClientDashboard';
 
+import { Recovery } from '../features/login/Recovery';
+import { Register } from '../features/login/Register';
+
 import HomeAdmin from '../features/admin/HomeAdmin/HomeAdmin';
 import { HomeClient } from '../features/client/Home/HomeClient';
 import { HistoryClient } from '../features/client/History/HistoryClient';
@@ -29,6 +32,8 @@ export default function AppRouter() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/recovery" element={<Recovery />} />
 
         <Route
           path="/admin/*" element={<PrivateRoute allowedRoles={['Admin']}>

@@ -20,8 +20,9 @@ async function createClient(client) {
   request.input('FirstName', sql.VarChar(100), client.firstName);
   request.input('LastName', sql.VarChar(100), client.lastName);
   request.input('Address', sql.VarChar(200), client.address || null);
-  request.input('Phone', sql.VarChar(15), client.phone || null);
+  request.input('Phone', sql.VarChar(10), client.phone || null);
   const result = await request.execute('CreateClient');
+  console.log(result);
   return result.recordset[0];
 }
 async function updateClient(client) {
@@ -54,6 +55,27 @@ async function recoverPassword(email) {
   const result = await request.execute('RecoverPassword');
   return result.recordset[0];
 }
+
+async function enableClient(clientId) {
+  const pool = await poolPromise;
+  const request = pool.request();
+  request.input('ClientID', sql.Int, clientId);
+  const result = await request.execute('enableClient');
+  if (result.rowsAffected[0] === 0) {
+    return false;
+  }
+  return true;
+}
+async function disableClient(clientId) {
+  const pool = await poolPromise;
+  const request = pool.request();
+  request.input('ClientID', sql.Int, clientId);
+  const result = await request.execute('disableClient');
+  if (result.rowsAffected[0] === 0) {
+    return false;
+  }
+  return true;
+}
 module.exports = {
   getAllClients,
   createClient,
@@ -61,4 +83,6 @@ module.exports = {
   changePassword,
   getClientById,
   recoverPassword,
+  enableClient,
+  disableClient
 };

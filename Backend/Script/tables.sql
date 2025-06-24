@@ -79,7 +79,8 @@ CREATE TABLE OrderDetails (
 
 ALTER TABLE Products
 ADD ImageUrl VARCHAR(255) NULL;
-
+ALTER TABLE Products
+ADD isActive int CHECK (isActive IN (0, 1));
 
 CREATE TABLE Carts (
     CartId INT PRIMARY KEY IDENTITY,

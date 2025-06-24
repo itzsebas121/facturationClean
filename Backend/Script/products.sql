@@ -25,8 +25,8 @@ BEGIN
     -- Picsum fotos aleatorias, tamaño fijo 150x150, usando @i para variar imagen
     DECLARE @ImageUrl VARCHAR(255) = 'https://picsum.photos/seed/' + CAST(@i AS VARCHAR) + '/150/150';
 
-    INSERT INTO Products (CategoryId, Name, Description, Price, Stock, ImageUrl)
-    VALUES (@CategoryId, @Name, @Description, @Price, @Stock, @ImageUrl);
+    INSERT INTO Products (CategoryId, Name, Description, Price, Stock, ImageUrl, isActive)
+    VALUES (@CategoryId, @Name, @Description, @Price, @Stock, @ImageUrl, 1);
 
     SET @i = @i + 1;
 END

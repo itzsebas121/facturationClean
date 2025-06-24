@@ -1,5 +1,5 @@
 import { PRODUCTS_ENDPOINTS } from "../endpoints/Products";
-import { GetProductsParams, Product } from "../../types/Product";
+import { GetProductsParams } from "../../types/Product";
 
 
 export async function getProductsService({ filtro, categoryId, page = 1, pageSize = 10 }: GetProductsParams) {
@@ -21,25 +21,34 @@ export async function getProductsService({ filtro, categoryId, page = 1, pageSiz
 
     return await res.json();
 }
-export async function createProductService(product: Product) {
+export async function createProductService(product: any) {
+    console.log(product);
     const res = await fetch(`${PRODUCTS_ENDPOINTS.Product}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(product),
     });
+
     return await res.json();
 }
-export async function updateProductService(product: Product) {
-    const res = await fetch(`${PRODUCTS_ENDPOINTS.Product}/${product.id}`, {
+export async function updateProductService(product: any) {
+    const res = await fetch(`${PRODUCTS_ENDPOINTS.Product}/${product.ProductId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(product),
     });
     return await res.json();
 }
-export async function inAvalibleProductService(id: number) {
-    const res = await fetch(`${PRODUCTS_ENDPOINTS.Product}/${id}`, {
-        method: 'POST',
+export async function enableProductService(id: number) {
+    const res = await fetch(`${PRODUCTS_ENDPOINTS.Product}/enable/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+    });
+    return await res.json();
+}
+export async function disableProductService(id: number) {
+    const res = await fetch(`${PRODUCTS_ENDPOINTS.Product}/disable/${id}`, {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
     });
     return await res.json();

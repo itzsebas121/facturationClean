@@ -18,6 +18,7 @@ BEGIN
         p.Description,
         p.Price,
         p.Stock,
+        P.isActive,
         p.ImageUrl
     INTO #ProductosFiltrados
     FROM Products p
@@ -31,7 +32,8 @@ BEGIN
          CAST(p.Stock AS NVARCHAR) LIKE '%' + @FiltroGeneral + '%')
     )
     AND (@CategoryId IS NULL OR p.CategoryId = @CategoryId)
-    AND STOCK > 0;
+    AND STOCK > 0
+    AND ISACTIVE=1
 
     -- Resultado paginado
     SELECT *

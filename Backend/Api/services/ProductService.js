@@ -49,12 +49,20 @@ async function updateProducto(id, producto) {
   return true;
 }
 
-async function deleteProducto(id) {
+async function disableProduct(id) {
   const pool = await poolPromise;
 
   const result = await pool.request()
     .input('ProductId', sql.Int, id)
-    .execute('DeleteProduct');
+    .execute('disableProduct');
+  if (result.rowsAffected[0] === 0) return false;
+  return true;
+}
+async function enableProduct(id) {
+  const pool = await poolPromise;
+  const result = await pool.request()
+    .input('ProductId', sql.Int, id)
+    .execute('enableProduct');
   if (result.rowsAffected[0] === 0) return false;
   return true;
 }
@@ -64,5 +72,7 @@ module.exports = {
   getAllProductos,
   createProducto,
   updateProducto,
-  deleteProducto,
+  disableProduct,
+  enableProduct
+  
 };

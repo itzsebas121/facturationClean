@@ -6,49 +6,57 @@ import { X, Save } from "lucide-react"
 import type { Product } from "../../../types/Product"
 import "./ProductModal.css"
 
+interface Category {
+  CategoryId: number
+  CategoryName: string
+}
+
 interface ProductModalProps {
   product: Product | null
+  categories: Category[]
   isOpen: boolean
   onClose: () => void
-  onSave: (product: Omit<Product, "id"> | Product) => void
+  onSave: (product: any) => void
   isCreating: boolean
   loading: boolean
 }
 
-export function ProductModal({ product, isOpen, onClose, onSave, isCreating, loading }: ProductModalProps) {
+export function ProductModal({ product, categories, isOpen, onClose, onSave, isCreating, loading }: ProductModalProps) {
   const [formData, setFormData] = useState({
     name: "",
-    price: 0,
+    price: "",
     description: "",
     image: "",
-    stock: 0,
-    category: "",
+    stock: "",
+    categoryId: "",
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
 
   useEffect(() => {
     if (product) {
+      // Find category ID from category name
+      const category = categories.find((cat) => cat.CategoryName === product.category)
       setFormData({
         name: product.name,
-        price: product.price,
+        price: product.price.toString(),
         description: product.description,
         image: product.image || "",
-        stock: product.stock || 0,
-        category: product.category || "",
+        stock: (product.stock || 0).toString(),
+        categoryId: category ? category.CategoryId.toString() : "",
       })
     } else {
       setFormData({
         name: "",
-        price: 0,
+        price: "",
         description: "",
         image: "",
-        stock: 0,
-        category: "",
+        stock: "",
+        categoryId: "",
       })
     }
     setErrors({})
-  }, [product, isOpen])
+  }, [product, categories, isOpen])
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
@@ -57,7 +65,7 @@ export function ProductModal({ product, isOpen, onClose, onSave, isCreating, loa
       newErrors.name = "El nombre es requerido"
     }
 
-    if (formData.price <= 0) {
+    if (!formData.price || Number.parseFloat(formData.price) <= 0) {
       newErrors.price = "El precio debe ser mayor a 0"
     }
 
@@ -65,12 +73,12 @@ export function ProductModal({ product, isOpen, onClose, onSave, isCreating, loa
       newErrors.description = "La descripción es requerida"
     }
 
-    if (formData.stock < 0) {
+    if (!formData.stock || Number.parseInt(formData.stock) < 0) {
       newErrors.stock = "El stock no puede ser negativo"
     }
 
-    if (!formData.category.trim()) {
-      newErrors.category = "La categoría es requerida"
+    if (!formData.categoryId) {
+      newErrors.categoryId = "La categoría es requerida"
     }
 
     setErrors(newErrors)
@@ -84,27 +92,16 @@ export function ProductModal({ product, isOpen, onClose, onSave, isCreating, loa
       return
     }
 
-    const productData = {
-      ...formData,
-      price: Number(formData.price),
-      stock: Number(formData.stock),
-    }
-
-    if (isCreating) {
-      onSave(productData)
-    } else {
-      onSave({ ...productData, id: product!.id })
-    }
+    onSave(formData)
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target
+    const { name, value } = e.target
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "number" ? Number(value) : value,
+      [name]: value,
     }))
 
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }))
     }
@@ -113,7 +110,7 @@ export function ProductModal({ product, isOpen, onClose, onSave, isCreating, loa
   if (!isOpen) return null
 
   return (
-    <div className="product-modal__overlay" onClick={onClose}>
+    <div className="product-modal__overlay" >
       <div className="product-modal__content" onClick={(e) => e.stopPropagation()}>
         <div className="product-modal__header">
           <h2 className="product-modal__title">{isCreating ? "Crear Producto" : "Editar Producto"}</h2>
@@ -176,24 +173,25 @@ export function ProductModal({ product, isOpen, onClose, onSave, isCreating, loa
             </div>
 
             <div className="product-modal__form-group">
-              <label htmlFor="category" className="product-modal__label">
+              <label htmlFor="categoryId" className="product-modal__label">
                 Categoría *
               </label>
               <select
-                id="category"
-                name="category"
-                value={formData.category}
+                id="categoryId"
+                name="categoryId"
+                value={formData.categoryId}
                 onChange={handleInputChange}
-                className={`product-modal__select ${errors.category ? "error" : ""}`}
+                className={`product-modal__select ${errors.categoryId ? "error" : ""}`}
                 disabled={loading}
               >
                 <option value="">Seleccionar categoría</option>
-                <option value="Electrónica">Electrónica</option>
-                <option value="Ropa">Ropa</option>
-                <option value="Alimentos">Alimentos</option>
-                <option value="Hogar">Hogar</option>
+                {categories.map((category) => (
+                  <option key={category.CategoryId} value={category.CategoryId.toString()}>
+                    {category.CategoryName}
+                  </option>
+                ))}
               </select>
-              {errors.category && <span className="product-modal__error">{errors.category}</span>}
+              {errors.categoryId && <span className="product-modal__error">{errors.categoryId}</span>}
             </div>
           </div>
 

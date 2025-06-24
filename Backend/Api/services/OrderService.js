@@ -52,6 +52,17 @@ async function addProductToOrder(orderId, productId, quantity) {
 }
 //Pedientes agregarlos a la base de datos
 async function getOrderById(orderId) {
+    try {
+        const pool = await poolPromise;
+        const result = await pool.request()
+            .input('OrderId', sql.Int, orderId)
+            .execute('getOrderById');
+        return result.recordset;
+    }
+    catch (err) {
+        console.error('Error en getOrderById:', err);
+        throw err;
+    }
 }
 async function deleteOrder(orderId) {
     try {

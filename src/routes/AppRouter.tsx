@@ -11,6 +11,9 @@ import { HistoryClient } from '../features/client/History/HistoryClient';
 import { ProductPageClient } from '../features/client/Products/ProductPageClient';
 import HistoryAdmin from '../features/admin/HistoryAdmin/HistoryAdmin';
 
+import { ProductsAdmin } from '../features/admin/ProductsAdmin/ProductsAdmin';
+import { ClientAdmin } from '../features/admin/Clients/ClientAdmin';
+
 function PrivateRoute({ children, allowedRoles }: { children: React.ReactNode; allowedRoles: string[] }) {
   const { user, loading } = useAuth();
   if (loading) return <div>Cargando...</div>;
@@ -35,6 +38,9 @@ export default function AppRouter() {
           <Route index element={<HomeAdmin />} />
           <Route path='home' element={<HomeAdmin />} />
           <Route path='history' element={<HistoryAdmin />} />
+          <Route path='products' element={<ProductsAdmin />} />
+          <Route path='clients' element={<ClientAdmin />} />
+
         </Route>
 
         <Route

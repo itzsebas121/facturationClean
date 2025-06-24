@@ -52,7 +52,6 @@ async function recoverPassword(email) {
   const request = pool.request();
   request.input('Email', sql.VarChar(100), email);
   const result = await request.execute('RecoverPassword');
-  console.log(result);
   return result.recordset[0];
 }
 module.exports = {

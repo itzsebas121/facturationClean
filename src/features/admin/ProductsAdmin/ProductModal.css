@@ -1,0 +1,329 @@
+.product-modal__overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.product-modal__content {
+  background-color: var(--background-light);
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-width: 700px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.product-modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.product-modal__title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.product-modal__close-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 6px;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+}
+
+.product-modal__close-btn:hover:not(:disabled) {
+  background-color: var(--secondary-color);
+  color: var(--text-primary);
+}
+
+.product-modal__close-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.product-modal__form {
+  padding: 2rem;
+}
+
+.product-modal__form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.product-modal__form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.product-modal__label {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.product-modal__input,
+.product-modal__textarea,
+.product-modal__select {
+  padding: 0.75rem;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 1rem;
+  background-color: var(--background-light);
+  color: var(--text-primary);
+  transition: border-color 0.2s ease;
+}
+
+.product-modal__input:focus,
+.product-modal__textarea:focus,
+.product-modal__select:focus {
+  outline: none;
+  border-color: var(--accent-color);
+}
+
+.product-modal__input.error,
+.product-modal__textarea.error,
+.product-modal__select.error {
+  border-color: #d32f2f;
+}
+
+.product-modal__input:disabled,
+.product-modal__textarea:disabled,
+.product-modal__select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.product-modal__textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.product-modal__select {
+  cursor: pointer;
+}
+
+.product-modal__error {
+  color: #d32f2f;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.product-modal__image-preview {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.product-modal__preview-image {
+  max-width: 200px;
+  max-height: 200px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  object-fit: cover;
+}
+
+.product-modal__actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.product-modal__cancel-btn {
+  padding: 0.75rem 1.5rem;
+  background-color: transparent;
+  color: var(--text-secondary);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.product-modal__cancel-btn:hover:not(:disabled) {
+  background-color: var(--secondary-color);
+  color: var(--text-primary);
+}
+
+.product-modal__save-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background-color: var(--accent-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.product-modal__save-btn:hover:not(:disabled) {
+  background-color: var(--accent-light);
+}
+
+.product-modal__save-btn:disabled,
+.product-modal__cancel-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.product-modal__button-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: product-modal-spin 1s linear infinite;
+}
+
+@keyframes product-modal-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  .product-modal__content {
+    background-color: var(--background-dark);
+  }
+
+  .product-modal__header {
+    border-bottom-color: var(--border-color-dark);
+  }
+
+  .product-modal__title {
+    color: var(--text-primary-dark);
+  }
+
+  .product-modal__close-btn {
+    color: var(--text-secondary-dark);
+  }
+
+  .product-modal__close-btn:hover:not(:disabled) {
+    background-color: var(--secondary-color-dark);
+    color: var(--text-primary-dark);
+  }
+
+  .product-modal__label {
+    color: var(--text-primary-dark);
+  }
+
+  .product-modal__input,
+  .product-modal__textarea,
+  .product-modal__select {
+    background-color: var(--background-dark);
+    color: var(--text-primary-dark);
+    border-color: var(--border-color-dark);
+  }
+
+  .product-modal__input:focus,
+  .product-modal__textarea:focus,
+  .product-modal__select:focus {
+    border-color: var(--accent-color-dark);
+  }
+
+  .product-modal__preview-image {
+    border-color: var(--border-color-dark);
+  }
+
+  .product-modal__actions {
+    border-top-color: var(--border-color-dark);
+  }
+
+  .product-modal__cancel-btn {
+    color: var(--text-secondary-dark);
+    border-color: var(--border-color-dark);
+  }
+
+  .product-modal__cancel-btn:hover:not(:disabled) {
+    background-color: var(--secondary-color-dark);
+    color: var(--text-primary-dark);
+  }
+
+  .product-modal__save-btn {
+    background-color: var(--accent-color-dark);
+  }
+
+  .product-modal__save-btn:hover:not(:disabled) {
+    background-color: var(--accent-light-dark);
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .product-modal__overlay {
+    padding: 0.5rem;
+  }
+
+  .product-modal__content {
+    max-height: 95vh;
+  }
+
+  .product-modal__header {
+    padding: 1rem 1.5rem;
+  }
+
+  .product-modal__title {
+    font-size: 1.25rem;
+  }
+
+  .product-modal__form {
+    padding: 1.5rem;
+  }
+
+  .product-modal__form-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .product-modal__actions {
+    flex-direction: column-reverse;
+    gap: 0.75rem;
+  }
+
+  .product-modal__cancel-btn,
+  .product-modal__save-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .product-modal__header {
+    padding: 1rem;
+  }
+
+  .product-modal__form {
+    padding: 1rem;
+  }
+
+  .product-modal__form-grid {
+    gap: 0.75rem;
+  }
+}

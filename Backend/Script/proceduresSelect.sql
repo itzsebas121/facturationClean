@@ -127,7 +127,20 @@ BEGIN
     where cl.ClientId = @ClientID
     AND CS.IsActive = 1
 END;
-
+CREATE OR ALTER PROCEDURE getOrderById
+    @OrderId int
+AS
+BEGIN
+    Select 
+    p.Name,
+    p.ImageUrl,
+    p.Price,
+    (p.Price * od.Quantity) as SubTotal,
+    od.* 
+    from orderdetails od
+    JOIN Products p on p.ProductId = od.ProductId
+    where od.OrderId = @OrderId
+END;
 
 CREATE OR ALTER PROCEDURE RecoverPassword
     @Email VARCHAR(100)

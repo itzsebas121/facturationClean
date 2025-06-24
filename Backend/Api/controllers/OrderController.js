@@ -15,6 +15,19 @@ async function getAll(req, res) {
     }
 }
 
+async function getById(req, res) {
+    const { id } = req.params;
+    try {
+        const order = await ordersService.getOrderById(id);
+        if (!order) {
+            return res.status(404).json({ error: "Orden no encontrada" });
+        }
+        res.status(200).json(order);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
+
 async function create(req, res) {
     try {
         const order = req.body;
@@ -45,5 +58,6 @@ async function addProductToOrder(req, res) {
 module.exports = {
     getAll,
     create,
+    getById,
     addProductToOrder
 };

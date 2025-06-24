@@ -168,6 +168,32 @@
 
 
 
-
-
+    para obtener el detalle de una orden
+    api/orders/112
+    112 es el id de la orden
+    te devolvera esto:
+    [
+    {
+        "Name": "Moderno Camiseta",
+        "ImageUrl": "https://picsum.photos/seed/7/150/150",
+        "Price": 407.49,
+        "SubTotal": 407.49,
+        "OrderDetailId": 61,
+        "OrderId": 112,
+        "ProductId": 11007,
+        "Quantity": 1,
+        "UnitPrice": 407.49
+    },
+    {
+        "Name": "Clásico Cámara",
+        "ImageUrl": "https://picsum.photos/seed/9/150/150",
+        "Price": 352.64,
+        "SubTotal": 352.64,
+        "OrderDetailId": 62,
+        "OrderId": 112,
+        "ProductId": 11009,
+        "Quantity": 1,
+        "UnitPrice": 352.64
+    }
+]
 */

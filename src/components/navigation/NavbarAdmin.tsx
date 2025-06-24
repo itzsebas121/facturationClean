@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { Home, History, LogOut, Menu, X } from 'lucide-react';
+import { Home, History, LogOut, Menu, X, Box, Users } from 'lucide-react';
 import { useAuth } from '../../auth/AuthContext';
 import './Navbar.css'; 
 
@@ -49,7 +49,19 @@ export function NavbarAdmin() {
               <li>
                 <a href="/admin/history" className="nav-link">
                   <History size={18} />
-                  <span>History</span>
+                  <span>Historial</span>
+                </a>
+              </li>
+              <li>
+                <a href="/admin/products" className="nav-link">
+                  <Box size={18} />
+                  <span>Productos</span>
+                </a>
+              </li>
+              <li>
+                <a href="/admin/clients" className="nav-link">
+                  <Users size={18} />
+                  <span>Clientes</span>
                 </a>
               </li>
             </ul>

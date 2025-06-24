@@ -10,6 +10,16 @@ async function getAll(req, res) {
         res.status(500).json({ message: "Error al obtener clientes", error });
     }
 }
+async function getById(req, res) {
+    try {
+        const clientId = req.params.id;
+        const client = await clientService.getClientById(clientId);
+        res.json(client);
+    }
+    catch (error) {
+        res.status(500).json({ message: "Error al obtener cliente", error });
+    }
+}
 async function create(req, res) {
     try {
         const client = req.body;
@@ -32,7 +42,7 @@ async function update(req, res) {
 }
 async function changePassword(req, res) {
     try {
-        const { userId, currentPassword, newPassword} = req.body;
+        const { userId, currentPassword, newPassword } = req.body;
         const updatedClient = await clientService.changePassword(userId, currentPassword, newPassword);
         res.json(updatedClient);
     }
@@ -40,9 +50,21 @@ async function changePassword(req, res) {
         res.status(500).json({ message: "Error al cambiar contraseña", error });
     }
 }
+async function recoverPassword(req, res) {
+    try {
+        const { email } = req.body;
+        const updatedClient = await clientService.recoverPassword(email);
+        res.json(updatedClient);
+    }
+    catch (error) {
+        res.status(500).json({ message: "Error al recuperar contraseña", error });
+    }
+}
 module.exports = {
     getAll,
     create,
     update,
+    getById,
     changePassword,
+    recoverPassword
 };

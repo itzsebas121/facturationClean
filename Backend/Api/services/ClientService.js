@@ -4,6 +4,13 @@ async function getAllClients() {
   const result = await pool.request().execute('getClients');
   return result.recordset;
 }
+async function getClientById(id) {
+  const pool = await poolPromise;
+  const result = await pool.request()
+    .input('ClientId', sql.Int, id)
+    .execute('getClientById');
+  return result.recordset[0];
+}
 async function createClient(client) {
   const pool = await poolPromise;
   const request = pool.request();
@@ -39,8 +46,20 @@ async function changePassword(userId, currentPassword, newPassword) {
   const result = await request.execute('ChangePassword');
   return result.recordset[0];
 }
+
+async function recoverPassword(email) {
+  const pool = await poolPromise;
+  const request = pool.request();
+  request.input('Email', sql.VarChar(100), email);
+  const result = await request.execute('RecoverPassword');
+  console.log(result);
+  return result.recordset[0];
+}
 module.exports = {
   getAllClients,
   createClient,
   updateClient,
+  changePassword,
+  getClientById,
+  recoverPassword,
 };

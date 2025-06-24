@@ -59,7 +59,22 @@ BEGIN
     FROM Clients c
     Join Users u on u.UserId = c.UserId
 END;
-
+CREATE OR ALTER PROCEDURE getClientById
+    @ClientId int
+AS
+BEGIN
+    SELECT 
+        c.ClientId,
+        c.FirstName,
+        c.LastName,
+        c.Address,
+        c.Phone,
+        u.Cedula,
+        u.Email
+    FROM Clients c
+    Join Users u on u.UserId = c.UserId
+    where c.ClientId= @ClientId 
+END
 
 CREATE PROCEDURE getCategories
 AS
@@ -112,3 +127,33 @@ BEGIN
     where cl.ClientId = @ClientID
     AND CS.IsActive = 1
 END;
+
+
+CREATE OR ALTER PROCEDURE RecoverPassword
+    @Email VARCHAR(100)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        DECLARE @UserId INT;
+        SELECT @UserId = UserId FROM Users WHERE Email = @Email;
+
+        IF @UserId IS NULL
+        BEGIN
+            SELECT 'El correo no está registrado' AS Error;
+            RETURN;
+        END
+
+        DECLARE @TempPassword VARCHAR(20) = LEFT(NEWID(), 8);
+
+        UPDATE Users
+        SET PasswordHash = HASHBYTES('SHA2_256', CONVERT(VARBINARY(MAX), @TempPassword))
+        WHERE UserId = @UserId;
+
+        SELECT 'Contraseña restablecida correctamente' AS Message, @TempPassword AS TemporaryPassword;
+    END TRY
+    BEGIN CATCH
+        SELECT ERROR_MESSAGE() AS Error;
+    END CATCH
+END

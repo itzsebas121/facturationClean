@@ -128,6 +128,46 @@
         "currentPassword": "MiClaveActual123",
         "newPassword": "NuevaClaveSegura456"
     }
+    si esta bien te devolvera esto:
+    {
+        "Message": "Contraseña actualizada correctamente"
+    }
+
+    si no esta bien te devolvera esto:
+    {
+        "Error": "Contraseña actual incorrecta"
+    }
+
+
+
 
     para eliminar cliente metodo delete /api/clients
+
+
+
+
+    para recuperar la contraseña 
+    http://localhost:3000/api/clients/recoverPassword
+    con el metodo POST
+    el body sera un json con la siguiente estructura:
+    {
+        "email": "clisssente@email.com"
+    }
+    te devolvera esto si fue exitoso;
+    {
+        "Message": "Contraseña restablecida correctamente",
+        "TemporaryPassword": "68A2C8A9"
+    }
+    si no fue exitoso te devolvera esto:
+    {
+        "Error": "No se encontró un cliente con el correo electrónico proporcionado."
+    }
+
+
+
+
+
+
+
+
 */

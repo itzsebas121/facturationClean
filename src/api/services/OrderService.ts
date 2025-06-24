@@ -45,3 +45,13 @@ export async function addDetailService(orderDetail: any, orderId: number) {
         return false; // Error inesperado
     }
 }
+export async function getDetailService(orderId: number) {
+    const res = await fetch(ORDER_ENDPOINTS.Orders + `/${orderId}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+    });
+    if (!res.ok) {
+        throw new Error('Failed to fetch order details');
+    }
+    return await res.json();
+}

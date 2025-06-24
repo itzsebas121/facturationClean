@@ -202,11 +202,11 @@
   border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 1rem;
-  display: flex;
-  align-items: center;
   gap: 1rem;
   transition: all 0.2s ease;
   box-shadow: 0 1px 3px var(--shadow-color);
+  display: grid;
+  grid-template-columns: 80px 1fr 2fr 80px;
 }
 
 .client-item:hover {
@@ -243,6 +243,10 @@
 .client-item__main {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .client-item__name {
@@ -250,9 +254,10 @@
   font-weight: 600;
   color: var(--text-primary);
   margin: 0 0 0.25rem 0;
-  white-space: nowrap;
+  white-space: nowrap;         
   overflow: hidden;
-  text-overflow: ellipsis;
+  text-overflow: ellipsis;  
+  max-width: 100%;
 }
 
 .client-item__status {
@@ -276,9 +281,10 @@
 }
 
 .client-item__details {
-  display: flex;
+  display: grid;
   gap: 1.5rem;
   flex-shrink: 0;
+  grid-template-columns: 1fr 1fr
 }
 
 .client-item__info,
@@ -344,12 +350,12 @@
 }
 
 .client-item__toggle-btn.unblock {
-  background: rgba(55, 157, 58, 0.1);
+  background: #ff9d00;
   color: var(--accent-color);
 }
 
 .client-item__toggle-btn.unblock:hover:not(:disabled) {
-  background: rgba(55, 157, 58, 0.2);
+  background: #cc8718;
   transform: scale(1.05);
 }
 

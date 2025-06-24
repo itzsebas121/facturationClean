@@ -266,6 +266,7 @@ export function ClientAdmin() {
                     </div>
                   </div>
 
+                </div>
                   <div className="client-item__details">
                     <div className="client-item__info">
                       <span className="client-item__email">{client.email}</span>
@@ -276,7 +277,6 @@ export function ClientAdmin() {
                       <span className="client-item__address">{client.direccion}</span>
                     </div>
                   </div>
-                </div>
 
                 <div className="client-item__actions">
                   <button

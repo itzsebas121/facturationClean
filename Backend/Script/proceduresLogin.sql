@@ -23,7 +23,6 @@ BEGIN
         RETURN;
     END
 
-    -- Validar que no exista cedula ni email duplicados
     IF EXISTS (SELECT 1 FROM Users WHERE Cedula = @Cedula)
     BEGIN
         RAISERROR('Cedula already registered.', 16, 1);
@@ -36,7 +35,6 @@ BEGIN
         RETURN;
     END
 
-    -- Insertar en Users
     INSERT INTO Users (Cedula, Email, PasswordHash, RoleId)
     VALUES (
         @Cedula,
@@ -47,7 +45,6 @@ BEGIN
 
     DECLARE @UserId INT = SCOPE_IDENTITY();
 
-    -- Insertar en tabla específica según rol
     IF @RoleName = 'Client'
     BEGIN
         INSERT INTO Clients (UserId, FirstName, LastName, Address, Phone)

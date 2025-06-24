@@ -109,4 +109,25 @@
         "phone": "0987654321"
     }
 
+    para actualizar cliente metodo put /api/clients
+    
+    {
+        "clientId": 12,
+        "cedula": "1234567890",
+        "email": "cliente@email.com",
+        "firstName": "Juan",
+        "lastName": "Pérez",
+        "address": "Av. Siempre Viva 742",
+        "phone": "0987654321"
+    }   
+
+
+    para cambiar la contraseña del cliente metodo put /api/clients/changePassword
+    {
+        "userId": 42,
+        "currentPassword": "MiClaveActual123",
+        "newPassword": "NuevaClaveSegura456"
+    }
+
+    para eliminar cliente metodo delete /api/clients
 */

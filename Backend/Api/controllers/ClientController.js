@@ -20,7 +20,29 @@ async function create(req, res) {
         res.status(500).json({ message: "Error al crear cliente", error });
     }
 }
+async function update(req, res) {
+    try {
+        const client = req.body;
+        const updatedClient = await clientService.updateClient(client);
+        res.json(updatedClient);
+    }
+    catch (error) {
+        res.status(500).json({ message: "Error al actualizar cliente", error });
+    }
+}
+async function changePassword(req, res) {
+    try {
+        const { userId, currentPassword, newPassword} = req.body;
+        const updatedClient = await clientService.changePassword(userId, currentPassword, newPassword);
+        res.json(updatedClient);
+    }
+    catch (error) {
+        res.status(500).json({ message: "Error al cambiar contraseña", error });
+    }
+}
 module.exports = {
     getAll,
     create,
+    update,
+    changePassword,
 };

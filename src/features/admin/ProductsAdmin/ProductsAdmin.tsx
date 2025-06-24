@@ -51,7 +51,7 @@ export function ProductsAdmin() {
   const [isCreating, setIsCreating] = useState(false)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
   const [alert, setAlert] = useState<AlertState>({ show: false, type: "info", message: "" })
-  const [confirm, setConfirm] = useState<ConfirmState>({ show: false, title: "", message: "", onConfirm: () => {} })
+  const [confirm, setConfirm] = useState<ConfirmState>({ show: false, title: "", message: "", onConfirm: () => { } })
   const [imageLoadStates, setImageLoadStates] = useState<Record<string, "loading" | "loaded" | "error">>({})
 
   const pageSize = 50 // Increased for more compact view
@@ -74,7 +74,7 @@ export function ProductsAdmin() {
   }
 
   const hideConfirm = () => {
-    setConfirm({ show: false, title: "", message: "", onConfirm: () => {} })
+    setConfirm({ show: false, title: "", message: "", onConfirm: () => { } })
   }
 
   const fetchCategories = async () => {
@@ -364,12 +364,12 @@ export function ProductsAdmin() {
                   )}
                 </div>
 
+                <div className="product-item__main">
+                  <h3 className="product-item__name">{product.name}</h3>
+                  <span className="product-item__category">{product.category}</span>
+                  <p className="product-item__description">{product.description}</p>
+                </div>
                 <div className="product-item__content">
-                  <div className="product-item__main">
-                    <h3 className="product-item__name">{product.name}</h3>
-                    <span className="product-item__category">{product.category}</span>
-                    <p className="product-item__description">{product.description}</p>
-                  </div>
 
                   <div className="product-item__details">
                     <div className="product-item__price">{formatPrice(product.price)}</div>

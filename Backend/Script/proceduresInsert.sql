@@ -119,14 +119,13 @@ END
 
 CREATE OR ALTER PROCEDURE ConvertCartToOrder
     @CartId INT
-AS
+AS BEGIN
     SET NOCOUNT ON;
 
     DECLARE @ClientId INT, @SubTotal DECIMAL(12,2), @Tax DECIMAL(12,2), @Total DECIMAL(12,2);
+    DECLARE @OrderId INT;
 
-    -- Validar carrito
     SELECT @ClientId = ClientId FROM Carts WHERE CartId = @CartId AND IsActive = 1;
-BEGIN
 
     IF @ClientId IS NULL
     BEGIN
@@ -134,7 +133,6 @@ BEGIN
         RETURN;
     END
 
-    -- Validar stock de todos los productos
     IF EXISTS (
         SELECT 1
         FROM CartItems ci
@@ -142,38 +140,53 @@ BEGIN
         WHERE ci.CartId = @CartId AND ci.Quantity > p.Stock
     )
     BEGIN
-        SELECT 'Uno o más productos no tienen stock suficiente para procesar la orden.' AS error;
+        SELECT 
+            p.ProductId,
+            p.Name,
+            p.Stock AS StockDisponible,
+            ci.Quantity AS CantidadSolicitada,
+            'El producto '+p.Name+' no tiene stock suficiente' AS error
+        FROM CartItems ci
+        JOIN Products p ON ci.ProductId = p.ProductId
+        WHERE ci.CartId = @CartId AND  p.isActive = 0;
+        
         RETURN;
     END
 
-    -- Calcular totales
-    SELECT @SubTotal = SUM(SubTotal) FROM CartItems WHERE CartId = @CartId;
-    SET @Tax = ROUND(@SubTotal * 0.12, 2);
-    SET @Total = @SubTotal + @Tax;
+    BEGIN TRANSACTION;
 
-    -- Insertar orden
-    INSERT INTO Orders (ClientId, SubTotal, Tax, Total)
-    VALUES (@ClientId, @SubTotal, @Tax, @Total);
+    BEGIN TRY
+        SELECT @SubTotal = SUM(SubTotal) FROM CartItems WHERE CartId = @CartId;
+        SET @Tax = ROUND(@SubTotal * 0.12, 2);
+        SET @Total = @SubTotal + @Tax;
 
-    DECLARE @OrderId INT = SCOPE_IDENTITY();
+        INSERT INTO Orders (ClientId, SubTotal, Tax, Total)
+        VALUES (@ClientId, @SubTotal, @Tax, @Total);
 
-    -- Insertar detalles
-    INSERT INTO OrderDetails (OrderId, ProductId, Quantity, UnitPrice)
-    SELECT @OrderId, ProductId, Quantity, UnitPrice
-    FROM CartItems
-    WHERE CartId = @CartId;
+        SET @OrderId = SCOPE_IDENTITY();
 
-    -- Descontar stock
-    UPDATE p
-    SET Stock = Stock - ci.Quantity
-    FROM Products p
-    JOIN CartItems ci ON ci.ProductId = p.ProductId
-    WHERE ci.CartId = @CartId;
+        INSERT INTO OrderDetails (OrderId, ProductId, Quantity, UnitPrice)
+        SELECT @OrderId, ProductId, Quantity, UnitPrice
+        FROM CartItems
+        WHERE CartId = @CartId;
 
-    -- Desactivar carrito
-    UPDATE Carts SET IsActive = 0 WHERE CartId = @CartId;
+        UPDATE p
+        SET Stock = Stock - ci.Quantity
+        FROM Products p
+        JOIN CartItems ci ON ci.ProductId = p.ProductId
+        WHERE ci.CartId = @CartId;
 
-    SELECT 'Orden creada correctamente.' AS resultado, @OrderId AS OrderId;
+        UPDATE Carts SET IsActive = 0 WHERE CartId = @CartId;
+
+        COMMIT;
+
+        SELECT 'Orden creada correctamente.' AS message, @OrderId AS OrderId;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK;
+
+        SELECT ERROR_MESSAGE() AS error;
+    END CATCH
 END
 
 

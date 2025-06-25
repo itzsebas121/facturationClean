@@ -2,7 +2,7 @@ const ordersService = require('../services/OrderService');
 
 
 async function getAll(req, res) {
-    const { clientId } = req.query;
+    const { clientId } = req.query; 
         try {
         const parsedId = clientId ? parseInt(clientId, 10) : null;
         if (clientId && isNaN(parsedId)) {

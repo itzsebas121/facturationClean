@@ -30,7 +30,7 @@ export default function HistoryAdmin() {
           </div>
         }
       >
-        <OrderHistory />
+        <OrderHistory role="Admin" />
       </Suspense>
     </div>
   )

@@ -1,7 +1,7 @@
 import { ORDER_ENDPOINTS } from "../endpoints/Orders";
 
-export async function getOrdersService() {
-    const res = await fetch(ORDER_ENDPOINTS.Orders, {
+export async function getOrdersService(clientID?: number) {
+    const res = await fetch(ORDER_ENDPOINTS.Orders + (clientID ? `?clientId=${clientID}` : ''), {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
     });

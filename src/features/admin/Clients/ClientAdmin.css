@@ -189,7 +189,6 @@
   }
 }
 
-/* Client List - Compact Strip Layout */
 .client-admin__list {
   display: flex;
   flex-direction: column;

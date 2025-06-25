@@ -201,7 +201,7 @@ export function ProductsAdmin() {
         }
         response = await updateProductService(updateData as any)
       }
-
+      console.log(response)
       if (response.error || response.Error) {
         showAlert("error", response.error || response.Error || "Error al crear el producto")
       } else {

@@ -10,7 +10,12 @@ import { Pagination } from "../Pagination/Pagination"
 import "./OrderHistory.css"
 import { OrderDetail } from "../../types/OrderDetail"
 import { generatePrintContent } from "./View"
-export default function OrderHistory() {
+
+interface MyComponentProps {
+  role: string;
+  clientId?: number;
+}
+const OrderHistory: React.FC<MyComponentProps> = ({ role, clientId }) => {
   const [orders, setOrders] = useState<Order[]>([])
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
@@ -36,7 +41,7 @@ export default function OrderHistory() {
   const fetchOrders = async () => {
     try {
       setLoading(true)
-      const result = await getOrdersService()
+      const result = await getOrdersService(role === "Client" ? clientId : undefined)
       const adaptedOrders = result.map((order: any) => adaptOrder(order))
       setOrders(adaptedOrders)
     } catch (error) {
@@ -125,9 +130,6 @@ export default function OrderHistory() {
       showAlert("error", "Error al generar PDF")
     }
   }
-
- 
-
   const generateProfessionalPDF = (orderInfo: Order, details: OrderDetail[]) => {
     return generatePrintContent(orderInfo, details)
   }
@@ -253,3 +255,4 @@ export default function OrderHistory() {
     </div>
   )
 }
+export default OrderHistory;

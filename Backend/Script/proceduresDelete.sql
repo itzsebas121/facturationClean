@@ -5,9 +5,11 @@ BEGIN
     UPDATE PRODUCTS
     SET ISACTIVE = 0
     where ProductId = @ProductId
+
+    exec RemoveInactiveProductFromCarts @ProductId= @ProductId
 END;
 
-CREATE PROCEDURE enableProduct
+CREATE OR ALTER PROCEDURE enableProduct
     @ProductId INT
 AS
 BEGIN
@@ -102,4 +104,40 @@ BEGIN
     BEGIN
         SELECT 'Orden no encontrada' AS Error;
     END
+END;
+
+CREATE OR ALTER PROCEDURE RemoveInactiveProductFromCarts
+    @ProductId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        IF NOT EXISTS (
+            SELECT 1 FROM Products WHERE ProductId = @ProductId
+        )
+        BEGIN
+            SELECT 'El producto no existe' AS error;
+            RETURN;
+        END
+
+        DELETE ci
+        FROM CartItems ci
+        JOIN Carts c ON c.CartId = ci.CartId
+        WHERE ci.ProductId = @ProductId AND c.IsActive = 1;
+
+        UPDATE c
+        SET c.Total = ISNULL((
+            SELECT SUM(ci.SubTotal)
+            FROM CartItems ci
+            WHERE ci.CartId = c.CartId
+        ), 0)
+        FROM Carts c
+        WHERE c.IsActive = 1 
+
+        SELECT 'Producto eliminado de todos los carritos' AS message;
+    END TRY
+    BEGIN CATCH
+        SELECT ERROR_MESSAGE() AS error;
+    END CATCH
 END;

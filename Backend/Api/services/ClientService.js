@@ -36,7 +36,7 @@ async function updateClient(client) {
   request.input('Address', sql.VarChar(200), client.address || null);
   request.input('Phone', sql.VarChar(15), client.phone || null);
   const result = await request.execute('UpdateClient');
-  return result.recordset[0];
+  return result.recordset[0]; 
 }
 async function changePassword(userId, currentPassword, newPassword) {
   const pool = await poolPromise;
@@ -55,7 +55,6 @@ async function recoverPassword(email) {
   const result = await request.execute('RecoverPassword');
   return result.recordset[0];
 }
-
 async function enableClient(clientId) {
   const pool = await poolPromise;
   const request = pool.request();

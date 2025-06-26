@@ -1,10 +1,10 @@
 const productsService = require('../services/ProductService');
 
 async function getAll(req, res) {
-  const { filtro, page = 1, pageSize = 10, categoryId } = req.query;
+  const { filtro, page = 1, pageSize = 10, categoryId, isAdmin } = req.query;
 
   try {
-    const productos = await productsService.getAllProductos(filtro, page, pageSize, categoryId);
+    const productos = await productsService.getAllProductos(filtro, page, pageSize, categoryId, isAdmin);
     res.json(productos);
   } catch (error) {
     console.error("❌ Error al obtener productos:", error);
@@ -60,7 +60,6 @@ async function enable (req, res) {
   try {
     const id = parseInt(req.params.id);
     if (isNaN(id)) return res.status(400).json({ message: "ID inválido" });
-
     const result = await productsService.enableProduct(id);
     if (!result)
       return res.status(400).json({ delete: false, message: "No se pudo habilitar el producto" });

@@ -5,6 +5,7 @@ export function adaptProduct(data: any): ProductBase {
     name: data.Name ?? 'Sin Nombre',
     price: data.Price ?? 0,
     description: data.Description ?? 'Sin Descripción',
+    isActive: data.isActive ?? true,
     image: data.ImageUrl ?? '',
     stock: data.Stock ?? 0,
     category: data.CategoryName ?? 'Sin Categoría',

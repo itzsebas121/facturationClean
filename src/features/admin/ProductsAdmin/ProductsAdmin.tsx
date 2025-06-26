@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState, useEffect } from "react"
-import { Edit, Plus, EyeOff, Search, Filter, RotateCcw } from "lucide-react"
+import { Edit, Plus, EyeOff, Search, Filter, RotateCcw, Eye } from "lucide-react"
 import "./ProductsAdmin.css"
 import type { Product, GetProductsParams } from "../../../types/Product"
 import {
@@ -11,6 +11,7 @@ import {
   updateProductService,
   getProductsService,
   disableProductService,
+  enableProductService,
 } from "../../../api/services/ProductService"
 import { getCategoriesService } from "../../../api/services/CategoryService"
 import { Pagination } from "../../../components/Pagination/Pagination"
@@ -54,7 +55,7 @@ export function ProductsAdmin() {
   const [confirm, setConfirm] = useState<ConfirmState>({ show: false, title: "", message: "", onConfirm: () => { } })
   const [imageLoadStates, setImageLoadStates] = useState<Record<string, "loading" | "loaded" | "error">>({})
 
-  const pageSize = 50 // Increased for more compact view
+  const pageSize = 50
 
   useEffect(() => {
     fetchCategories()
@@ -106,7 +107,7 @@ export function ProductsAdmin() {
         params.categoryId = selectedCategory
       }
 
-      const response = await getProductsService(params)
+      const response = await getProductsService(params, true)
 
       if ("error" in response) {
         showAlert("error", response.error as string)
@@ -133,7 +134,6 @@ export function ProductsAdmin() {
     setSearchTerm("")
     setSelectedCategory("")
     setCurrentPage(1)
-    // Trigger fetch with cleared filters
     setTimeout(() => {
       fetchProducts()
     }, 0)
@@ -156,7 +156,11 @@ export function ProductsAdmin() {
       confirmToggleAvailability(product),
     )
   }
-
+  const enableProduct = async (product: Product) => {
+    showConfirm("Confirmar acción", `¿Estás seguro de que deseas habilitar el producto "${product.name}"?`, () =>
+      confirmEnableProduct(product),
+    )
+  } 
   const confirmToggleAvailability = async (product: Product) => {
     setActionLoading(product.id.toString())
     try {
@@ -165,6 +169,23 @@ export function ProductsAdmin() {
         showAlert("error", response.error || response.Error || "Error al inhabilitar el producto")
       } else {
         showAlert("success", "Producto inhabilitado correctamente")
+        await fetchProducts()
+      }
+    } catch (error) {
+      showAlert("error", "Error al inhabilitar el producto")
+    } finally {
+      setActionLoading(null)
+      hideConfirm()
+    }
+  }
+  const confirmEnableProduct = async (product: Product) => {
+    setActionLoading(product.id.toString())
+    try {
+      const response = await enableProductService(product.id)
+      if (response.error || response.Error) {
+        showAlert("error", response.error || response.Error || "Error al inhabilitar el producto")
+      } else {
+        showAlert("success", response.message || response.Message|| "Producto habilitado correctamente")
         await fetchProducts()
       }
     } catch (error) {
@@ -389,18 +410,38 @@ export function ProductsAdmin() {
                   >
                     <Edit size={16} />
                   </button>
-                  <button
-                    className="product-item__disable-btn"
-                    onClick={() => handleToggleAvailability(product)}
-                    disabled={actionLoading === product.id.toString()}
-                    title="Inhabilitar producto"
-                  >
-                    {actionLoading === product.id.toString() ? (
-                      <div className="products-admin__button-spinner"></div>
+                  {
+                    product.isActive ? (
+                      <button
+                        className="product-item__disable-btn"
+                        onClick={() => handleToggleAvailability(product)}
+                        disabled={actionLoading === product.id.toString()}
+                        title="Inhabilitar producto"
+                      >
+                        {actionLoading === product.id.toString() ? (
+                          <div className="products-admin__button-spinner"></div>
+                        ) : (
+                          <>
+                            <EyeOff size={16} />
+                          </>
+                        )}
+                      </button>
                     ) : (
-                      <EyeOff size={16} />
-                    )}
-                  </button>
+                      <button
+                        className="product-item__enable-btn"
+                        onClick={() => enableProduct(product)}
+                        disabled={actionLoading === product.id.toString()}
+                        title="Habilitar producto"
+                      >
+                        {actionLoading === product.id.toString() ? (
+                          <div className="products-admin__button-spinner"></div>
+                        ) : (
+                          <Eye size={16} />
+                        )}
+                      </button>
+                    )
+                  }
+
                 </div>
               </div>
             ))}

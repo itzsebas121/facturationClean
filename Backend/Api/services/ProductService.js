@@ -1,6 +1,6 @@
 const { poolPromise, sql } = require('../db/db');
 
-async function getAllProductos(filtro, page = 1, pageSize = 10, categoryId = null) {
+async function getAllProductos(filtro, page = 1, pageSize = 10, categoryId = null, isAdmin = false) {
   const pool = await poolPromise;
 
   const result = await pool
@@ -9,6 +9,7 @@ async function getAllProductos(filtro, page = 1, pageSize = 10, categoryId = nul
     .input("CategoryId", categoryId ? parseInt(categoryId) : null)
     .input("Page", parseInt(page))
     .input("PageSize", parseInt(pageSize))
+    .input("EsAdmin", isAdmin ? 1 : 0)
     .execute("getProducts");
   return {
     products: result.recordsets[0],

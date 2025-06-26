@@ -1,7 +1,7 @@
 
 import type { Admin, Client } from '../types/User';
 
-export type User = Admin  | Client;
+export type User = Admin | Client;
 
 export function adaptarUsuario(data: any): User {
   const base = {
@@ -24,6 +24,7 @@ export function adaptarUsuario(data: any): User {
       return {
         ...base,
         rol: 'Client',
+        clientId: data.clientId ?? '',
         email: data.email ?? '',
         direccion: data.address ?? 'Sin dirección',
         telefono: data.phone ?? 'Sin teléfono',
@@ -32,8 +33,11 @@ export function adaptarUsuario(data: any): User {
 }
 export function adaptarCliente(data: any): Client {
   return {
-    id: data.ClientId ?? data.id ?? '',
-    nombre: data.Name ?? 'Sin Nombre',
+    id: data.UserId ?? data.id ?? 0,
+    clientId:data.ClientId??data.clientId??data.ClientID??0,
+    primerNombre: data.FirstName,
+    primerApellido: data.LastName,
+    nombre: data.Name ?? data.FirstName + ' ' + data.LastName ?? 'Sin Nombre',
     rol: 'Client',
     email: data.Email ?? '',
     direccion: data.Address ?? 'Sin dirección',

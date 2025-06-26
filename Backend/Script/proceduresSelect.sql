@@ -2,14 +2,14 @@ CREATE OR ALTER PROCEDURE getProducts
     @FiltroGeneral NVARCHAR(200) = NULL,
     @CategoryId INT = NULL,
     @Page INT = 1,
-    @PageSize INT = 10
+    @PageSize INT = 10,
+    @EsAdmin BIT = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
 
     DECLARE @Offset INT = (@Page - 1) * @PageSize;
 
-    -- Tabla temporal para almacenar el filtrado
     SELECT 
         p.ProductId,
         p.CategoryId,
@@ -18,24 +18,25 @@ BEGIN
         p.Description,
         p.Price,
         p.Stock,
-        P.isActive,
+        p.isActive,
         p.ImageUrl
     INTO #ProductosFiltrados
     FROM Products p
     INNER JOIN Categories c ON p.CategoryId = c.CategoryId
     WHERE (
-        (@FiltroGeneral IS NULL OR
-         p.Name LIKE '%' + @FiltroGeneral + '%' OR
-         p.Description LIKE '%' + @FiltroGeneral + '%' OR
-         c.CategoryName LIKE '%' + @FiltroGeneral + '%' OR
-         CAST(p.Price AS NVARCHAR) LIKE '%' + @FiltroGeneral + '%' OR
-         CAST(p.Stock AS NVARCHAR) LIKE '%' + @FiltroGeneral + '%')
+        @FiltroGeneral IS NULL OR
+        p.Name LIKE '%' + @FiltroGeneral + '%' OR
+        p.Description LIKE '%' + @FiltroGeneral + '%' OR
+        c.CategoryName LIKE '%' + @FiltroGeneral + '%' OR
+        CAST(p.Price AS NVARCHAR) LIKE '%' + @FiltroGeneral + '%' OR
+        CAST(p.Stock AS NVARCHAR) LIKE '%' + @FiltroGeneral + '%'
     )
     AND (@CategoryId IS NULL OR p.CategoryId = @CategoryId)
-    AND STOCK > 0
-    AND ISACTIVE=1
+    AND (
+        ISNULL(@EsAdmin, 0) = 1 OR 
+        (p.Stock > 0 AND p.isActive = 1)
+    );
 
-    -- Resultado paginado
     SELECT *
     FROM #ProductosFiltrados
     ORDER BY ProductId
@@ -47,6 +48,7 @@ BEGIN
 
     DROP TABLE #ProductosFiltrados;
 END;
+
 CREATE OR ALTER PROCEDURE getClients
 AS
 BEGIN
@@ -72,6 +74,7 @@ BEGIN
         c.Address,
         c.Phone,
         u.Cedula,
+        u.UserId,
         u.Email
     FROM Clients c
     Join Users u on u.UserId = c.UserId

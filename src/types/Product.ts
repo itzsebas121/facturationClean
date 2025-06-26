@@ -3,6 +3,7 @@ export interface ProductBase {
     name: string;
     price: number;
     description: string;
+    isActive: boolean;
     image: string;
     stock?: number;
     category?: string;

@@ -388,7 +388,7 @@
 }
 
 .product-item__edit-btn,
-.product-item__disable-btn {
+.product-item__disable-btn, .product-item__enable-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -419,7 +419,14 @@
   background: #cb535f;
   transform: scale(1.05);
 }
-
+.product-item__enable-btn{
+  background: #ff9800;
+  color: white;
+}
+.product-item__enable-btn:hover:not(:disabled) {
+  background: #ffc107;
+  transform: scale(1.05);
+}
 .product-item__edit-btn:disabled,
 .product-item__disable-btn:disabled {
   opacity: 0.6;

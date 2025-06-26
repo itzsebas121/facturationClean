@@ -119,7 +119,8 @@ END
 
 CREATE OR ALTER PROCEDURE ConvertCartToOrder
     @CartId INT
-AS BEGIN
+AS
+BEGIN
     SET NOCOUNT ON;
 
     DECLARE @ClientId INT, @SubTotal DECIMAL(12,2), @Tax DECIMAL(12,2), @Total DECIMAL(12,2);
@@ -133,6 +134,21 @@ AS BEGIN
         RETURN;
     END
 
+    -- Validar productos inactivos
+    IF EXISTS (
+        SELECT 1
+        FROM CartItems ci
+        JOIN Products p ON ci.ProductId = p.ProductId
+        WHERE ci.CartId = @CartId AND p.isActive = 0
+    )
+    BEGIN
+        SELECT  'El producto '+p.Name+ ' está inactivo y no se puede procesar.' AS error
+        FROM CartItems ci
+        JOIN Products p ON ci.ProductId = p.ProductId
+        WHERE ci.CartId = @CartId AND p.isActive = 0;
+
+        RETURN;
+    END
     IF EXISTS (
         SELECT 1
         FROM CartItems ci
@@ -145,11 +161,11 @@ AS BEGIN
             p.Name,
             p.Stock AS StockDisponible,
             ci.Quantity AS CantidadSolicitada,
-            'El producto '+p.Name+' no tiene stock suficiente' AS error
+            'El producto no tiene stock suficiente.' AS error
         FROM CartItems ci
         JOIN Products p ON ci.ProductId = p.ProductId
-        WHERE ci.CartId = @CartId AND  p.isActive = 0;
-        
+        WHERE ci.CartId = @CartId AND ci.Quantity > p.Stock;
+
         RETURN;
     END
 
@@ -171,12 +187,14 @@ AS BEGIN
         WHERE CartId = @CartId;
 
         UPDATE p
-        SET Stock = Stock - ci.Quantity
+        SET p.Stock = p.Stock - ci.Quantity
         FROM Products p
         JOIN CartItems ci ON ci.ProductId = p.ProductId
         WHERE ci.CartId = @CartId;
 
-        UPDATE Carts SET IsActive = 0 WHERE CartId = @CartId;
+        UPDATE Carts
+        SET IsActive = 0
+        WHERE CartId = @CartId;
 
         COMMIT;
 
@@ -187,7 +205,8 @@ AS BEGIN
 
         SELECT ERROR_MESSAGE() AS error;
     END CATCH
-END
+END;
+
 
 
 CREATE OR ALTER PROCEDURE CreateOrder

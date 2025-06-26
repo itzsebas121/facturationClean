@@ -20,14 +20,15 @@ export async function createClientService(client: any) {
 }
 export async function updateClientService(client: any) {
     const clientPost = {
-        clientId: client.clientId,
-        firstName: client.primerNombre,
-        lastName: client.primerApellido,
+        clientId: client.clientId ,
+        firstName: client.primerNombre || client.firstName,
+        lastName: client.primerApellido || client.lastName,
         email: client.email,
-        phone: client.telefono,
-        address: client.direccion,
-        cedula: client.cedula
+        phone: client.telefono || client.phone,
+        address: client.direccion || client.address,
+        cedula: client.cedula || client.cedula
     };
+    console.log(client )
     const res = await fetch(`${CLIENTS_ENDPOINTS.Client}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },

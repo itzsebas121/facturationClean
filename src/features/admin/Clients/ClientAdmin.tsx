@@ -43,7 +43,7 @@ export function ClientAdmin() {
   const [alert, setAlert] = useState<AlertState>({ show: false, type: "info", message: "" })
   const [confirm, setConfirm] = useState<ConfirmState>({ show: false, title: "", message: "", onConfirm: () => {} })
 
-  const pageSize = 20 // Increased for more compact view
+  const pageSize = 20 
 
   useEffect(() => {
     fetchClients()
@@ -88,7 +88,6 @@ export function ClientAdmin() {
         const startIndex = (currentPage - 1) * pageSize
         const endIndex = startIndex + pageSize
         const paginatedClients = filteredClients.slice(startIndex, endIndex)
-
         setClients(paginatedClients)
         setTotalClients(total)
         setTotalPages(Math.ceil(total / pageSize))
@@ -134,13 +133,13 @@ export function ClientAdmin() {
   }
 
   const confirmToggleBlockClient = async (client: Client) => {
-    setActionLoading(client.id)
+    setActionLoading(String(client.clientId))
     try {
       let response
       if (client.isBlocked) {
-        response = await enableClientService(Number(client.id))
+        response = await enableClientService(Number(client.clientId))
       } else {
-        response = await disableClientService(Number(client.id))
+        response = await disableClientService(Number(client.clientId))
       }
 
       if (response.error || response.Error) {
@@ -166,7 +165,6 @@ export function ClientAdmin() {
       } else {
         response = await updateClientService(clientData)
       }
-      console.log(response)
       if (response.error || response.Error) {
         showAlert("error", response.error || response.Error)
       } else {
@@ -253,9 +251,14 @@ export function ClientAdmin() {
         <>
           <div className="client-admin__list">
             {clients.map((client) => (
-              <div key={client.id} className="client-item">
+              <div key={client.clientId} className="client-item">
                 <div className="client-item__avatar">
-                  <div className="client-initial">{getClientInitial(client.nombre)}</div>
+                  {client.picture ? (
+                    <img src={client.picture} alt={client.nombre} className="client-item__avatar-image" />
+                  ) : (
+                    <div className="client-initial">{getClientInitial(client.nombre)}</div>
+                  )}
+                 
                 </div>
 
                 <div className="client-item__content">
@@ -282,7 +285,7 @@ export function ClientAdmin() {
                   <button
                     className="client-item__edit-btn"
                     onClick={() => handleEditClient(client)}
-                    disabled={actionLoading === client.id}
+                    disabled={actionLoading === String(client.clientId)}
                     title="Editar cliente"
                   >
                     <Edit size={16} />
@@ -290,10 +293,10 @@ export function ClientAdmin() {
                   <button
                     className={`client-item__toggle-btn ${client.isBlocked ? "unblock" : "block"}`}
                     onClick={() => handleToggleBlockClient(client)}
-                    disabled={actionLoading === client.id}
+                    disabled={actionLoading === String(client.clientId)}
                     title={client.isBlocked ? "Desbloquear cliente" : "Bloquear cliente"}
                   >
-                    {actionLoading === client.id ? (
+                    {actionLoading === String(client.clientId) ? (
                       <div className="client-admin__button-spinner"></div>
                     ) : client.isBlocked ? (
                       <Check size={16} />

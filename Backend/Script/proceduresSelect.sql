@@ -55,10 +55,13 @@ BEGIN
     SELECT 
         c.ClientId,
         c.FirstName+' '+c.LastName as Name,
+        c.FirstName,
+        c.LastName,
         c.Address,
         c.Phone,
         u.Cedula,
         c.Picture,
+        u.UserId,
         u.Email,
         u.IsBlocked
     FROM Clients c

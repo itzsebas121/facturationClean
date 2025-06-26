@@ -29,20 +29,18 @@ export function ClientModal({ client, isOpen, onClose, onSave, isCreating, loadi
   const [showPassword, setShowPassword] = useState(false)
 
   useEffect(() => {
+
     if (client) {
-      const nameParts = client.nombre.split(" ")
-      const firstName = nameParts[0] || ""
-      const lastName = nameParts.slice(1).join(" ") || ""
 
       setFormData({
-        firstName,
-        lastName,
-        email: client.email,
-        cedula: client.cedula,
-        address: client.direccion,
-        phone: client.telefono,
+        firstName: client.primerNombre ?? "",
+        lastName: client.primerApellido ?? "",
+        email: client.email ?? "",
+        cedula: client.cedula ?? "",
+        address: client.direccion ?? "",
+        phone: client.telefono ?? "",
         password: "",
-        isBlocked: client.isBlocked,
+        isBlocked: client.isBlocked ?? false,
       })
     } else {
       setFormData({
@@ -103,7 +101,7 @@ export function ClientModal({ client, isOpen, onClose, onSave, isCreating, loadi
 
     const clientData = {
       ...formData,
-      clientId: client?.id, 
+      clientId: client?.clientId, 
     }
 
     onSave(clientData)

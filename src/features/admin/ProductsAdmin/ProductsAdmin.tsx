@@ -183,13 +183,13 @@ export function ProductsAdmin() {
     try {
       const response = await enableProductService(product.id)
       if (response.error || response.Error) {
-        showAlert("error", response.error || response.Error || "Error al inhabilitar el producto")
+        showAlert("error", response.error || response.Error || "Error al habilitar el producto")
       } else {
         showAlert("success", response.message || response.Message|| "Producto habilitado correctamente")
         await fetchProducts()
       }
     } catch (error) {
-      showAlert("error", "Error al inhabilitar el producto")
+      showAlert("error", "Error al habilitar el producto")
     } finally {
       setActionLoading(null)
       hideConfirm()
@@ -222,7 +222,6 @@ export function ProductsAdmin() {
         }
         response = await updateProductService(updateData as any)
       }
-      console.log(response)
       if (response.error || response.Error) {
         showAlert("error", response.error || response.Error || "Error al crear el producto")
       } else {
@@ -289,7 +288,7 @@ export function ProductsAdmin() {
         onConfirm={confirm.onConfirm}
         onCancel={hideConfirm}
         type="danger"
-        confirmText="Inhabilitar"
+        confirmText="Confirmar"
       />
 
       <div className="products-admin__header">

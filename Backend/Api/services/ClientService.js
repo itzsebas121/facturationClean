@@ -35,7 +35,6 @@ async function updateClient(client) {
   request.input('LastName', sql.VarChar(100), client.lastName);
   request.input('Address', sql.VarChar(200), client.address || null);
   request.input('Phone', sql.VarChar(15), client.phone || null);
-  request.input('ProfileImageUrl', sql.VarChar(255), client.picture || null);
 
   const result = await request.execute('UpdateClient');
   return result.recordset[0];
@@ -83,7 +82,6 @@ async function updatePicture(client) {
   request.input('ClientId', sql.Int, client.clientId);
   request.input('ProfileImageUrl', sql.VarChar(500), client.picture );
   const result = await request.execute('UpdateClientPicture');
-  console.log(result);
   return result.recordset[0];
 }
 module.exports = {

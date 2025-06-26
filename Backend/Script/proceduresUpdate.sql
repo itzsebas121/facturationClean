@@ -110,6 +110,8 @@ BEGIN
         SELECT ERROR_MESSAGE() AS Error;
     END CATCH
 END
+
+
 CREATE OR ALTER PROCEDURE UpdateClientPicture
     @ClientId INT,
     @ProfileImageUrl VARCHAR(500)
@@ -126,16 +128,8 @@ BEGIN
             SELECT 'Cliente no encontrado' AS Error;
             RETURN;
         END
-
-        IF @@ROWCOUNT = 0
-        BEGIN
-            SELECT 'No se pudo actualizar datos de usuario' AS Error;
-            RETURN;
-        END
-
         UPDATE Clients
-        SET 
-            Picture= @ProfileImageUrl
+        set Picture= @ProfileImageUrl
         WHERE ClientId = @ClientId;
 
         IF @@ROWCOUNT = 0

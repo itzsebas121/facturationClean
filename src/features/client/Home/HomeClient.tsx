@@ -83,6 +83,29 @@ export function HomeClient() {
   }, [user?.id])
 
   const handleProfileInputChange = (field: keyof ProfileForm, value: string) => {
+    // Validaciones específicas para campos numéricos
+    if (field === 'telefono') {
+      const numericValue = value.replace(/\D/g, ''); // Solo números
+      if (numericValue.length <= 10) {
+        setProfileForm(prev => ({
+          ...prev,
+          [field]: numericValue
+        }));
+      }
+      return;
+    }
+
+    if (field === 'cedula') {
+      const numericValue = value.replace(/\D/g, ''); // Solo números
+      if (numericValue.length <= 10) {
+        setProfileForm(prev => ({
+          ...prev,
+          [field]: numericValue
+        }));
+      }
+      return;
+    }
+
     setProfileForm(prev => ({
       ...prev,
       [field]: value
@@ -99,13 +122,24 @@ export function HomeClient() {
   const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
+      // Validar tamaño del archivo (máximo 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        showAlert('error', 'La imagen debe ser menor a 5MB');
+        return;
+      }
+
+      // Validar tipo de archivo
+      if (!file.type.startsWith('image/')) {
+        showAlert('error', 'Solo se permiten archivos de imagen');
+        return;
+      }
+
       setSelectedFile(file)
       const reader = new FileReader()
       reader.onload = (e) => {
         setPreviewImage(e.target?.result as string)
       }
       reader.readAsDataURL(file)
-      // Auto-trigger picture update confirmation
       setConfirmAction('picture')
       setShowConfirmDialog(true)
     }
@@ -118,11 +152,11 @@ export function HomeClient() {
 
   const validateProfileForm = (): boolean => {
     if (!profileForm.primerNombre.trim()) {
-      showAlert('error', 'El primer nombre es requerido');
+      showAlert('error', 'El nombre es requerido');
       return false;
     }
     if (!profileForm.primerApellido.trim()) {
-      showAlert('error', 'El primer apellido es requerido');
+      showAlert('error', 'El apellido es requerido');
       return false;
     }
     if (!profileForm.email.trim()) {
@@ -133,12 +167,20 @@ export function HomeClient() {
       showAlert('error', 'El teléfono es requerido');
       return false;
     }
+    if (profileForm.telefono.length !== 10) {
+      showAlert('error', 'El teléfono debe tener 10 dígitos');
+      return false;
+    }
     if (!profileForm.direccion.trim()) {
       showAlert('error', 'La dirección es requerida');
       return false;
     }
     if (!profileForm.cedula.trim()) {
       showAlert('error', 'La cédula es requerida');
+      return false;
+    }
+    if ( profileForm.cedula.length !== 10) {
+      showAlert('error', 'La cédula debe tener entre 10 dígitos');
       return false;
     }
 
@@ -152,11 +194,11 @@ export function HomeClient() {
   }
 
   const validatePasswordForm = (): boolean => {
-    if (!passwordForm.currentPassword) {
+    if (!passwordForm.currentPassword.trim()) {
       showAlert('error', 'La contraseña actual es requerida');
       return false;
     }
-    if (!passwordForm.newPassword) {
+    if (!passwordForm.newPassword.trim()) {
       showAlert('error', 'La nueva contraseña es requerida');
       return false;
     }
@@ -176,7 +218,6 @@ export function HomeClient() {
 
     setIsLoading(true);
     try {
-
       let imageUrl = client.picture;
 
       if (selectedFile) {
@@ -190,11 +231,14 @@ export function HomeClient() {
         showAlert('error', result.error || result.Error);
         return;
       }
+      else {
+        await getClient();
+        setSelectedFile(null);
+        setPreviewImage(null);
+        showAlert('success', result.message || result.Message || 'Foto de perfil actualizada exitosamente');
+      }
 
-      await getClient();
-      setSelectedFile(null);
-      setPreviewImage(null);
-      showAlert('success', result.message || 'Foto de perfil actualizada exitosamente');
+
 
     } catch (error) {
       console.error('Error updating picture:', error);
@@ -220,17 +264,15 @@ export function HomeClient() {
       };
 
       const result = await updateClientService(updatedClient);
-      if (result.error || result.Error) {
-        const errorMessage = typeof result.error === 'object'
-          ? result.error.message || JSON.stringify(result.error)
-          : result.error || result.Error;
-        showAlert('error', errorMessage);
-        return;
-      }
 
-      await getClient();
-      setIsEditingProfile(false);
-      showAlert('success', result.message || result.Message || 'Perfil actualizado con éxito');
+      if (result.error || result.Error) {
+        showAlert('error', result.error || result.Error || 'Error al actualizar el perfil');
+        return;
+      } else {
+        await getClient();
+        setIsEditingProfile(false);
+        showAlert('success', result.message || result.Message || 'Perfil actualizado con éxito');
+      }
 
     } catch (error) {
       console.log('Error actualizando perfil:', error);
@@ -250,19 +292,19 @@ export function HomeClient() {
         passwordForm.currentPassword,
         passwordForm.newPassword
       );
-      if (result.error || result.Error) {
-        showAlert('error', result.Error || result.error);
-        console.error('Error changing password:', result.error);
+
+      if (!result.success) {
+        showAlert('error', result.message || 'Error al cambiar la contraseña');
         return;
-      } else {
-        setPasswordForm({
-          currentPassword: '',
-          newPassword: '',
-          confirmPassword: ''
-        });
-        setIsChangingPassword(false);
-        showAlert('success', result.Message || result.message);
       }
+
+      setPasswordForm({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+      });
+      setIsChangingPassword(false);
+      showAlert('success', result.message || 'Contraseña cambiada exitosamente');
 
     } catch (error) {
       showAlert('error', 'Error al cambiar la contraseña. Verifique su contraseña actual.');
@@ -371,14 +413,21 @@ export function HomeClient() {
                 onClick={() => setIsEditingProfile(!isEditingProfile)}
                 disabled={isLoading}
               >
-                {isEditingProfile ? 'Cancelar' : 'Editar'}
+                {isLoading && confirmAction === 'profile' ? (
+                  <span className="btn-loading">
+                    <div className="mini-spinner"></div>
+                    Guardando...
+                  </span>
+                ) : (
+                  isEditingProfile ? 'Cancelar' : 'Editar'
+                )}
               </button>
             </div>
 
             <div className="profile-form">
               <div className="form-grid">
                 <div className="form-group">
-                  <label htmlFor="primerNombre">Primer Nombre</label>
+                  <label htmlFor="primerNombre">Nombre</label>
                   <input
                     id="primerNombre"
                     type="text"
@@ -386,11 +435,13 @@ export function HomeClient() {
                     onChange={(e) => handleProfileInputChange('primerNombre', e.target.value)}
                     disabled={!isEditingProfile}
                     className="form-input"
+                    placeholder="Ingrese su nombre"
+                    required
                   />
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="primerApellido">Primer Apellido</label>
+                  <label htmlFor="primerApellido">Apellido</label>
                   <input
                     id="primerApellido"
                     type="text"
@@ -398,7 +449,42 @@ export function HomeClient() {
                     onChange={(e) => handleProfileInputChange('primerApellido', e.target.value)}
                     disabled={!isEditingProfile}
                     className="form-input"
+                    placeholder="Ingrese su apellido"
+                    required
                   />
+                </div>
+
+                <div className="form-group">
+
+                  <label htmlFor="cedula">Cédula</label>
+                  <input
+                    id="cedula"
+                    type="text"
+                    value={profileForm.cedula}
+                    onChange={(e) => handleProfileInputChange('cedula', e.target.value)}
+                    disabled={!isEditingProfile}
+                    className="form-input"
+                    placeholder="12345678"
+                    maxLength={10}
+                    required
+                  />
+                  <small className="field-hint">Solo números, 10 dígitos</small>
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="telefono">Teléfono</label>
+                  <input
+                    id="telefono"
+                    type="text"
+                    value={profileForm.telefono}
+                    onChange={(e) => handleProfileInputChange('telefono', e.target.value)}
+                    disabled={!isEditingProfile}
+                    className="form-input"
+                    placeholder="1234567890"
+                    maxLength={10}
+                    required
+                  />
+                  <small className="field-hint">Solo números, 10 dígitos</small>
                 </div>
 
                 <div className="form-group">
@@ -410,30 +496,8 @@ export function HomeClient() {
                     onChange={(e) => handleProfileInputChange('email', e.target.value)}
                     disabled={!isEditingProfile}
                     className="form-input"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="telefono">Teléfono</label>
-                  <input
-                    id="telefono"
-                    type="tel"
-                    value={profileForm.telefono}
-                    onChange={(e) => handleProfileInputChange('telefono', e.target.value)}
-                    disabled={!isEditingProfile}
-                    className="form-input"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="cedula">Cédula</label>
-                  <input
-                    id="cedula"
-                    type="text"
-                    value={profileForm.cedula}
-                    onChange={(e) => handleProfileInputChange('cedula', e.target.value)}
-                    disabled={!isEditingProfile}
-                    className="form-input"
+                    placeholder="ejemplo@correo.com"
+                    required
                   />
                 </div>
 
@@ -445,7 +509,9 @@ export function HomeClient() {
                     onChange={(e) => handleProfileInputChange('direccion', e.target.value)}
                     disabled={!isEditingProfile}
                     className="form-textarea"
-                    rows={3}
+                    rows={2}
+                    placeholder="Ingrese su dirección completa"
+                    required
                   />
                 </div>
               </div>
@@ -457,7 +523,14 @@ export function HomeClient() {
                     onClick={() => initiateAction('profile')}
                     disabled={isLoading}
                   >
-                    {isLoading ? 'Guardando...' : 'Guardar Cambios'}
+                    {isLoading && confirmAction === 'profile' ? (
+                      <span className="btn-loading">
+                        <div className="mini-spinner"></div>
+                        Guardando...
+                      </span>
+                    ) : (
+                      'Guardar Cambios'
+                    )}
                   </button>
                 </div>
               )}
@@ -472,7 +545,14 @@ export function HomeClient() {
                 onClick={() => setIsChangingPassword(!isChangingPassword)}
                 disabled={isLoading}
               >
-                {isChangingPassword ? 'Cancelar' : 'Cambiar'}
+                {isLoading && confirmAction === 'password' ? (
+                  <span className="btn-loading">
+                    <div className="mini-spinner"></div>
+                    Cambiando...
+                  </span>
+                ) : (
+                  isChangingPassword ? 'Cancelar' : 'Cambiar'
+                )}
               </button>
             </div>
 
@@ -487,6 +567,7 @@ export function HomeClient() {
                     onChange={(e) => handlePasswordInputChange('currentPassword', e.target.value)}
                     className="form-input"
                     placeholder="Ingrese su contraseña actual"
+                    required
                   />
                 </div>
 
@@ -498,7 +579,9 @@ export function HomeClient() {
                     value={passwordForm.newPassword}
                     onChange={(e) => handlePasswordInputChange('newPassword', e.target.value)}
                     className="form-input"
-                    placeholder="Ingrese la nueva contraseña"
+                    placeholder="Mínimo 6 caracteres"
+                    minLength={6}
+                    required
                   />
                 </div>
 
@@ -510,7 +593,8 @@ export function HomeClient() {
                     value={passwordForm.confirmPassword}
                     onChange={(e) => handlePasswordInputChange('confirmPassword', e.target.value)}
                     className="form-input"
-                    placeholder="Confirme la nueva contraseña"
+                    placeholder="Repita la nueva contraseña"
+                    required
                   />
                 </div>
 
@@ -520,7 +604,14 @@ export function HomeClient() {
                     onClick={() => initiateAction('password')}
                     disabled={isLoading}
                   >
-                    {isLoading ? 'Cambiando...' : 'Cambiar Contraseña'}
+                    {isLoading && confirmAction === 'password' ? (
+                      <span className="btn-loading">
+                        <div className="mini-spinner"></div>
+                        Cambiando...
+                      </span>
+                    ) : (
+                      'Cambiar Contraseña'
+                    )}
                   </button>
                 </div>
               </div>

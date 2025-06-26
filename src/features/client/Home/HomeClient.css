@@ -1,7 +1,7 @@
 .home-client-container {
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 1.5rem;
+  padding: 1rem;
   background-color: var(--secondary-color);
   min-height: 100vh;
 }
@@ -11,17 +11,27 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 50vh;
+  min-height: 40vh;
   gap: 1rem;
 }
 
 .loading-spinner {
-  width: 3rem;
-  height: 3rem;
+  width: 2.5rem;
+  height: 2.5rem;
   border: 3px solid var(--border-color);
   border-top: 3px solid var(--accent-color);
   border-radius: 50%;
   animation: spin 1s linear infinite;
+}
+
+.mini-spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 0.5rem;
 }
 
 @keyframes spin {
@@ -29,11 +39,17 @@
   100% { transform: rotate(360deg); }
 }
 
+.btn-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .error-container {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 50vh;
+  min-height: 40vh;
   color: var(--text-secondary);
   font-size: 1.1rem;
 }
@@ -100,8 +116,8 @@
 .dialog-content {
   background: var(--background-light);
   border-radius: 12px;
-  padding: 2rem;
-  max-width: 500px;
+  padding: 1.5rem;
+  max-width: 400px;
   width: 90%;
   box-shadow: 0 8px 32px var(--shadow-color);
 }
@@ -109,12 +125,12 @@
 .dialog-header h3 {
   margin: 0 0 1rem 0;
   color: var(--text-primary);
-  font-size: 1.25rem;
+  font-size: 1.2rem;
   font-weight: 600;
 }
 
 .dialog-body p {
-  margin: 0 0 2rem 0;
+  margin: 0 0 1.5rem 0;
   color: var(--text-secondary);
   line-height: 1.5;
 }
@@ -131,28 +147,28 @@
 }
 
 .client-avatar {
-  width: 8rem;
-  height: 8rem;
+  width: 6rem;
+  height: 6rem;
   background: linear-gradient(135deg, var(--accent-color), var(--accent-light));
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 2rem;
+  font-size: 1.8rem;
   font-weight: 600;
   text-transform: uppercase;
-  box-shadow: 0 6px 20px rgba(55, 157, 58, 0.3);
+  box-shadow: 0 4px 16px rgba(55, 157, 58, 0.3);
   cursor: pointer;
   position: relative;
   overflow: hidden;
   transition: all 0.3s ease;
-  border: 4px solid var(--background-light);
+  border: 3px solid var(--background-light);
 }
 
 .client-avatar:hover {
   transform: scale(1.05);
-  box-shadow: 0 8px 25px rgba(55, 157, 58, 0.4);
+  box-shadow: 0 6px 20px rgba(55, 157, 58, 0.4);
 }
 
 .profile-image {
@@ -163,7 +179,7 @@
 }
 
 .profile-initials {
-  font-size: 2.5rem;
+  font-size: 2rem;
   font-weight: 700;
   z-index: 1;
 }
@@ -190,17 +206,16 @@
 }
 
 .camera-icon {
-  font-size: 1.5rem;
-  margin-bottom: 0.25rem;
-  filter: brightness(0) invert(1);
+  font-size: 1.2rem;
+  margin-bottom: 0.2rem;
 }
 
 .change-photo-text {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 600;
   color: white;
   text-align: center;
-  line-height: 1.2;
+  line-height: 1.1;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -208,18 +223,18 @@
 .client-header {
   display: flex;
   align-items: center;
-  gap: 2rem;
-  margin-bottom: 2rem;
-  padding: 2rem;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  padding: 1.5rem;
   background-color: var(--background-light);
-  border-radius: 16px;
-  box-shadow: 0 4px 12px var(--shadow-color);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px var(--shadow-color);
   border: 1px solid var(--border-color);
 }
 
 .client-info h1 {
   color: var(--text-primary);
-  font-size: 2rem;
+  font-size: 1.6rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
   line-height: 1.2;
@@ -227,13 +242,13 @@
 
 .client-role {
   color: white;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 1px;
   font-weight: 600;
-  padding: 0.5rem 1rem;
+  padding: 0.4rem 1rem;
   background: linear-gradient(135deg, var(--accent-color), var(--accent-light));
-  border-radius: 20px;
+  border-radius: 16px;
   display: inline-block;
 }
 
@@ -246,14 +261,14 @@
 .content-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 2rem;
+  gap: 1.5rem;
   align-items: start;
 }
 
 .section-card {
   background-color: var(--background-light);
   border-radius: 12px;
-  padding: 2rem;
+  padding: 1.5rem;
   box-shadow: 0 2px 8px var(--shadow-color);
   border: 1px solid var(--border-color);
   transition: box-shadow 0.3s ease;
@@ -261,35 +276,39 @@
 }
 
 .section-card:hover {
-  box-shadow: 0 4px 16px var(--shadow-color);
+  box-shadow: 0 4px 12px var(--shadow-color);
 }
 
 .section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   padding-bottom: 1rem;
   border-bottom: 2px solid var(--border-color);
 }
 
 .section-header h2 {
   color: var(--text-primary);
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   font-weight: 600;
 }
 
 .btn {
-  padding: 0.75rem 1.5rem;
+  padding: 0.6rem 1.2rem;
   border: none;
   border-radius: 8px;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   box-shadow: 0 2px 4px var(--shadow-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.5rem;
 }
 
 .btn:disabled {
@@ -304,8 +323,8 @@
 
 .btn-primary:hover:not(:disabled) {
   background-color: var(--accent-light);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(55, 157, 58, 0.3);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(55, 157, 58, 0.3);
 }
 
 .btn-secondary {
@@ -315,20 +334,20 @@
 
 .btn-secondary:hover:not(:disabled) {
   background-color: var(--text-primary);
-  transform: translateY(-2px);
+  transform: translateY(-1px);
 }
 
 .form-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.4rem;
 }
 
 .form-group.full-width {
@@ -338,17 +357,24 @@
 .form-group label {
   color: var(--text-primary);
   font-weight: 500;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
+.field-hint {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-style: italic;
+  margin-top: 0.2rem;
+}
+
 .form-input,
 .form-textarea {
-  padding: 0.875rem;
+  padding: 0.75rem;
   border: 2px solid var(--border-color);
-  border-radius: 8px;
-  font-size: 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
   background-color: var(--background-light);
   color: var(--text-primary);
   transition: all 0.3s ease;
@@ -370,7 +396,7 @@
 
 .form-textarea {
   resize: vertical;
-  min-height: 100px;
+  min-height: 80px;
   font-family: inherit;
 }
 
@@ -378,18 +404,18 @@
   display: flex;
   justify-content: flex-end;
   gap: 1rem;
-  margin-top: 2rem;
-  padding-top: 2rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
   border-top: 1px solid var(--border-color);
 }
 
 .password-form {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1000px) {
   .content-grid {
     grid-template-columns: 1fr;
     gap: 1.5rem;
@@ -398,40 +424,40 @@
 
 @media (max-width: 768px) {
   .home-client-container {
-    padding: 1rem;
+    padding: 0.8rem;
   }
 
   .client-header {
     flex-direction: column;
     text-align: center;
-    gap: 1.5rem;
-    padding: 1.5rem;
+    gap: 1rem;
+    padding: 1.2rem;
   }
 
   .client-avatar {
-    width: 6rem;
-    height: 6rem;
-    font-size: 1.8rem;
+    width: 5rem;
+    height: 5rem;
+    font-size: 1.5rem;
   }
 
   .profile-initials {
-    font-size: 2rem;
+    font-size: 1.8rem;
   }
 
   .camera-icon {
-    font-size: 1.2rem;
+    font-size: 1rem;
   }
 
   .change-photo-text {
-    font-size: 0.65rem;
+    font-size: 0.6rem;
   }
 
   .client-info h1 {
-    font-size: 1.6rem;
+    font-size: 1.4rem;
   }
 
   .section-card {
-    padding: 1.5rem;
+    padding: 1.2rem;
   }
 
   .section-header {
@@ -456,6 +482,10 @@
   .dialog-actions {
     flex-direction: column;
   }
+
+  .dialog-content {
+    padding: 1.2rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -465,46 +495,55 @@
 
   .client-header {
     padding: 1rem;
-    gap: 1rem;
+    gap: 0.8rem;
   }
 
   .client-avatar {
-    width: 5rem;
-    height: 5rem;
-    font-size: 1.5rem;
+    width: 4.5rem;
+    height: 4.5rem;
+    font-size: 1.3rem;
   }
 
   .profile-initials {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
   }
 
   .client-info h1 {
-    font-size: 1.4rem;
+    font-size: 1.2rem;
   }
 
   .client-role {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.8rem;
+    padding: 0.3rem 0.8rem;
+    font-size: 0.75rem;
   }
 
   .section-card {
     padding: 1rem;
+  }
+
+  .section-header h2 {
+    font-size: 1.1rem;
+  }
+
+  .btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
   }
 }
 
 /* Dark mode specific adjustments */
 @media (prefers-color-scheme: dark) {
   .client-avatar {
-    box-shadow: 0 6px 20px rgba(115, 208, 120, 0.3);
+    box-shadow: 0 4px 16px rgba(115, 208, 120, 0.3);
     border-color: var(--background-light);
   }
 
   .client-avatar:hover {
-    box-shadow: 0 8px 25px rgba(115, 208, 120, 0.4);
+    box-shadow: 0 6px 20px rgba(115, 208, 120, 0.4);
   }
 
   .btn-primary:hover:not(:disabled) {
-    box-shadow: 0 4px 12px rgba(115, 208, 120, 0.3);
+    box-shadow: 0 4px 8px rgba(115, 208, 120, 0.3);
   }
 
   .form-input:focus,

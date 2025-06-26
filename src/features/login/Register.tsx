@@ -144,11 +144,11 @@ export function Register() {
       }
 
       const response = await registerService(clientData)
-
-      if (response.error || response.Error) {
-        showAlert("error", response.error || response.Error || "Error al crear la cuenta")
+      
+      if (response.error || response.Error || response.ERROR) {
+        showAlert("error", response.error || response.Error || response.ERROR|| "Error al crear la cuenta")
       } else if (response.message || response.Message) {
-        showAlert("success", response.message || response.Message || "Cuenta creada exitosamente")
+        showAlert("success", response.message || response.Message )
         setIsSuccess(true)
       } else {
         showAlert("error", "Respuesta inesperada del servidor")

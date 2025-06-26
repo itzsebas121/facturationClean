@@ -146,6 +146,7 @@ BEGIN
 END
 
 
+
 CREATE OR ALTER PROCEDURE ChangePassword
     @UserId INT,
     @CurrentPassword VARCHAR(100),
@@ -155,6 +156,13 @@ BEGIN
     SET NOCOUNT ON;
 
     BEGIN TRY
+    DECLARE @PasswordError VARCHAR(200) = dbo.ValidatePassword(@NewPassword);
+        IF @PasswordError IS NOT NULL
+        BEGIN
+            SELECT @PasswordError AS ERROR;
+            RETURN;
+        END
+
         IF NOT EXISTS (
             SELECT 1 FROM Users 
             WHERE UserId = @UserId 

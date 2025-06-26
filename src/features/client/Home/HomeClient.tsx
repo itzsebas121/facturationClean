@@ -59,7 +59,6 @@ export function HomeClient() {
         throw new Error("User ID is not available");
       }
       const data = await getClientsByUserIdService(Number(user.clientId));
-      console.log(data)
       const adaptedClient = adaptarCliente(data);
       setClient(adaptedClient);
       setProfileForm({
@@ -72,7 +71,6 @@ export function HomeClient() {
       });
     } catch (error) {
       showAlert('error', 'Error al cargar la información del cliente');
-      console.error('Error fetching client:', error);
     }
   }
 
@@ -179,7 +177,7 @@ export function HomeClient() {
       showAlert('error', 'La cédula es requerida');
       return false;
     }
-    if ( profileForm.cedula.length !== 10) {
+    if (profileForm.cedula.length !== 10) {
       showAlert('error', 'La cédula debe tener entre 10 dígitos');
       return false;
     }
@@ -241,7 +239,6 @@ export function HomeClient() {
 
 
     } catch (error) {
-      console.error('Error updating picture:', error);
       showAlert('error', 'Error al actualizar la foto de perfil');
     } finally {
       setIsLoading(false);
@@ -275,7 +272,6 @@ export function HomeClient() {
       }
 
     } catch (error) {
-      console.log('Error actualizando perfil:', error);
       showAlert('error', 'Error al actualizar el perfil');
     } finally {
       setIsLoading(false);
@@ -293,22 +289,21 @@ export function HomeClient() {
         passwordForm.newPassword
       );
 
-      if (!result.success) {
-        showAlert('error', result.message || 'Error al cambiar la contraseña');
+      if (result.error || result.Error || result.ERROR) {
+        showAlert('error', result.error || result.Error || result.ERROR || 'Error al cambiar la contraseña');
         return;
+      } else {
+        setPasswordForm({
+          currentPassword: '',
+          newPassword: '',
+          confirmPassword: ''
+        });
+        setIsChangingPassword(false);
+        showAlert('success', result.message || result.Message || 'Contraseña cambiada exitosamente');
       }
-
-      setPasswordForm({
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: ''
-      });
-      setIsChangingPassword(false);
-      showAlert('success', result.message || 'Contraseña cambiada exitosamente');
 
     } catch (error) {
       showAlert('error', 'Error al cambiar la contraseña. Verifique su contraseña actual.');
-      console.error('Error changing password:', error);
     } finally {
       setIsLoading(false);
     }

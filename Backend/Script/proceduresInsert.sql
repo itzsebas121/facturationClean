@@ -1,3 +1,34 @@
+
+CREATE OR ALTER FUNCTION dbo.ValidatePassword(@Password VARCHAR(64))
+RETURNS VARCHAR(200)
+AS
+BEGIN
+    IF LEN(@Password) < 4 OR LEN(@Password) > 10
+        RETURN 'La contraseña debe tener entre 4 y 10 caracteres.';
+
+    IF @Password NOT LIKE '%[A-Z]%'
+        RETURN 'La contraseña debe contener al menos una letra mayúscula.';
+
+    IF @Password NOT LIKE '%[a-z]%'
+        RETURN 'La contraseña debe contener al menos una letra minúscula.';
+
+    IF @Password NOT LIKE '%[0-9]%'
+        RETURN 'La contraseña debe contener al menos un número.';
+
+    IF @Password NOT LIKE '%[.@_*]%'
+        RETURN 'La contraseña debe contener al menos uno de estos caracteres especiales: ( . ),  ( @ ),  ( _ ) ( * ).';
+
+    IF @Password LIKE '% %'
+        RETURN 'La contraseña no debe contener espacios.';
+    IF PATINDEX('%[^a-zA-Z0-9.@_*]%', @Password) > 0
+        RETURN 'La contraseña contiene caracteres inválidos. Sólo se permiten letras, números y los símbolos . @ _ *';
+
+    IF LOWER(@Password) LIKE '%password%'
+        RETURN 'La contraseña no debe contener la palabra "password".';
+
+    RETURN NULL; -- Contraseña válida
+END;
+
 CREATE OR ALTER PROCEDURE CreateProduct
     @CategoryId INT,
     @Name VARCHAR(150),
@@ -24,16 +55,23 @@ CREATE OR ALTER PROCEDURE CreateClient
     @Phone VARCHAR(15) = NULL
 AS
 BEGIN
-        BEGIN TRY
+    BEGIN TRY
+        DECLARE @PasswordError VARCHAR(200) = dbo.ValidatePassword(@Password);
+        IF @PasswordError IS NOT NULL
+        BEGIN
+            SELECT @PasswordError AS ERROR;
+            RETURN;
+        END
+
         IF EXISTS (SELECT 1 FROM Users WHERE Cedula = @Cedula)
         BEGIN
-            SELECT 'Ya existe un usuario con esa cédula.' AS ERROR
+            SELECT 'Ya existe un usuario con esa cédula.' AS ERROR;
             RETURN;
         END
 
         IF EXISTS (SELECT 1 FROM Users WHERE Email = @Email)
         BEGIN
-            SELECT 'Ya existe un usuario con ese correo electrónico.' AS ERROR
+            SELECT 'Ya existe un usuario con ese correo electrónico.' AS ERROR;
             RETURN;
         END
 
@@ -52,12 +90,16 @@ BEGIN
         COMMIT TRANSACTION;
 
         SELECT @ClientId AS ClientId;
-        END TRY
+    END TRY
     BEGIN CATCH
         IF @@TRANCOUNT > 0
             ROLLBACK TRANSACTION;
-            END CATCH
+
+        THROW;
+    END CATCH
 END;
+
+
 
 CREATE OR ALTER PROCEDURE AddItemToCart
     @ClientId INT,

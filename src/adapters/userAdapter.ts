@@ -32,7 +32,6 @@ export function adaptarUsuario(data: any): User {
   }
 }
 export function adaptarCliente(data: any): Client {
-  console.log(data)
   return {
     id: data.UserId ?? data.id ?? 0,
     clientId:data.ClientId??data.clientId??data.ClientID??0,

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useAuth } from "../../../auth/AuthContext"
 import { adaptarCliente } from "../../../adapters/userAdapter"
-import { updateClientService, changePasswordService, getClientsByUserIdService } from "../../../api/services/ClientService"
+import { updateClientService, changePasswordService, getClientsByUserIdService, updateClientPictureService, uploadImage } from "../../../api/services/ClientService"
 import { Alert } from "../../../components/UI/Alert"
 import { ConfirmDialog } from "../../../components/UI/ConfirmDialog"
 import { Client } from "../../../types/User"
@@ -40,9 +40,11 @@ export function HomeClient() {
   const [isEditingProfile, setIsEditingProfile] = useState(false)
   const [isChangingPassword, setIsChangingPassword] = useState(false)
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
-  const [confirmAction, setConfirmAction] = useState<'profile' | 'password' | null>(null)
+  const [confirmAction, setConfirmAction] = useState<'profile' | 'password' | 'picture' | null>(null)
   const [alert, setAlert] = useState<{ type: 'success' | 'error', message: string } | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [previewImage, setPreviewImage] = useState<string | null>(null)
 
   const { user, loading } = useAuth()
 
@@ -57,6 +59,7 @@ export function HomeClient() {
         throw new Error("User ID is not available");
       }
       const data = await getClientsByUserIdService(Number(user.clientId));
+      console.log(data)
       const adaptedClient = adaptarCliente(data);
       setClient(adaptedClient);
       setProfileForm({
@@ -91,6 +94,26 @@ export function HomeClient() {
       ...prev,
       [field]: value
     }))
+  }
+
+  const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      setSelectedFile(file)
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setPreviewImage(e.target?.result as string)
+      }
+      reader.readAsDataURL(file)
+      // Auto-trigger picture update confirmation
+      setConfirmAction('picture')
+      setShowConfirmDialog(true)
+    }
+  }
+
+  const triggerFileInput = () => {
+    const fileInput = document.getElementById('profile-picture-input') as HTMLInputElement
+    fileInput?.click()
   }
 
   const validateProfileForm = (): boolean => {
@@ -148,6 +171,39 @@ export function HomeClient() {
     return true;
   }
 
+  const handlePictureUpdate = async () => {
+    if (!selectedFile || !client) return;
+
+    setIsLoading(true);
+    try {
+
+      let imageUrl = client.picture;
+
+      if (selectedFile) {
+        const uploadedUrl = await uploadImage(selectedFile);
+        imageUrl = uploadedUrl === null ? "https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png" : uploadedUrl;
+        if (!imageUrl) showAlert("error", 'No se pudo subir la imagen');
+      }
+      const result: any = await updateClientPictureService(Number(client.clientId), String(imageUrl));
+
+      if (result.error || result.Error) {
+        showAlert('error', result.error || result.Error);
+        return;
+      }
+
+      await getClient();
+      setSelectedFile(null);
+      setPreviewImage(null);
+      showAlert('success', result.message || 'Foto de perfil actualizada exitosamente');
+
+    } catch (error) {
+      console.error('Error updating picture:', error);
+      showAlert('error', 'Error al actualizar la foto de perfil');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleProfileSubmit = async () => {
     if (!validateProfileForm() || !client) return;
 
@@ -165,23 +221,24 @@ export function HomeClient() {
 
       const result = await updateClientService(updatedClient);
       if (result.error || result.Error) {
-        showAlert('error', result.Error || result.error);
-        console.error('Error updating profile:', result.error);
+        const errorMessage = typeof result.error === 'object'
+          ? result.error.message || JSON.stringify(result.error)
+          : result.error || result.Error;
+        showAlert('error', errorMessage);
         return;
-      } else {
-        await getClient();
-
-        setIsEditingProfile(false);
-        showAlert('success', result.message || result.Message);;
       }
 
+      await getClient();
+      setIsEditingProfile(false);
+      showAlert('success', result.message || result.Message || 'Perfil actualizado con éxito');
+
     } catch (error) {
+      console.log('Error actualizando perfil:', error);
       showAlert('error', 'Error al actualizar el perfil');
-      console.error('Error updating profile:', error);
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
   const handlePasswordSubmit = async () => {
     if (!validatePasswordForm() || !user?.clientId) return;
@@ -220,6 +277,17 @@ export function HomeClient() {
       handleProfileSubmit();
     } else if (confirmAction === 'password') {
       handlePasswordSubmit();
+    } else if (confirmAction === 'picture') {
+      handlePictureUpdate();
+    }
+    setShowConfirmDialog(false);
+    setConfirmAction(null);
+  }
+
+  const handleCancelAction = () => {
+    if (confirmAction === 'picture') {
+      setSelectedFile(null);
+      setPreviewImage(null);
     }
     setShowConfirmDialog(false);
     setConfirmAction(null);
@@ -247,6 +315,8 @@ export function HomeClient() {
     );
   }
 
+  const displayImage = previewImage || client.picture;
+
   return (
     <div className="home-client-container">
       {alert && (
@@ -257,9 +327,33 @@ export function HomeClient() {
         />
       )}
 
+      <input
+        id="profile-picture-input"
+        type="file"
+        accept="image/*"
+        onChange={handleImageSelect}
+        style={{ display: 'none' }}
+      />
+
       <div className="client-header">
-        <div className="client-avatar">
-          <span>{client.primerNombre?.[0]?.toUpperCase() || 'C'}</span>
+        <div className="profile-picture-container">
+          <div className="client-avatar" onClick={triggerFileInput}>
+            {displayImage ? (
+              <img
+                src={displayImage}
+                alt="Profile"
+                className="profile-image"
+              />
+            ) : (
+              <span className="profile-initials">
+                {client.primerNombre?.[0]?.toUpperCase() || 'C'}
+              </span>
+            )}
+            <div className="photo-overlay">
+              <div className="camera-icon">📷</div>
+              <span className="change-photo-text">Cambiar foto</span>
+            </div>
+          </div>
         </div>
         <div className="client-info">
           <h1>Bienvenido, {client.primerNombre} {client.primerApellido}</h1>
@@ -268,187 +362,191 @@ export function HomeClient() {
       </div>
 
       <div className="client-content">
-        <div className="section-card">
-          <div className="section-header">
-            <h2>Información Personal</h2>
-            <button
-              className={`btn ${isEditingProfile ? 'btn-secondary' : 'btn-primary'}`}
-              onClick={() => setIsEditingProfile(!isEditingProfile)}
-              disabled={isLoading}
-            >
-              {isEditingProfile ? 'Cancelar' : 'Editar'}
-            </button>
-          </div>
-
-          <div className="profile-form">
-            <div className="form-grid">
-              <div className="form-group">
-                <label htmlFor="primerNombre">Primer Nombre</label>
-                <input
-                  id="primerNombre"
-                  type="text"
-                  value={profileForm.primerNombre}
-                  onChange={(e) => handleProfileInputChange('primerNombre', e.target.value)}
-                  disabled={!isEditingProfile}
-                  className="form-input"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="primerApellido">Primer Apellido</label>
-                <input
-                  id="primerApellido"
-                  type="text"
-                  value={profileForm.primerApellido}
-                  onChange={(e) => handleProfileInputChange('primerApellido', e.target.value)}
-                  disabled={!isEditingProfile}
-                  className="form-input"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="email">Email</label>
-                <input
-                  id="email"
-                  type="email"
-                  value={profileForm.email}
-                  onChange={(e) => handleProfileInputChange('email', e.target.value)}
-                  disabled={!isEditingProfile}
-                  className="form-input"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="telefono">Teléfono</label>
-                <input
-                  id="telefono"
-                  type="tel"
-                  value={profileForm.telefono}
-                  onChange={(e) => handleProfileInputChange('telefono', e.target.value)}
-                  disabled={!isEditingProfile}
-                  className="form-input"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="cedula">Cédula</label>
-                <input
-                  id="cedula"
-                  type="text"
-                  value={profileForm.cedula}
-                  onChange={(e) => handleProfileInputChange('cedula', e.target.value)}
-                  disabled={!isEditingProfile}
-                  className="form-input"
-                />
-              </div>
-
-              <div className="form-group full-width">
-                <label htmlFor="direccion">Dirección</label>
-                <textarea
-                  id="direccion"
-                  value={profileForm.direccion}
-                  onChange={(e) => handleProfileInputChange('direccion', e.target.value)}
-                  disabled={!isEditingProfile}
-                  className="form-textarea"
-                  rows={3}
-                />
-              </div>
+        <div className="content-grid">
+          <div className="section-card profile-section">
+            <div className="section-header">
+              <h2>Información Personal</h2>
+              <button
+                className={`btn ${isEditingProfile ? 'btn-secondary' : 'btn-primary'}`}
+                onClick={() => setIsEditingProfile(!isEditingProfile)}
+                disabled={isLoading}
+              >
+                {isEditingProfile ? 'Cancelar' : 'Editar'}
+              </button>
             </div>
 
-            {isEditingProfile && (
-              <div className="form-actions">
-                <button
-                  className="btn btn-primary"
-                  onClick={() => initiateAction('profile')}
-                  disabled={isLoading}
-                >
-                  {isLoading ? 'Guardando...' : 'Guardar Cambios'}
-                </button>
+            <div className="profile-form">
+              <div className="form-grid">
+                <div className="form-group">
+                  <label htmlFor="primerNombre">Primer Nombre</label>
+                  <input
+                    id="primerNombre"
+                    type="text"
+                    value={profileForm.primerNombre}
+                    onChange={(e) => handleProfileInputChange('primerNombre', e.target.value)}
+                    disabled={!isEditingProfile}
+                    className="form-input"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="primerApellido">Primer Apellido</label>
+                  <input
+                    id="primerApellido"
+                    type="text"
+                    value={profileForm.primerApellido}
+                    onChange={(e) => handleProfileInputChange('primerApellido', e.target.value)}
+                    disabled={!isEditingProfile}
+                    className="form-input"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="email">Email</label>
+                  <input
+                    id="email"
+                    type="email"
+                    value={profileForm.email}
+                    onChange={(e) => handleProfileInputChange('email', e.target.value)}
+                    disabled={!isEditingProfile}
+                    className="form-input"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="telefono">Teléfono</label>
+                  <input
+                    id="telefono"
+                    type="tel"
+                    value={profileForm.telefono}
+                    onChange={(e) => handleProfileInputChange('telefono', e.target.value)}
+                    disabled={!isEditingProfile}
+                    className="form-input"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="cedula">Cédula</label>
+                  <input
+                    id="cedula"
+                    type="text"
+                    value={profileForm.cedula}
+                    onChange={(e) => handleProfileInputChange('cedula', e.target.value)}
+                    disabled={!isEditingProfile}
+                    className="form-input"
+                  />
+                </div>
+
+                <div className="form-group full-width">
+                  <label htmlFor="direccion">Dirección</label>
+                  <textarea
+                    id="direccion"
+                    value={profileForm.direccion}
+                    onChange={(e) => handleProfileInputChange('direccion', e.target.value)}
+                    disabled={!isEditingProfile}
+                    className="form-textarea"
+                    rows={3}
+                  />
+                </div>
+              </div>
+
+              {isEditingProfile && (
+                <div className="form-actions">
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => initiateAction('profile')}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? 'Guardando...' : 'Guardar Cambios'}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="section-card password-section">
+            <div className="section-header">
+              <h2>Cambiar Contraseña</h2>
+              <button
+                className={`btn ${isChangingPassword ? 'btn-secondary' : 'btn-primary'}`}
+                onClick={() => setIsChangingPassword(!isChangingPassword)}
+                disabled={isLoading}
+              >
+                {isChangingPassword ? 'Cancelar' : 'Cambiar'}
+              </button>
+            </div>
+
+            {isChangingPassword && (
+              <div className="password-form">
+                <div className="form-group">
+                  <label htmlFor="currentPassword">Contraseña Actual</label>
+                  <input
+                    id="currentPassword"
+                    type="password"
+                    value={passwordForm.currentPassword}
+                    onChange={(e) => handlePasswordInputChange('currentPassword', e.target.value)}
+                    className="form-input"
+                    placeholder="Ingrese su contraseña actual"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="newPassword">Nueva Contraseña</label>
+                  <input
+                    id="newPassword"
+                    type="password"
+                    value={passwordForm.newPassword}
+                    onChange={(e) => handlePasswordInputChange('newPassword', e.target.value)}
+                    className="form-input"
+                    placeholder="Ingrese la nueva contraseña"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="confirmPassword">Confirmar Nueva Contraseña</label>
+                  <input
+                    id="confirmPassword"
+                    type="password"
+                    value={passwordForm.confirmPassword}
+                    onChange={(e) => handlePasswordInputChange('confirmPassword', e.target.value)}
+                    className="form-input"
+                    placeholder="Confirme la nueva contraseña"
+                  />
+                </div>
+
+                <div className="form-actions">
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => initiateAction('password')}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? 'Cambiando...' : 'Cambiar Contraseña'}
+                  </button>
+                </div>
               </div>
             )}
           </div>
-        </div>
-
-        <div className="section-card">
-          <div className="section-header">
-            <h2>Cambiar Contraseña</h2>
-            <button
-              className={`btn ${isChangingPassword ? 'btn-secondary' : 'btn-primary'}`}
-              onClick={() => setIsChangingPassword(!isChangingPassword)}
-              disabled={isLoading}
-            >
-              {isChangingPassword ? 'Cancelar' : 'Cambiar'}
-            </button>
-          </div>
-
-          {isChangingPassword && (
-            <div className="password-form">
-              <div className="form-group">
-                <label htmlFor="currentPassword">Contraseña Actual</label>
-                <input
-                  id="currentPassword"
-                  type="password"
-                  value={passwordForm.currentPassword}
-                  onChange={(e) => handlePasswordInputChange('currentPassword', e.target.value)}
-                  className="form-input"
-                  placeholder="Ingrese su contraseña actual"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="newPassword">Nueva Contraseña</label>
-                <input
-                  id="newPassword"
-                  type="password"
-                  value={passwordForm.newPassword}
-                  onChange={(e) => handlePasswordInputChange('newPassword', e.target.value)}
-                  className="form-input"
-                  placeholder="Ingrese la nueva contraseña"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="confirmPassword">Confirmar Nueva Contraseña</label>
-                <input
-                  id="confirmPassword"
-                  type="password"
-                  value={passwordForm.confirmPassword}
-                  onChange={(e) => handlePasswordInputChange('confirmPassword', e.target.value)}
-                  className="form-input"
-                  placeholder="Confirme la nueva contraseña"
-                />
-              </div>
-
-              <div className="form-actions">
-                <button
-                  className="btn btn-primary"
-                  onClick={() => initiateAction('password')}
-                  disabled={isLoading}
-                >
-                  {isLoading ? 'Cambiando...' : 'Cambiar Contraseña'}
-                </button>
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
       {showConfirmDialog && (
         <ConfirmDialog
           isOpen={showConfirmDialog}
-          title={confirmAction === 'profile' ? 'Confirmar Actualización' : 'Confirmar Cambio de Contraseña'}
+          title={
+            confirmAction === 'profile' ? 'Confirmar Actualización' :
+              confirmAction === 'password' ? 'Confirmar Cambio de Contraseña' :
+                'Confirmar Cambio de Foto'
+          }
           message={
             confirmAction === 'profile'
               ? '¿Está seguro de que desea actualizar su información personal?'
-              : '¿Está seguro de que desea cambiar su contraseña?'
+              : confirmAction === 'password'
+                ? '¿Está seguro de que desea cambiar su contraseña?'
+                : '¿Está seguro de que desea cambiar su foto de perfil?'
           }
           onConfirm={handleConfirmAction}
-          onCancel={() => {
-            setShowConfirmDialog(false);
-            setConfirmAction(null);
-          }}
+          onCancel={handleCancelAction}
         />
-
       )}
     </div>
   )

@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "../config";
 import { CLIENTS_ENDPOINTS } from "../endpoints/Clients";
 export async function getClientsService() {
     const res = await fetch(CLIENTS_ENDPOINTS.Client, {
@@ -28,6 +29,18 @@ export async function updateClientService(client: any) {
         cedula: client.cedula
     };
     const res = await fetch(`${CLIENTS_ENDPOINTS.Client}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(clientPost),
+    });
+    return await res.json();
+}
+export async function updateClientPictureService(clientId: number, picture: string) {
+    const clientPost = {
+        clientId: clientId,
+        picture: picture,
+    };
+    const res = await fetch(`${CLIENTS_ENDPOINTS.Client}/updatePicture`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(clientPost),
@@ -67,4 +80,16 @@ export async function changePasswordService(userId: number, currentPassword: str
     });
     
     return await res.json();
+}
+export async function uploadImage(file: File): Promise<string | null> {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await fetch(`${API_BASE_URL}/api/upload`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  const data = await response.json();
+  return data.imageUrl || "https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png";
 }

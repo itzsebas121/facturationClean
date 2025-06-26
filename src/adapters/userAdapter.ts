@@ -43,6 +43,7 @@ export function adaptarCliente(data: any): Client {
     direccion: data.Address ?? 'Sin dirección',
     telefono: data.Phone ?? 'Sin teléfono',
     cedula: data.Cedula ?? '',
-    isBlocked: data.IsBlocked ?? false
+    isBlocked: data.IsBlocked ?? false,
+    picture:data.Picture??data.PictureUrl??'',
   };
 }

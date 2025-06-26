@@ -57,6 +57,7 @@ BEGIN
 END
 
 
+
 CREATE OR ALTER PROCEDURE UpdateClient
     @ClientId INT,
     @Cedula VARCHAR(10),
@@ -95,6 +96,46 @@ BEGIN
             LastName = @LastName,
             Address = @Address,
             Phone = @Phone
+        WHERE ClientId = @ClientId;
+
+        IF @@ROWCOUNT = 0
+        BEGIN
+            SELECT 'No se pudo actualizar datos de cliente' AS Error;
+            RETURN;
+        END
+
+        SELECT 'Cliente actualizado correctamente' AS Message;
+    END TRY
+    BEGIN CATCH
+        SELECT ERROR_MESSAGE() AS Error;
+    END CATCH
+END
+CREATE OR ALTER PROCEDURE UpdateClientPicture
+    @ClientId INT,
+    @ProfileImageUrl VARCHAR(500)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        DECLARE @UserId INT;
+        SELECT @UserId = UserId FROM Clients WHERE ClientId = @ClientId;
+
+        IF @UserId IS NULL
+        BEGIN
+            SELECT 'Cliente no encontrado' AS Error;
+            RETURN;
+        END
+
+        IF @@ROWCOUNT = 0
+        BEGIN
+            SELECT 'No se pudo actualizar datos de usuario' AS Error;
+            RETURN;
+        END
+
+        UPDATE Clients
+        SET 
+            Picture= @ProfileImageUrl
         WHERE ClientId = @ClientId;
 
         IF @@ROWCOUNT = 0

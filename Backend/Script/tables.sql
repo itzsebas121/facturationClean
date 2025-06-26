@@ -27,7 +27,8 @@ CREATE TABLE Clients (
     Phone VARCHAR(15) NULL,
     CONSTRAINT FK_Clients_Users FOREIGN KEY (UserId) REFERENCES Users(UserId)
 );
-
+ALTER TABLE Clients
+ADD Picture NVARCHAR(500);
 -- Tabla Admins: datos específicos para administradores
 CREATE TABLE Admins (
     AdminId INT PRIMARY KEY IDENTITY,

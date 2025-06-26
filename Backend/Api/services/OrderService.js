@@ -50,7 +50,6 @@ async function addProductToOrder(orderId, productId, quantity) {
         throw err;
     }
 }
-//Pedientes agregarlos a la base de datos
 async function getOrderById(orderId) {
     try {
         const pool = await poolPromise;

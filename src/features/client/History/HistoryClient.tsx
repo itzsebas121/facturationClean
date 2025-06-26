@@ -30,7 +30,7 @@ export function HistoryClient() {
           </div>
         }
       >
-        <OrderHistory role={user.rol} clientId={Number(user.id)} />
+        <OrderHistory role={user.rol} clientId={Number(user.clientId)} />
       </Suspense>
     </div>
   )

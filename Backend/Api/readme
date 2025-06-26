@@ -1,6 +1,55 @@
 /*
     recuerda usar la URL DE VERCEL 
 
+    P A R A    L A  F O T O G R A F I A
+    /api/upload
+
+    en flutter algo asi, no esta comrpobado
+    ese endpoint sube la imagen y te devuelve una url, esa url es la que debes guardar en la base de datos,
+    solo al actualizar se sube la imagen 
+
+    ejecutas el endpoint
+
+    /api/clients/updatePicture
+    y le enviaas el ClientId, y el picture en string osea ya la url (que te genera el endpoint anterior) y listo
+
+    import 'package:image_picker/image_picker.dart';
+    import 'package:http/http.dart' as http;
+    import 'dart:io';
+
+    Future<void> subirImagen() async {
+    final picker = ImagePicker();
+
+    // 1. Seleccionar imagen
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile == null) return; // si no seleccionó nada, salir
+
+    final imageFile = File(pickedFile.path);
+
+    // 2. Crear la petición POST para subir la imagen
+    final uri = Uri.parse('https://tu_dominio/api/upload');
+    final request = http.MultipartRequest('POST', uri);
+
+    // Añadir la imagen al request (campo "file" igual que multer)
+    request.files.add(await http.MultipartFile.fromPath('file', imageFile.path));
+
+    // 3. Enviar la petición
+    final response = await request.send();
+
+    if (response.statusCode == 200) {
+        print('Imagen subida correctamente');
+        final responseBody = await response.stream.bytesToString();
+        print('Respuesta del backend: $responseBody');
+        // Aquí podrías extraer la URL desde responseBody si es JSON
+    } else {
+        print('Error al subir imagen: ${response.statusCode}');
+    }
+    }
+
+
+
+
+
 
     Para obtener el carrito de un cliente 
     http://localhost:3000/api/carts/9

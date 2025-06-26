@@ -1,4 +1,5 @@
 const { poolPromise, sql } = require('../db/db');
+
 async function getAllClients() {
   const pool = await poolPromise;
   const result = await pool.request().execute('getClients');
@@ -22,7 +23,6 @@ async function createClient(client) {
   request.input('Address', sql.VarChar(200), client.address || null);
   request.input('Phone', sql.VarChar(10), client.phone || null);
   const result = await request.execute('CreateClient');
-  console.log(result);
   return result.recordset[0];
 }
 async function updateClient(client) {
@@ -35,8 +35,10 @@ async function updateClient(client) {
   request.input('LastName', sql.VarChar(100), client.lastName);
   request.input('Address', sql.VarChar(200), client.address || null);
   request.input('Phone', sql.VarChar(15), client.phone || null);
+  request.input('ProfileImageUrl', sql.VarChar(255), client.picture || null);
+
   const result = await request.execute('UpdateClient');
-  return result.recordset[0]; 
+  return result.recordset[0];
 }
 async function changePassword(userId, currentPassword, newPassword) {
   const pool = await poolPromise;
@@ -75,6 +77,15 @@ async function disableClient(clientId) {
   }
   return true;
 }
+async function updatePicture(client) {
+  const pool = await poolPromise;
+  const request = pool.request();
+  request.input('ClientId', sql.Int, client.clientId);
+  request.input('ProfileImageUrl', sql.VarChar(500), client.picture );
+  const result = await request.execute('UpdateClientPicture');
+  console.log(result);
+  return result.recordset[0];
+}
 module.exports = {
   getAllClients,
   createClient,
@@ -83,5 +94,6 @@ module.exports = {
   getClientById,
   recoverPassword,
   enableClient,
-  disableClient
+  disableClient,
+  updatePicture,
 };

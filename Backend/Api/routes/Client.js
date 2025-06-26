@@ -9,4 +9,5 @@ router.put('/enable/:id', clientController.enable);
 router.put('/disable/:id', clientController.disable);
 router.put('/changePassword', clientController.changePassword);
 router.post('/recoverPassword', clientController.recoverPassword);
+router.put('/updatePicture', clientController.updatePicture);
 module.exports = router; 

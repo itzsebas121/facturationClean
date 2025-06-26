@@ -58,11 +58,13 @@ BEGIN
         c.Address,
         c.Phone,
         u.Cedula,
+        c.Picture,
         u.Email,
         u.IsBlocked
     FROM Clients c
     Join Users u on u.UserId = c.UserId
 END;
+go
 CREATE OR ALTER PROCEDURE getClientById
     @ClientId int
 AS
@@ -75,6 +77,7 @@ BEGIN
         c.Phone,
         u.Cedula,
         u.UserId,
+        c.Picture,
         u.Email
     FROM Clients c
     Join Users u on u.UserId = c.UserId

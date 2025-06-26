@@ -24,10 +24,9 @@ async function create(req, res) {
     try {
         const client = req.body;
         const newClient = await clientService.createClient(client);
-        res.status(201).json({message: "Cliente creado con éxito", newClient});
+        res.status(201).json({ message: "Cliente creado con éxito", newClient });
     }
     catch (error) {
-        console.log("Error al crear cliente:", error);
         res.status(500).json({ error: "Error al crear cliente", error });
     }
 }
@@ -89,6 +88,16 @@ async function disable(req, res) {
     }
 
 }
+async function updatePicture(req, res) {
+    try {
+        const client = req.body;
+        const updatedClient = await clientService.updatePicture(client);
+        res.json(updatedClient);
+    }
+    catch (error) {
+        res.status(500).json({ error: "Error al actualizar cliente", error });
+    }
+}
 module.exports = {
     getAll,
     create,
@@ -97,5 +106,6 @@ module.exports = {
     changePassword,
     recoverPassword,
     enable,
-    disable
+    disable,
+    updatePicture
 };

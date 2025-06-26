@@ -1,7 +1,7 @@
 .home-client-container {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 1.5rem;
   background-color: var(--secondary-color);
   min-height: 100vh;
 }
@@ -38,52 +38,216 @@
   font-size: 1.1rem;
 }
 
-.client-header {
+/* Alert Styles */
+.alert {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  max-width: 400px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px var(--shadow-color);
+  animation: slideIn 0.3s ease-out;
+}
+
+.alert-success {
+  background-color: var(--accent-color);
+  color: white;
+  border: 1px solid var(--accent-light);
+}
+
+.alert-error {
+  background-color: #dc3545;
+  color: white;
+  border: 1px solid #c82333;
+}
+
+.alert-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+}
+
+.alert-close {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 1.5rem;
+  cursor: pointer;
+  margin-left: 1rem;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* Dialog Styles */
+.dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
-  gap: 1.5rem;
-  margin-bottom: 2.5rem;
-  padding: 2rem;
-  background-color: var(--background-light);
+  justify-content: center;
+  z-index: 1000;
+}
+
+.dialog-content {
+  background: var(--background-light);
   border-radius: 12px;
-  box-shadow: 0 2px 8px var(--shadow-color);
-  border: 1px solid var(--border-color);
+  padding: 2rem;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 8px 32px var(--shadow-color);
+}
+
+.dialog-header h3 {
+  margin: 0 0 1rem 0;
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.dialog-body p {
+  margin: 0 0 2rem 0;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.dialog-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.profile-picture-container {
+  position: relative;
+  display: inline-block;
 }
 
 .client-avatar {
-  width: 4rem;
-  height: 4rem;
+  width: 8rem;
+  height: 8rem;
   background: linear-gradient(135deg, var(--accent-color), var(--accent-light));
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 1.5rem;
+  font-size: 2rem;
   font-weight: 600;
   text-transform: uppercase;
-  box-shadow: 0 4px 12px rgba(55, 157, 58, 0.3);
+  box-shadow: 0 6px 20px rgba(55, 157, 58, 0.3);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: 4px solid var(--background-light);
+}
+
+.client-avatar:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 25px rgba(55, 157, 58, 0.4);
+}
+
+.profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.profile-initials {
+  font-size: 2.5rem;
+  font-weight: 700;
+  z-index: 1;
+}
+
+.photo-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.client-avatar:hover .photo-overlay {
+  opacity: 1;
+}
+
+.camera-icon {
+  font-size: 1.5rem;
+  margin-bottom: 0.25rem;
+  filter: brightness(0) invert(1);
+}
+
+.change-photo-text {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+  text-align: center;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.client-header {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  padding: 2rem;
+  background-color: var(--background-light);
+  border-radius: 16px;
+  box-shadow: 0 4px 12px var(--shadow-color);
+  border: 1px solid var(--border-color);
 }
 
 .client-info h1 {
   color: var(--text-primary);
-  font-size: 1.8rem;
-  font-weight: 600;
-  margin-bottom: 0.25rem;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  line-height: 1.2;
 }
 
 .client-role {
-  color: var(--text-secondary);
-  font-size: 1rem;
+  color: white;
+  font-size: 0.85rem;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-weight: 500;
+  letter-spacing: 1px;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, var(--accent-color), var(--accent-light));
+  border-radius: 20px;
+  display: inline-block;
 }
 
 .client-content {
   display: flex;
   flex-direction: column;
+  gap: 1.5rem;
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 2rem;
+  align-items: start;
 }
 
 .section-card {
@@ -93,6 +257,7 @@
   box-shadow: 0 2px 8px var(--shadow-color);
   border: 1px solid var(--border-color);
   transition: box-shadow 0.3s ease;
+  height: fit-content;
 }
 
 .section-card:hover {
@@ -155,7 +320,7 @@
 
 .form-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1.5rem;
   margin-bottom: 2rem;
 }
@@ -222,7 +387,13 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  max-width: 400px;
+}
+
+@media (max-width: 1200px) {
+  .content-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
 }
 
 @media (max-width: 768px) {
@@ -233,12 +404,30 @@
   .client-header {
     flex-direction: column;
     text-align: center;
-    gap: 1rem;
+    gap: 1.5rem;
     padding: 1.5rem;
   }
 
+  .client-avatar {
+    width: 6rem;
+    height: 6rem;
+    font-size: 1.8rem;
+  }
+
+  .profile-initials {
+    font-size: 2rem;
+  }
+
+  .camera-icon {
+    font-size: 1.2rem;
+  }
+
+  .change-photo-text {
+    font-size: 0.65rem;
+  }
+
   .client-info h1 {
-    font-size: 1.5rem;
+    font-size: 1.6rem;
   }
 
   .section-card {
@@ -263,6 +452,10 @@
   .btn {
     width: 100%;
   }
+
+  .dialog-actions {
+    flex-direction: column;
+  }
 }
 
 @media (max-width: 480px) {
@@ -272,27 +465,42 @@
 
   .client-header {
     padding: 1rem;
+    gap: 1rem;
+  }
+
+  .client-avatar {
+    width: 5rem;
+    height: 5rem;
+    font-size: 1.5rem;
+  }
+
+  .profile-initials {
+    font-size: 1.8rem;
+  }
+
+  .client-info h1 {
+    font-size: 1.4rem;
+  }
+
+  .client-role {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
   }
 
   .section-card {
     padding: 1rem;
-  }
-
-  .client-avatar {
-    width: 3rem;
-    height: 3rem;
-    font-size: 1.2rem;
-  }
-
-  .client-info h1 {
-    font-size: 1.3rem;
   }
 }
 
 /* Dark mode specific adjustments */
 @media (prefers-color-scheme: dark) {
   .client-avatar {
-    box-shadow: 0 4px 12px rgba(115, 208, 120, 0.3);
+    box-shadow: 0 6px 20px rgba(115, 208, 120, 0.3);
+    border-color: var(--background-light);
+  }
+
+  .client-avatar:hover {
+    box-shadow: 0 8px 25px rgba(115, 208, 120, 0.4);
   }
 
   .btn-primary:hover:not(:disabled) {

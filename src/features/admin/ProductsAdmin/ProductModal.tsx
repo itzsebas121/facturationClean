@@ -68,13 +68,18 @@ export function ProductModal({ product, categories, isOpen, onClose, onSave, isC
     if (!formData.price || Number.parseFloat(formData.price) <= 0) {
       newErrors.price = "El precio debe ser mayor a 0"
     }
-
+    if (!formData.price || formData.price.length > 10) {
+      newErrors.price = "El precio no puede ser mayor a 10 dígitos"
+    }
     if (!formData.description.trim()) {
       newErrors.description = "La descripción es requerida"
     }
 
     if (!formData.stock || Number.parseInt(formData.stock) < 0) {
       newErrors.stock = "El stock no puede ser negativo"
+    }
+    if (!formData.stock || formData.stock.length > 8) {
+      newErrors.stock = "El stock no puede ser mayor a 8 dígitos"
     }
 
     if (!formData.categoryId) {
@@ -131,6 +136,7 @@ export function ProductModal({ product, categories, isOpen, onClose, onSave, isC
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
+                maxLength={200}
                 className={`product-modal__input ${errors.name ? "error" : ""}`}
                 disabled={loading}
               />
@@ -146,6 +152,7 @@ export function ProductModal({ product, categories, isOpen, onClose, onSave, isC
                 id="price"
                 name="price"
                 value={formData.price}
+                maxLength={10}
                 onChange={handleInputChange}
                 step="0.01"
                 min="0"
@@ -165,6 +172,7 @@ export function ProductModal({ product, categories, isOpen, onClose, onSave, isC
                 name="stock"
                 value={formData.stock}
                 onChange={handleInputChange}
+                maxLength={8}
                 min="0"
                 className={`product-modal__input ${errors.stock ? "error" : ""}`}
                 disabled={loading}

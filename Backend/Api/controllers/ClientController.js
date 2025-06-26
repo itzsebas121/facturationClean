@@ -24,7 +24,6 @@ async function create(req, res) {
     try {
         const client = req.body;
         const newClient = await clientService.createClient(client);
-        console.log("🚀 ~ file: ClientController.js:36 ~ create ~ newClient:", newClient);
         if (newClient.error || newClient.ERROR || newClient.Error) {
             return res.status(400).json({ error: newClient.error || newClient.ERROR || newClient.Error });
         }

@@ -73,10 +73,8 @@ class ClientService {
   static Future<Client?> getCurrentClient() async {
     try {
       final clientId = await getClientId();
-      print('getCurrentClient - ClientId obtenido: $clientId');
       
       if (clientId == null) {
-        print('No se pudo obtener clientId, creando cliente de prueba...');
         // Datos de prueba temporales hasta que el endpoint funcione
         return Client(
           clientId: 0,
@@ -89,14 +87,10 @@ class ClientService {
         );
       }
 
-      print('getCurrentClient - Intentando obtener cliente con ID: $clientId');
       final response = await http.get(
         Uri.parse('$_baseUrl/$clientId'),
         headers: {'Content-Type': 'application/json'},
       );
-
-      print('getCurrentClient - Status: ${response.statusCode}');
-      print('getCurrentClient - Response: ${response.body}');
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);

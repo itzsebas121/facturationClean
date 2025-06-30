@@ -69,6 +69,6 @@ class Client {
 
   @override
   String toString() {
-    return 'Client(clientId: $clientId, firstName: $firstName, lastName: $lastName, email: $email)';
+    return 'Client(clientId: $clientId, firstName: $firstName, lastName: $lastName, email: $email, picture: $picture)';
   }
 }

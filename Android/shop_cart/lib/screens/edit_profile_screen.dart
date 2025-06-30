@@ -511,26 +511,30 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     });
 
     try {
-      // Por ahora, solo mostrar que los cambios se han guardado localmente
-      // hasta que el backend tenga un endpoint funcional para actualizar datos básicos
+      // Determinar la URL de imagen final a usar
+      final finalImageUrl = _newProfileImageUrl ?? widget.client.picture;
       
+      // Crear cliente actualizado para retornar
+      final updatedClient = widget.client.copyWith(
+        firstName: _firstNameController.text.trim(),
+        lastName: _lastNameController.text.trim(),
+        phone: _phoneController.text.trim(),
+        address: _addressController.text.trim(),
+        picture: finalImageUrl,
+      );
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Cambios guardados temporalmente. La foto de perfil se actualiza en la base de datos automáticamente.'),
+            content: Text(
+              _newProfileImageUrl != null 
+                ? 'Perfil actualizado correctamente. La foto se guardó automáticamente.'
+                : 'Cambios guardados temporalmente. La foto se actualiza automáticamente al seleccionar una nueva.'
+            ),
             backgroundColor: AppColors.accentColor,
             behavior: SnackBarBehavior.floating,
             duration: const Duration(seconds: 4),
           ),
-        );
-
-        // Crear cliente actualizado para retornar (aunque no se envíe al servidor)
-        final updatedClient = widget.client.copyWith(
-          firstName: _firstNameController.text.trim(),
-          lastName: _lastNameController.text.trim(),
-          phone: _phoneController.text.trim(),
-          address: _addressController.text.trim(),
-          picture: _newProfileImageUrl ?? widget.client.picture,
         );
 
         // Regresar con el cliente actualizado
@@ -624,14 +628,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text('Foto actualizada correctamente en el perfil'),
+              content: const Text('Foto actualizada correctamente. Se guardará al presionar "Guardar".'),
               backgroundColor: AppColors.accentColor,
               duration: const Duration(seconds: 3),
             ),
           );
         } catch (updateError) {
           // Si falla la actualización del perfil, mostrar advertencia pero mantener la imagen localmente
-          print('Error al actualizar foto en base de datos: $updateError');
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Foto subida pero no se pudo actualizar en la base de datos: ${updateError.toString().replaceAll('Exception: ', '')}'),

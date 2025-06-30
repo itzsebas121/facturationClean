@@ -19,6 +19,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Client? _client;
   bool _isLoading = true;
   String? _error;
+  DateTime? _lastUpdate; // Para controlar actualizaciones recientes
 
   @override
   void initState() {
@@ -26,6 +27,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _loadClientData();
   }
   Future<void> _loadClientData() async {
+    // Si hay una actualización reciente (menos de 10 segundos), no recargar
+    if (_lastUpdate != null && 
+        DateTime.now().difference(_lastUpdate!).inSeconds < 10) {
+      print('ProfileScreen: Evitando recarga reciente. Última actualización: ${_lastUpdate}');
+      return;
+    }
+    
     try {
       setState(() {
         _isLoading = true;
@@ -50,6 +58,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _error = 'Error al cargar el perfil: ${e.toString()}';
       });
     }
+  }
+
+  Future<void> _forceRefreshClientData() async {
+    // Método para refresh manual que siempre recarga
+    print('ProfileScreen: Refresh manual solicitado');
+    _lastUpdate = null; // Resetear para permitir la recarga
+    await _loadClientData();
   }
 
   Future<void> _logout() async {
@@ -130,7 +145,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: _loadClientData,
+            onPressed: _forceRefreshClientData,
             tooltip: 'Recargar perfil',
           ),
           IconButton(
@@ -174,7 +189,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: _loadClientData,
+              onPressed: _forceRefreshClientData,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.accentColor,
                 foregroundColor: AppColors.backgroundLight,
@@ -200,7 +215,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     return RefreshIndicator(
       color: AppColors.accentColor,
-      onRefresh: _loadClientData,
+      onRefresh: _forceRefreshClientData,
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.all(16),
@@ -416,18 +431,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
         // Se recibió un cliente actualizado
         setState(() {
           _client = result;
+          _lastUpdate = DateTime.now(); // Marcar que acabamos de actualizar
         });
         
-        // Notificar a la pantalla anterior que hubo cambios
+        // NO volver a cargar desde el servidor, ya tenemos el cliente actualizado
+        // NO hacer pop() para evitar crear nueva instancia al volver a entrar
+        // if (mounted) {
+        //   Navigator.of(context).pop(result);
+        // }
+        
+        // Simplemente mostrar mensaje de éxito y mantener la pantalla
         if (mounted) {
-          Navigator.of(context).pop(result);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Perfil actualizado correctamente'),
+              backgroundColor: Colors.green,
+              duration: const Duration(seconds: 2),
+            ),
+          );
         }
       } else if (result == true) {
         // Comportamiento antiguo (por si acaso)
         await _loadClientData();
         
         if (mounted) {
-          Navigator.of(context).pop(true);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Perfil actualizado correctamente'),
+              backgroundColor: Colors.green,
+              duration: const Duration(seconds: 2),
+            ),
+          );
         }
       }
     }

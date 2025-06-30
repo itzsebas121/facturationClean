@@ -52,6 +52,7 @@ class _MyAppState extends State<MyApp> {
     // Limpiar el carrito y resetear el estado
     CartService.clearCart();
     CartService.resetCartFlag(); // Resetear flag de carrito nuevo
+    CartService.resetOrdersEndpoint(); // Resetear endpoint de órdenes
   }
 
   Future<void> _addToCart(Product product) async {    try {

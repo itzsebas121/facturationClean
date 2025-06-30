@@ -54,21 +54,26 @@ class ImageService {
         throw Exception('No se encontró información de autenticación');
       }
 
+      final requestBody = {
+        'clientId': clientId,
+        'picture': imageUrl,
+      };
+
       final response = await http.put(
         Uri.parse('$_baseUrl/api/clients/updatePicture'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
-        body: jsonEncode({
-          'ClientId': clientId,
-          'picture': imageUrl,
-        }),
+        body: jsonEncode(requestBody),
       );
 
-      if (response.statusCode != 200) {
+      if (response.statusCode == 200) {
+        // Éxito
+      } else {
         throw Exception('Error al actualizar foto de perfil: ${response.body}');
       }
+      
     } catch (e) {
       throw Exception('Error al actualizar foto de perfil: $e');
     }

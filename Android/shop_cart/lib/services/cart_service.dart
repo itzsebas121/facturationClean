@@ -240,56 +240,143 @@ class CartService {
 
   static Future<List<dynamic>> getOrderHistory() async {
     try {
+      // Obtener token de autenticación y clientId
+      final token = await UserService.getToken();
       final clientId = await ClientService.getClientId();
 
+      print('=== getOrderHistory DEBUG ===');
+      print('Token presente: ${token != null}');
+      print('ClientId: $clientId');
+
       if (clientId == null) {
+        print('ClientId es null, devolviendo lista vacía');
         return [];
       }
 
-      // Si ya sabemos qué endpoint funciona, usar ese primero
-      if (_workingOrdersEndpoint != null) {
-        final response = await http.get(Uri.parse(_workingOrdersEndpoint!));
-        if (response.statusCode == 200) {
-          final data = json.decode(response.body);
-          if (data is List) return data;
-          if (data is Map && data['orders'] != null)
-            return data['orders'] as List;
-          if (data is Map && data['data'] != null) return data['data'] as List;
-        } else {
-          _workingOrdersEndpoint = null; // Reset
-        }
+      if (token == null) {
+        print('Token es null, devolviendo lista vacía');
+        return [];
       }
 
-      // Intentar diferentes endpoints posibles
-      final possibleUrls = [
-        'https://facturationclean.vercel.app/api/order/$clientId', // singular
-        'https://facturationclean.vercel.app/api/client/$clientId/orders',
-        'https://facturationclean.vercel.app/api/clients/$clientId/orders',
-        'https://facturationclean.vercel.app/api/orders?clientId=$clientId', // query parameter
-        'https://facturationclean.vercel.app/api/orders/$clientId', // original
-      ];
-      for (String url in possibleUrls) {
-        final response = await http.get(Uri.parse(url));
+      // Headers de autenticación
+      final headers = {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      };
 
-        if (response.statusCode == 200) {
-          final data = json.decode(response.body);
-          if (data is List) {
-            _workingOrdersEndpoint = url; // Guardar el endpoint que funciona
-            return data;
-          } else if (data is Map && data['orders'] != null) {
-            _workingOrdersEndpoint = url; // Guardar el endpoint que funciona
-            return data['orders'] as List;
-          } else if (data is Map && data['data'] != null) {
-            _workingOrdersEndpoint = url; // Guardar el endpoint que funciona
-            return data['data'] as List;
+      // Si ya sabemos qué endpoint funciona, verificar que es para el cliente correcto
+      if (_workingOrdersEndpoint != null) {
+        print('Verificando endpoint guardado: $_workingOrdersEndpoint para cliente: $clientId');
+        
+        // Verificar que el endpoint guardado es para el cliente actual
+        final isForCurrentClient = _workingOrdersEndpoint!.contains('clientId=$clientId') || 
+                                    _workingOrdersEndpoint!.endsWith('/$clientId');
+        
+        print('¿Endpoint es para cliente actual? $isForCurrentClient');
+        
+        if (!isForCurrentClient) {
+          print('Endpoint conocido es para otro cliente, reseteando: $_workingOrdersEndpoint');
+          _workingOrdersEndpoint = null; // Reset porque es para otro cliente
+        } else {
+          print('Intentando con endpoint conocido: $_workingOrdersEndpoint');
+          final response = await http.get(
+            Uri.parse(_workingOrdersEndpoint!),
+            headers: headers,
+          );
+          
+          if (response.statusCode == 200) {
+            final data = json.decode(response.body);
+            print('Respuesta exitosa del endpoint conocido: ${data.runtimeType}');
+            
+            List<dynamic> orders = [];
+            if (data is List) {
+              orders = data;
+            } else if (data is Map && data['orders'] != null) {
+              orders = data['orders'] as List;
+            } else if (data is Map && data['data'] != null) {
+              orders = data['data'] as List;
+            }
+            
+            // Filtrar órdenes para asegurar que pertenecen al cliente actual
+            final filteredOrders = orders.where((order) {
+              final orderClientId = order['ClientId']?.toString() ?? 
+                                   order['clientId']?.toString() ?? 
+                                   order['client_id']?.toString();
+              return orderClientId == clientId.toString();
+            }).toList();
+            
+            print('Órdenes filtradas: ${filteredOrders.length} de ${orders.length}');
+            return filteredOrders;
           } else {
-            return [];
+            print('Endpoint conocido falló con código: ${response.statusCode}');
+            _workingOrdersEndpoint = null; // Reset
           }
         }
       }
 
+      // Intentar diferentes endpoints posibles con autenticación
+      final possibleUrls = [
+        'https://facturationclean.vercel.app/api/orders?clientId=$clientId', // query parameter con filtro
+        'https://facturationclean.vercel.app/api/client/$clientId/orders',
+        'https://facturationclean.vercel.app/api/clients/$clientId/orders',
+        'https://facturationclean.vercel.app/api/order/$clientId', // singular
+        'https://facturationclean.vercel.app/api/orders/$clientId', // original
+      ];
+      
+      for (String url in possibleUrls) {
+        print('Intentando endpoint: $url');
+        try {
+          final response = await http.get(
+            Uri.parse(url),
+            headers: headers,
+          );
+
+          print('Respuesta del endpoint $url: ${response.statusCode}');
+
+          if (response.statusCode == 200) {
+            final data = json.decode(response.body);
+            print('Datos recibidos tipo: ${data.runtimeType}');
+            
+            List<dynamic> orders = [];
+            if (data is List) {
+              orders = data;
+            } else if (data is Map && data['orders'] != null) {
+              orders = data['orders'] as List;
+            } else if (data is Map && data['data'] != null) {
+              orders = data['data'] as List;
+            }
+            
+            if (orders.isNotEmpty) {
+              // Filtrar órdenes para asegurar que pertenecen al cliente actual
+              final filteredOrders = orders.where((order) {
+                final orderClientId = order['ClientId']?.toString() ?? 
+                                     order['clientId']?.toString() ?? 
+                                     order['client_id']?.toString();
+                return orderClientId == clientId.toString();
+              }).toList();
+              
+              print('Órdenes filtradas: ${filteredOrders.length} de ${orders.length}');
+              
+              if (filteredOrders.isNotEmpty) {
+                // Guardar el endpoint que funciona específicamente para este cliente
+                _workingOrdersEndpoint = url;
+                print('Guardando endpoint exitoso para cliente $clientId: $url');
+                return filteredOrders;
+              } else {
+                print('Endpoint $url no devolvió órdenes para cliente $clientId');
+              }
+            }
+          }
+        } catch (e) {
+          print('Error en endpoint $url: $e');
+          continue;
+        }
+      }
+
+      print('Ningún endpoint devolvió órdenes válidas');
       return [];
     } catch (e) {
+      print('Error general en getOrderHistory: $e');
       return [];
     }
   }
@@ -297,6 +384,11 @@ class CartService {
   // Método para marcar que se necesita un carrito nuevo
   static void markCartAsCompleted() {
     _needsNewCart = true;
+  }
+
+  // Método para resetear el endpoint de órdenes (útil al cambiar de usuario)
+  static void resetOrdersEndpoint() {
+    _workingOrdersEndpoint = null;
   }
 
   // Método para verificar si se necesita un carrito nuevo

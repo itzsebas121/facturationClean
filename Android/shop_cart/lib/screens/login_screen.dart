@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/user_service.dart';
+import '../services/cart_service.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -22,6 +23,11 @@ class _LoginScreenState extends State<LoginScreen> {
       print('DEBUG: LoginScreen._login iniciado');
       final result = await UserService.login(_emailController.text, _passwordController.text);
       print('DEBUG: UserService.login exitoso: $result');
+      
+      // Resetear el endpoint de órdenes para el nuevo usuario
+      CartService.resetOrdersEndpoint();
+      print('DEBUG: Endpoint de órdenes reseteado para nuevo usuario');
+      
       widget.onLoginSuccess();
       print('DEBUG: onLoginSuccess ejecutado');
     } catch (e) {

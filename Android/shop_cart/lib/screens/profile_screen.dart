@@ -64,6 +64,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     // Método para refresh manual que siempre recarga
     print('ProfileScreen: Refresh manual solicitado');
     _lastUpdate = null; // Resetear para permitir la recarga
+    
+    // Limpiar caché de imágenes antes de recargar
+    _clearImageCache();
+    
     await _loadClientData();
   }
 
@@ -132,6 +136,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
           );
         }
       }
+    }
+  }
+
+  /// Limpia el caché de imágenes para forzar la recarga
+  void _clearImageCache() {
+    try {
+      // Limpiar el caché de imágenes de red
+      PaintingBinding.instance.imageCache.clear();
+      PaintingBinding.instance.imageCache.clearLiveImages();
+      print('ProfileScreen: Caché de imágenes limpiado');
+    } catch (e) {
+      print('ProfileScreen: Error limpiando caché: $e');
     }
   }
 
@@ -440,6 +456,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (result is Client) {
         // Se recibió un cliente actualizado
         print('Actualizando cliente en ProfileScreen');
+        
+        // Limpiar caché de imágenes antes de actualizar
+        _clearImageCache();
+        
         setState(() {
           _client = result;
           _lastUpdate = DateTime.now(); // Marcar que acabamos de actualizar
@@ -447,6 +467,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
         
         print('Cliente actualizado en ProfileScreen: ${_client?.picture}');
         print('Marcado como actualizado en: $_lastUpdate');
+        
+        // Dar un poco de tiempo para que el servidor procese la actualización
+        // y luego recargar para sincronizar con los datos del servidor
+        Future.delayed(const Duration(seconds: 2), () {
+          if (mounted) {
+            print('Recargando datos del servidor después de actualización...');
+            _forceRefreshClientData();
+          }
+        });
         
         // NO volver a cargar desde el servidor, ya tenemos el cliente actualizado
         // No hacer: await _loadClientData();
@@ -484,6 +513,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     // Verificar si el cliente tiene una foto de perfil
     if (_client?.picture != null && _client!.picture!.isNotEmpty) {
       print('Mostrando imagen: ${_client!.picture}');
+      
+      // Agregar timestamp para evitar el caché
+      final imageUrl = _client!.picture!.contains('?') 
+          ? '${_client!.picture}&t=${DateTime.now().millisecondsSinceEpoch}'
+          : '${_client!.picture}?t=${DateTime.now().millisecondsSinceEpoch}';
+      
+      print('URL con timestamp: $imageUrl');
+      
       return Container(
         decoration: BoxDecoration(
           shape: BoxShape.circle,
@@ -497,10 +534,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
           radius: 30,
           child: ClipOval(
             child: Image.network(
-              _client!.picture!,
+              imageUrl,
               width: 60,
               height: 60,
               fit: BoxFit.cover,
+              // Evitar caché
+              cacheWidth: null,
+              cacheHeight: null,
+              headers: {
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0',
+              },
               loadingBuilder: (context, child, loadingProgress) {
                 if (loadingProgress == null) return child;
                 return Center(
@@ -519,6 +564,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 );
               },
               errorBuilder: (context, error, stackTrace) {
+                print('Error cargando imagen: $error');
                 // Si hay error cargando la imagen, mostrar iniciales
                 return _buildInitialsAvatar();
               },

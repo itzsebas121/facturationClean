@@ -525,6 +525,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       print('widget.client.picture: ${widget.client.picture}');
       print('finalImageUrl que se usará: $finalImageUrl');
       
+      // Si hay una nueva imagen, actualizar en la base de datos
+      if (_newProfileImageUrl != null) {
+        print('Actualizando foto de perfil en la base de datos...');
+        await ImageService.updateProfilePicture(_newProfileImageUrl!);
+        print('Foto de perfil actualizada exitosamente en la base de datos');
+      }
+      
       // Crear cliente actualizado para retornar
       final updatedClient = widget.client.copyWith(
         firstName: _firstNameController.text.trim(),
@@ -543,8 +550,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           SnackBar(
             content: Text(
               _newProfileImageUrl != null 
-                ? 'Perfil actualizado correctamente. La foto se guardó automáticamente.'
-                : 'Cambios guardados temporalmente. La foto se actualiza automáticamente al seleccionar una nueva.'
+                ? 'Perfil actualizado correctamente, incluyendo la nueva foto.'
+                : 'Cambios guardados exitosamente.'
             ),
             backgroundColor: AppColors.accentColor,
             behavior: SnackBarBehavior.floating,
@@ -626,8 +633,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       // Mostrar progreso detallado
       _showProgressDialog();
 
-      // Usar el servicio de imágenes para manejar todo el proceso
-      final imageUrl = await ImageService.selectAndUploadProfilePicture(source: source);
+      // Usar el servicio de imágenes para solo subir la imagen (sin actualizar BD)
+      final imageUrl = await ImageService.selectAndUploadImageOnly(source: source);
       
       // Cerrar diálogo de progreso
       if (mounted) Navigator.of(context).pop();
@@ -643,28 +650,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         
         print('_newProfileImageUrl después del setState: $_newProfileImageUrl');
         
-        // Actualizar inmediatamente la foto de perfil en la base de datos
-        try {
-          await ImageService.updateProfilePicture(imageUrl);
-          
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text('Foto actualizada correctamente. Se guardará al presionar "Guardar".'),
-              backgroundColor: AppColors.accentColor,
-              duration: const Duration(seconds: 3),
-            ),
-          );
-        } catch (updateError) {
-          // Si falla la actualización del perfil, mostrar advertencia pero mantener la imagen localmente
-          print('Error al actualizar foto en base de datos: $updateError');
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Foto subida pero no se pudo actualizar en la base de datos: ${updateError.toString().replaceAll('Exception: ', '')}'),
-              backgroundColor: Colors.orange,
-              duration: const Duration(seconds: 5),
-            ),
-          );
-        }
+        // Mostrar mensaje que indica que la imagen está lista para guardar
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Foto subida exitosamente. Presiona "Guardar" para actualizar tu perfil.'),
+            backgroundColor: AppColors.accentColor,
+            duration: const Duration(seconds: 3),
+          ),
+        );
       }
     } catch (e) {
       // Cerrar diálogo de progreso si está abierto

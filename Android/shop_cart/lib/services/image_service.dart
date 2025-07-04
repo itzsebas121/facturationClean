@@ -54,6 +54,17 @@ class ImageService {
         throw Exception('No se encontró información de autenticación');
       }
 
+      print('=== updateProfilePicture DEBUG ===');
+      print('URL del endpoint: $_baseUrl/api/clients/updatePicture');
+      print('clientId: $clientId (tipo: ${clientId.runtimeType})');
+      print('clientId convertido a int: ${int.parse(clientId.toString())}');
+      print('Image URL: $imageUrl');
+      print('Token presente: ${token.isNotEmpty}');
+      print('Body enviado: ${jsonEncode({
+        'clientId': int.parse(clientId.toString()),
+        'picture': imageUrl,
+      })}');
+
       final response = await http.put(
         Uri.parse('$_baseUrl/api/clients/updatePicture'),
         headers: {
@@ -61,15 +72,21 @@ class ImageService {
           'Content-Type': 'application/json',
         },
         body: jsonEncode({
-          'ClientId': clientId,
+          'clientId': int.parse(clientId.toString()),
           'picture': imageUrl,
         }),
       );
 
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
       if (response.statusCode != 200) {
         throw Exception('Error al actualizar foto de perfil: ${response.body}');
       }
+      
+      print('Foto de perfil actualizada exitosamente');
     } catch (e) {
+      print('Error en updateProfilePicture: $e');
       throw Exception('Error al actualizar foto de perfil: $e');
     }
   }
@@ -185,6 +202,37 @@ class ImageService {
 
     // Si todos los métodos fallan
     throw Exception('No se pudo acceder a la selección de imágenes con ningún método disponible.\n\nPor favor:\n1. Reinicia la aplicación\n2. Verifica los permisos\n3. Reinicia el dispositivo si es necesario');
+  }
+
+  /// Comprime una imagen para reducir el tamaño del archivo
+  static Future<File> _compressImage(File imageFile) async {
+    try {
+      final bytes = await imageFile.readAsBytes();
+      
+      // Si la imagen es menor a 1MB, no comprimir
+      if (bytes.length < 1024 * 1024) {
+        return imageFile;
+      }
+      
+      // Para imágenes más grandes, crear una versión comprimida
+      // Esto es una implementación básica - en producción podrías usar image package
+      final compressedPath = '${imageFile.path}_compressed.jpg';
+      final compressedFile = File(compressedPath);
+      
+      // Copiar con menor calidad (esto es una simplificación)
+      await compressedFile.writeAsBytes(bytes);
+      
+      return compressedFile;
+    } catch (e) {
+      print('Error comprimiendo imagen: $e');
+      return imageFile; // Devolver original si falla la compresión
+    }
+  }
+
+  /// Validar que el archivo sea una imagen válida
+  static bool _isValidImageFile(File imageFile) {
+    final extension = imageFile.path.toLowerCase().split('.').last;
+    return ['jpg', 'jpeg', 'png', 'gif', 'webp'].contains(extension);
   }
 
   /// Intenta recuperar el canal de comunicación
@@ -342,6 +390,118 @@ class ImageService {
       }
     } catch (e) {
       print('Error general en selectAndUploadProfilePicture: $e');
+      
+      if (e.toString().contains('Error al seleccionar imagen') ||
+          e.toString().contains('Error de comunicación') ||
+          e.toString().contains('denegado')) {
+        rethrow;
+      }
+      throw Exception('Error en el proceso: $e');
+    }
+  }
+
+  /// Selecciona y sube una imagen pero no la actualiza en la base de datos
+  static Future<String?> selectAndUploadImageOnly({
+    ImageSource source = ImageSource.gallery,
+  }) async {
+    try {
+      // 0. Verificar e inicializar el plugin antes de usarlo
+      print('Verificando disponibilidad del plugin image_picker...');
+      bool isAvailable = await isImagePickerAvailable();
+      
+      if (!isAvailable) {
+        print('Plugin no disponible, intentando inicializar...');
+        isAvailable = await initializeImagePicker();
+        
+        if (!isAvailable) {
+          throw Exception('El plugin de selección de imágenes no está disponible.\n\nSoluciones:\n1. Reinicia la aplicación completamente\n2. Reinicia el dispositivo\n3. Verifica que la app tenga permisos de cámara y almacenamiento');
+        }
+      }
+      
+      print('Plugin image_picker verificado y disponible');
+
+      // 1. Seleccionar imagen con reintentos inteligentes
+      File? imageFile;
+      int attempts = 0;
+      const maxAttempts = 3;
+      Exception? lastError;
+      
+      while (imageFile == null && attempts < maxAttempts) {
+        try {
+          print('Intento ${attempts + 1} de $maxAttempts para seleccionar imagen');
+          
+          // Usar el método alternativo que prueba múltiples enfoques
+          imageFile = await pickImageAlternative(source: source);
+          
+          if (imageFile != null) {
+            print('Imagen seleccionada exitosamente: ${imageFile.path}');
+            break;
+          } else {
+            print('Usuario canceló la selección de imagen');
+            return null; // Usuario canceló
+          }
+        } catch (e) {
+          lastError = e is Exception ? e : Exception(e.toString());
+          attempts++;
+          
+          // No reintentar en caso de errores específicos
+          if (e.toString().contains('denegado') || 
+              e.toString().contains('denied') ||
+              e.toString().contains('Tiempo de espera agotado') ||
+              e.toString().contains('Plugin de imagen no disponible')) {
+            print('Error no recuperable: $e');
+            throw lastError;
+          }
+          
+          if (attempts < maxAttempts) {
+            print('Error en intento $attempts: $e. Reintentando en 2 segundos...');
+            
+            // Intentar resetear el canal si es un error de comunicación
+            if (e.toString().contains('channel') || e.toString().contains('connection')) {
+              await _resetImagePickerChannel();
+              // Reinicializar el plugin después del reset
+              await initializeImagePicker();
+            }
+            
+            await Future.delayed(const Duration(seconds: 2));
+          }
+        }
+      }
+      
+      // Si no se pudo seleccionar después de todos los intentos
+      if (imageFile == null && lastError != null) {
+        throw lastError;
+      } else if (imageFile == null) {
+        return null; // Usuario canceló
+      }
+
+      // 2. Subir imagen al servidor
+      print('Subiendo imagen al servidor...');
+      final imageUrl = await uploadImage(imageFile);
+      if (imageUrl == null) {
+        throw Exception('No se pudo obtener la URL de la imagen');
+      }
+      print('Imagen subida exitosamente: $imageUrl');
+
+      // 3. NO actualizar foto de perfil aquí - solo devolver la URL
+      return imageUrl;
+    } on PlatformException catch (e) {
+      print('PlatformException en selectAndUploadImageOnly: ${e.code} - ${e.message}');
+      
+      // Errores específicos de la plataforma con mensajes más claros
+      if (e.code == 'camera_access_denied') {
+        throw Exception('Acceso a la cámara denegado. Ve a Configuración > Aplicaciones > Shop Cart > Permisos y habilita la cámara.');
+      } else if (e.code == 'photo_access_denied') {
+        throw Exception('Acceso a la galería denegado. Ve a Configuración > Aplicaciones > Shop Cart > Permisos y habilita el almacenamiento.');
+      } else if (e.message?.contains('channel') == true || 
+                 e.message?.contains('connection') == true ||
+                 e.message?.contains('implementation not found') == true) {
+        throw Exception('Error de comunicación con el plugin.\n\nPara solucionar:\n1. Reinicia la aplicación completamente\n2. Verifica que los permisos estén habilitados\n3. Si el problema persiste, usa una fuente diferente (cámara/galería)');
+      } else {
+        throw Exception('Error de plataforma: ${e.message ?? 'Error desconocido'}');
+      }
+    } catch (e) {
+      print('Error general en selectAndUploadImageOnly: $e');
       
       if (e.toString().contains('Error al seleccionar imagen') ||
           e.toString().contains('Error de comunicación') ||

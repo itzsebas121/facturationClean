@@ -20,99 +20,102 @@ class PaginationWidget extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Botón anterior
-          IconButton(
-            icon: const Icon(Icons.arrow_back_ios),
-            onPressed: currentPage > 1
-                ? () => onPageChange(currentPage - 1)
-                : null,
-            color: currentPage > 1
-                ? AppTheme.lightTheme.colorScheme.primary
-                : Colors.grey,
-          ),
-          
-          // Páginas
-          _buildPageNumbers(),
-          
-          // Botón siguiente
-          IconButton(
-            icon: const Icon(Icons.arrow_forward_ios),
-            onPressed: currentPage < totalPages
-                ? () => onPageChange(currentPage + 1)
-                : null,
-            color: currentPage < totalPages
-                ? AppTheme.lightTheme.colorScheme.primary
-                : Colors.grey,
-          ),
+          // Solo mostrar números de página: inicio, actual, y final
+          _buildSimplePageNumbers(),
         ],
       ),
     );
   }
 
-  Widget _buildPageNumbers() {
+  Widget _buildSimplePageNumbers() {
     List<Widget> pageWidgets = [];
     
-    // Determinar qué páginas mostrar
-    List<int> pagesToShow = [];
+    // Si solo hay 1 página, mostrar solo esa
+    if (totalPages <= 1) {
+      pageWidgets.add(_buildPageButton(1));
+      return Row(children: pageWidgets);
+    }
+    
+    // Si hay 2 páginas, mostrar ambas
+    if (totalPages == 2) {
+      pageWidgets.add(_buildPageButton(1));
+      pageWidgets.add(const SizedBox(width: 8));
+      pageWidgets.add(_buildPageButton(2));
+      return Row(children: pageWidgets);
+    }
+    
+    // Si hay 3 o más páginas, mostrar: inicio, actual, final
+    Set<int> pagesToShow = {};
     
     // Siempre mostrar la primera página
     pagesToShow.add(1);
     
-    // Mostrar páginas cercanas a la actual
-    for (int i = currentPage - 1; i <= currentPage + 1; i++) {
-      if (i > 1 && i < totalPages) {
-        pagesToShow.add(i);
-      }
+    // Mostrar la página actual (si no es la primera ni la última)
+    if (currentPage > 1 && currentPage < totalPages) {
+      pagesToShow.add(currentPage);
     }
     
-    // Siempre mostrar la última página si hay más de una
-    if (totalPages > 1) {
-      pagesToShow.add(totalPages);
-    }
+    // Siempre mostrar la última página
+    pagesToShow.add(totalPages);
     
-    // Ordenar y eliminar duplicados
-    pagesToShow = pagesToShow.toSet().toList()..sort();
+    // Convertir a lista ordenada
+    List<int> pages = pagesToShow.toList()..sort();
     
-    // Construir los widgets de página
-    for (int i = 0; i < pagesToShow.length; i++) {
-      int page = pagesToShow[i];
+    // Construir los botones
+    for (int i = 0; i < pages.length; i++) {
+      int page = pages[i];
       
-      // Agregar el botón de página
-      pageWidgets.add(
-        InkWell(
-          onTap: () => onPageChange(page),
-          child: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: page == currentPage
-                  ? AppTheme.lightTheme.colorScheme.primary
-                  : Colors.transparent,
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: Text(
-              '$page',
-              style: TextStyle(
-                color: page == currentPage
-                    ? Colors.white
-                    : AppTheme.lightTheme.colorScheme.primary,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ),
-      );
+      pageWidgets.add(_buildPageButton(page));
       
-      // Agregar puntos suspensivos si hay saltos en la numeración
-      if (i < pagesToShow.length - 1 && pagesToShow[i + 1] > page + 1) {
-        pageWidgets.add(
-          const Padding(
+      // Agregar separador entre páginas
+      if (i < pages.length - 1) {
+        int nextPage = pages[i + 1];
+        if (nextPage > page + 1) {
+          // Hay salto, agregar puntos suspensivos
+          pageWidgets.add(const Padding(
             padding: EdgeInsets.symmetric(horizontal: 8),
-            child: Text('...'),
-          ),
-        );
+            child: Text('...', style: TextStyle(fontSize: 16)),
+          ));
+        } else {
+          // No hay salto, agregar espacio normal
+          pageWidgets.add(const SizedBox(width: 8));
+        }
       }
     }
     
     return Row(children: pageWidgets);
+  }
+  
+  Widget _buildPageButton(int page) {
+    final isCurrentPage = page == currentPage;
+    
+    return InkWell(
+      onTap: () => onPageChange(page),
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isCurrentPage
+              ? AppTheme.lightTheme.colorScheme.primary
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isCurrentPage
+                ? AppTheme.lightTheme.colorScheme.primary
+                : Colors.grey.shade300,
+          ),
+        ),
+        child: Text(
+          '$page',
+          style: TextStyle(
+            color: isCurrentPage
+                ? Colors.white
+                : AppTheme.lightTheme.colorScheme.primary,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+      ),
+    );
   }
 }

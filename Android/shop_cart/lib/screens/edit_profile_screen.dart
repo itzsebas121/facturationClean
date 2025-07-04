@@ -3,6 +3,7 @@ import 'package:image_picker/image_picker.dart';
 import '../models/client.dart';
 import '../services/image_service.dart';
 import '../theme/app_theme.dart';
+import '../utils/validators.dart';
 
 class EditProfileScreen extends StatefulWidget {
   final Client client;
@@ -263,15 +264,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               controller: _firstNameController,
               label: 'Nombre',
               icon: Icons.person,
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'El nombre es obligatorio';
-                }
-                if (value.trim().length < 2) {
-                  return 'El nombre debe tener al menos 2 caracteres';
-                }
-                return null;
-              },
+              validator: (value) => Validators.name(value, fieldName: 'El nombre'),
             ),
             const SizedBox(height: 16),
 
@@ -280,15 +273,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               controller: _lastNameController,
               label: 'Apellido',
               icon: Icons.person_outline,
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'El apellido es obligatorio';
-                }
-                if (value.trim().length < 2) {
-                  return 'El apellido debe tener al menos 2 caracteres';
-                }
-                return null;
-              },
+              validator: (value) => Validators.name(value, fieldName: 'El apellido'),
             ),
             const SizedBox(height: 16),
 
@@ -301,39 +286,24 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             ),
             const SizedBox(height: 16),
 
-            // Teléfono
+            // Teléfono (Opcional)
             _buildTextField(
               controller: _phoneController,
-              label: 'Teléfono',
+              label: 'Teléfono (opcional)',
               icon: Icons.phone,
               keyboardType: TextInputType.phone,
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'El teléfono es obligatorio';
-                }
-                if (value.trim().length < 7) {
-                  return 'El teléfono debe tener al menos 7 dígitos';
-                }
-                return null;
-              },
+              maxLength: 10,
+              validator: (value) => Validators.phone(value, isRequired: false),
             ),
             const SizedBox(height: 16),
 
-            // Dirección
+            // Dirección (Opcional)
             _buildTextField(
               controller: _addressController,
-              label: 'Dirección',
+              label: 'Dirección (opcional)',
               icon: Icons.location_on,
               maxLines: 2,
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'La dirección es obligatoria';
-                }
-                if (value.trim().length < 5) {
-                  return 'La dirección debe tener al menos 5 caracteres';
-                }
-                return null;
-              },
+              validator: (value) => Validators.address(value, isRequired: false),
             ),
           ],
         ),
@@ -347,12 +317,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     required IconData icon,
     TextInputType? keyboardType,
     int maxLines = 1,
+    int? maxLength,
     String? Function(String?)? validator,
   }) {
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
       maxLines: maxLines,
+      maxLength: maxLength,
       enabled: !_isLoading,
       validator: validator,
       decoration: InputDecoration(

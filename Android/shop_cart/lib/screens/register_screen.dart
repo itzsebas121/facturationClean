@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/user_service.dart';
+import '../utils/validators.dart';
 
 class RegisterScreen extends StatefulWidget {
   final VoidCallback onRegisterSuccess;
@@ -116,15 +117,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
                 keyboardType: TextInputType.emailAddress,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Ingrese su correo electrónico';
-                  }
-                  if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                    return 'Ingrese un correo válido';
-                  }
-                  return null;
-                },
+                validator: Validators.email,
               ),
               const SizedBox(height: 12),
               // Password Field
@@ -142,15 +135,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
                 obscureText: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Ingrese su contraseña';
-                  }
-                  if (value.length < 6) {
-                    return 'La contraseña debe tener al menos 6 caracteres';
-                  }
-                  return null;
-                },
+                validator: Validators.password,
               ),
               const SizedBox(height: 12),
               // Cedula Field
@@ -169,18 +154,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 keyboardType: TextInputType.number,
                 maxLength: 10,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Ingrese su cédula';
-                  }
-                  if (value.length != 10) {
-                    return 'La cédula debe tener 10 dígitos';
-                  }
-                  if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
-                    return 'La cédula solo debe contener números';
-                  }
-                  return null;
-                },
+                validator: Validators.cedula,
               ),
               const SizedBox(height: 12),
               // First Name Field
@@ -198,15 +172,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
                 textCapitalization: TextCapitalization.words,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Ingrese sus nombres';
-                  }
-                  if (value.trim().length < 2) {
-                    return 'Los nombres deben tener al menos 2 caracteres';
-                  }
-                  return null;
-                },
+                validator: (value) => Validators.name(value, fieldName: 'Los nombres'),
               ),
               const SizedBox(height: 12),
               // Last Name Field
@@ -224,22 +190,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
                 textCapitalization: TextCapitalization.words,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Ingrese sus apellidos';
-                  }
-                  if (value.trim().length < 2) {
-                    return 'Los apellidos deben tener al menos 2 caracteres';
-                  }
-                  return null;
-                },
+                validator: (value) => Validators.name(value, fieldName: 'Los apellidos'),
               ),
               const SizedBox(height: 12),
               // Address Field
               TextFormField(
                 controller: _addressController,
                 decoration: InputDecoration(
-                  labelText: 'Dirección',
+                  labelText: 'Dirección (opcional)',
                   hintText: 'Av. Siempre Viva 742',
                   prefixIcon: Icon(
                     Icons.home_outlined,
@@ -251,13 +209,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 textCapitalization: TextCapitalization.words,
                 maxLines: 2,
+                validator: (value) => Validators.address(value, isRequired: false),
               ),
               const SizedBox(height: 12),
               // Phone Field
               TextFormField(
                 controller: _phoneController,
                 decoration: InputDecoration(
-                  labelText: 'Teléfono',
+                  labelText: 'Teléfono (opcional)',
                   hintText: '0987654321',
                   prefixIcon: Icon(
                     Icons.phone_outlined,
@@ -268,17 +227,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
                 keyboardType: TextInputType.phone,
-                validator: (value) {
-                  if (value != null && value.isNotEmpty) {
-                    if (value.length < 10) {
-                      return 'El teléfono debe tener al menos 10 dígitos';
-                    }
-                    if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
-                      return 'El teléfono solo debe contener números';
-                    }
-                  }
-                  return null;
-                },
+                maxLength: 10,
+                validator: (value) => Validators.phone(value, isRequired: false),
               ),
               const SizedBox(height: 24),
               // Error Message

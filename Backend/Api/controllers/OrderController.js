@@ -1,5 +1,5 @@
 const ordersService = require('../services/OrderService');
-
+const { logErrorToDB } = require('../services/errorLog');
 
 async function getAll(req, res) {
     const { clientId } = req.query; 
@@ -20,10 +20,13 @@ async function getById(req, res) {
     try {
         const order = await ordersService.getOrderById(id);
         if (!order) {
+            
+            logErrorToDB("OrderController","getById",order.error||order.Error||`No se encontró la orden con ID ${id}`, "");
             return res.status(404).json({ error: "Orden no encontrada" });
         }
         res.status(200).json(order);
     } catch (error) {
+        logErrorToDB("OrderController","getById",error.message, error.stack);
         res.status(500).json({ error: error.message });
     }
 }
@@ -33,10 +36,12 @@ async function create(req, res) {
         const order = req.body;
         const newOrder = await ordersService.createOrder(order);
         if (!newOrder) {
+            logErrorToDB("OrderController","create",newOrder.error||newOrder.Error||"Error al crear la orden", "");
             return res.status(400).json({ create: false });
         }
         res.status(201).json({ create: true, message: "Orden creada exitosamente", orderid: newOrder.OrderId });
     } catch (error) {
+        logErrorToDB("OrderController","create",error.message, error.stack);
         res.status(500).json({ message: "Error al crear producto", error });
     }
 }
@@ -47,10 +52,11 @@ async function addProductToOrder(req, res) {
         if (result.Message) {
             res.status(200).json({ message: result.Message });
         } else {
+            logErrorToDB("OrderController","addProductToOrder",result.error||result.ERROR||result.Error||"Error al agregar el producto a la orden", "");
             res.status(400).json({ error: result.error || 'Error al agregar el producto a la orden' });
         }
     } catch (error) {
-        console.error('Error al agregar el producto a la orden:', error);
+        logErrorToDB("OrderController","addProductToOrder",error.message, error.stack);
         res.status(500).json({ error: error.message || 'Error interno del servidor' });
     }
 
@@ -60,7 +66,7 @@ async function getNextOrderId(req, res) {
         const result = await ordersService.getNextOrderId();
         res.status(200).json(result);
     } catch (error) {
-        console.error("Error en getNextOrderIdController:", error.message);
+        logErrorToDB('OrderController', 'getNextOrderId', error.message, error.stack);
         res.status(500).json({ message: "Error al obtener el siguiente número de orden." });
     }
 }

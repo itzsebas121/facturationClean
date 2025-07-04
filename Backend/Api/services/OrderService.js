@@ -1,4 +1,5 @@
 const { poolPromise, sql } = require('../db/db');
+const { logErrorToDB } = require('./errorLog');
 
 async function getOrders(clientId = null) {
     try {
@@ -12,8 +13,7 @@ async function getOrders(clientId = null) {
         const result = await request.execute('getOrders');
         return result.recordset;
     } catch (err) {
-        console.error('Error en getOrders:', err);
-        throw err;
+       logErrorToDB('OrderService', 'getOrders', err.message, err.stack);
     }
 }
 
@@ -26,8 +26,7 @@ async function createOrder(order) {
 
         return result.recordset[0];
     } catch (err) {
-        console.error('Error en createOrder:', err);
-        throw err;
+       logErrorToDB('OrderService', 'createOrder', err.message, err.stack);
     }
 }
 async function addProductToOrder(orderId, productId, quantity) {
@@ -46,8 +45,7 @@ async function addProductToOrder(orderId, productId, quantity) {
         return result.recordset[0];
 
     } catch (err) {
-        console.error('Error en addProductToOrder:', err);
-        throw err;
+        logErrorToDB('OrderService', 'addProductToOrder', err.message, err.stack);
     }
 }
 async function getOrderById(orderId) {
@@ -59,8 +57,7 @@ async function getOrderById(orderId) {
         return result.recordset;
     }
     catch (err) {
-        console.error('Error en getOrderById:', err);
-        throw err;
+        logErrorToDB('OrderService', 'getOrderById', err.message, err.stack);
     }
 }
 async function deleteOrder(orderId) {
@@ -71,8 +68,7 @@ async function deleteOrder(orderId) {
             .execute('DeleteOrder');
         return true;
     } catch (err) {
-        console.error('Error en deleteOrder:', err);
-        throw err;
+       logErrorToDB('OrderService', 'deleteOrder', err.message, err.stack);
     }
 }
 async function getNextOrderId() {
@@ -84,8 +80,7 @@ async function getNextOrderId() {
 
         return result.recordset[0];
     } catch (err) {
-        console.error('Error en getNextOrderId:', err);
-        throw err;
+        logErrorToDB('OrderService', 'getNextOrderId', err.message, err.stack);
     }
 }
 

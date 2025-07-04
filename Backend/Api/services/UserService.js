@@ -1,4 +1,5 @@
 const { poolPromise, sql } = require('../db/db');
+const { logErrorToDB } = require('./errorLog');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
@@ -13,7 +14,10 @@ async function ValidateUserLogin(user) {
 
         const userData = result.recordset[0];
 
-        if (!userData) return null;
+        if (!userData) {
+            logErrorToDB('UserService', 'ValidateUserLogin', `User with email: ${email} not found`, "");
+            return null
+        };
         if (!userData.UserId) return userData;
 
         const payload = {
@@ -30,7 +34,7 @@ async function ValidateUserLogin(user) {
         }
         return jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: '24h' });
     } catch (error) {
-        throw error;
+        logErrorToDB('UserService', 'ValidateUserLogin', error.message, error.stack);
     }
 }
 

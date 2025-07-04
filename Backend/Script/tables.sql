@@ -101,3 +101,13 @@ CREATE TABLE CartItems (
     CONSTRAINT FK_CartItems_Carts FOREIGN KEY (CartId) REFERENCES Carts(CartId),
     CONSTRAINT FK_CartItems_Products FOREIGN KEY (ProductId) REFERENCES Products(ProductId)
 );
+
+CREATE TABLE ErrorLogs (
+    ErrorId INT IDENTITY PRIMARY KEY,
+    Controller NVARCHAR(100),
+    Method NVARCHAR(100),
+    ErrorMessage NVARCHAR(MAX),
+    StackTrace NVARCHAR(MAX),
+    DateOccurred DATETIME DEFAULT GETDATE()
+);
+

@@ -1,4 +1,5 @@
 const { poolPromise, sql } = require('../db/db');
+const { logErrorToDB } = require('./errorLog');
 
 async function getCart(clientID) {
     try {
@@ -8,8 +9,7 @@ async function getCart(clientID) {
             .execute('getCartClient');
         return result.recordset;
     } catch (err) {
-        console.error("Error en getCart:", err);
-        throw err;
+        logErrorToDB('CartService', 'getCart', err.message, err.stack);
     }
 }
 
@@ -24,8 +24,7 @@ async function insertItem(product) {
 
         return result.recordset[0];
     } catch (err) {
-        console.error("Error en insertItem:", err);
-        throw err;
+        logErrorToDB('CartService', 'insertItem', err.message, err.stack);
     }
 }
 async function updateProducto(producto) {
@@ -38,8 +37,7 @@ async function updateProducto(producto) {
             .execute('UpdateCartItemQuantity');
         return result.recordset?.[0];
     } catch (err) {
-        console.error("Error en updateProducto:", err);
-        throw err;
+        logErrorToDB('CartService', 'updateProducto', err.message, err.stack);
     }
 }
 async function cartToOrder(cartID) {
@@ -50,8 +48,7 @@ async function cartToOrder(cartID) {
             .execute('ConvertCartToOrder');
         return result.recordset?.[0];
     } catch (err) {
-        console.error("Error en cartToOrder:", err);
-        throw err;
+       logErrorToDB('CartService', 'cartToOrder', err.message, err.stack);
     }
 }
 async function deleteItem(cartID, productID) {
@@ -63,8 +60,7 @@ async function deleteItem(cartID, productID) {
             .execute('DeleteCartItem');
         return result.recordset?.[0];
     } catch (err) {
-        console.error("Error en deleteItem:", err);
-        throw err;
+       logErrorToDB('CartService', 'deleteItem', err.message, err.stack);
     }
 }
 module.exports = {

@@ -1,4 +1,5 @@
 const { poolPromise, sql } = require('../db/db');
+const { logErrorToDB } = require('./errorLog');
 
 async function getAllProductos(filtro, page = 1, pageSize = 10, categoryId = null, isAdmin = false) {
   const pool = await poolPromise;
@@ -30,7 +31,10 @@ async function createProducto(producto) {
     .input('Stock', sql.Int, Stock)
     .input('ImageUrl', sql.VarChar(255), ImageUrl)
     .execute('CreateProduct');
-  if (result.rowsAffected[0] === 0) return false;
+  if (result.rowsAffected[0] === 0) {
+    logErrorToDB('ProductService', 'createProducto', 'No se pudo crear el producto', null);
+    return false
+  };
   return result.recordset[0];
 }
 async function updateProducto(id, producto) {
@@ -46,7 +50,10 @@ async function updateProducto(id, producto) {
     .input('Stock', sql.Int, Stock)
     .input('ImageUrl', sql.VarChar(255), ImageUrl)
     .execute('UpdateProduct');
-  if (result.rowsAffected[0] === 0) return false;
+  if (result.rowsAffected[0] === 0) {
+    logErrorToDB('ProductService', 'updateProducto', `No se pudo actualizar ${producto.id} el producto`, null);
+    return false
+  };
   return true;
 }
 
@@ -56,7 +63,10 @@ async function disableProduct(id) {
   const result = await pool.request()
     .input('ProductId', sql.Int, id)
     .execute('disableProduct');
-  if (result.rowsAffected[0] === 0) return false;
+  if (result.rowsAffected[0] === 0) {
+    logErrorToDB('ProductService', 'disableProduct', `No se pudo deshabilitar el producto ${id}`, null);
+    return false
+  };
   return true;
 }
 async function enableProduct(id) {
@@ -64,7 +74,10 @@ async function enableProduct(id) {
   const result = await pool.request()
     .input('ProductId', sql.Int, id)
     .execute('enableProduct');
-  if (result.rowsAffected[0] === 0) return false;
+  if (result.rowsAffected[0] === 0) {
+    logErrorToDB('ProductService', 'enableProduct', `No se pudo habilitar el producto ${id}`, null);
+    return false
+  };
   return true;
 }
 
@@ -75,5 +88,5 @@ module.exports = {
   updateProducto,
   disableProduct,
   enableProduct
-  
+
 };

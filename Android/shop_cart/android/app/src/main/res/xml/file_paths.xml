@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- Directorio de Pictures externo -->
+    <external-files-path name="my_images" path="Pictures" />
+    <!-- Cache externo -->
+    <external-cache-path name="my_cache" path="." />
+    <!-- Cache interno -->
+    <cache-path name="cached_files" path="." />
+    <!-- Files internos -->
+    <files-path name="internal_files" path="." />
+    <!-- Root del almacenamiento externo (para compatibilidad) -->
+    <external-path name="external_files" path="." />
+</paths>

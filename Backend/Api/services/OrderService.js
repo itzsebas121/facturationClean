@@ -75,9 +75,26 @@ async function deleteOrder(orderId) {
         throw err;
     }
 }
+async function getNextOrderId() {
+    try {
+        const pool = await poolPromise;
+        const result = await pool.request().query(`
+            SELECT IDENT_CURRENT('Orders') + IDENT_INCR('Orders') AS NextOrderID;
+        `);
+
+        return result.recordset[0];
+    } catch (err) {
+        console.error('Error en getNextOrderId:', err);
+        throw err;
+    }
+}
+
+
 module.exports = {
     getOrders,
     createOrder,
     addProductToOrder,
-    getOrderById
+    getOrderById,
+    deleteOrder,
+    getNextOrderId
 };

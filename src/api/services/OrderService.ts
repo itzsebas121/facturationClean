@@ -21,6 +21,16 @@ export async function createOrderService(order: any) {
     }
     return await res.json();
 }
+export async function getNextOrderService() {
+    const res = await fetch(ORDER_ENDPOINTS.NextOrder , {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+    });
+    if (!res.ok) {
+        throw new Error('Failed to fetch clients');
+    }
+    return await res.json();
+}
 export async function addDetailService(orderDetail: any, orderId: number) {
     try {
         for (const detail of orderDetail) {

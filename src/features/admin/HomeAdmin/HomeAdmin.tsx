@@ -1,5 +1,3 @@
-"use client"
-
 import { Suspense, lazy } from "react"
 import { useAuth } from "../../../auth/AuthContext"
 import { Loader2 } from "lucide-react"

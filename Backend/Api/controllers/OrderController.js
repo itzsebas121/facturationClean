@@ -55,9 +55,21 @@ async function addProductToOrder(req, res) {
     }
 
 }
+async function getNextOrderId(req, res) {
+    try {
+        const result = await ordersService.getNextOrderId();
+        res.status(200).json(result);
+    } catch (error) {
+        console.error("Error en getNextOrderIdController:", error.message);
+        res.status(500).json({ message: "Error al obtener el siguiente número de orden." });
+    }
+}
+
+
 module.exports = {
     getAll,
     create,
     getById,
-    addProductToOrder
+    addProductToOrder,
+    getNextOrderId,
 };

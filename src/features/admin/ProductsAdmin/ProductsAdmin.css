@@ -325,9 +325,10 @@
 }
 
 .product-item__details {
-  display: flex;
-  align-items: center;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 1.5rem;
+  width: 100%;
   flex-shrink: 0;
 }
 
@@ -336,6 +337,7 @@
   font-weight: 600;
   color: var(--accent-color);
   white-space: nowrap;
+  align-content: flex-start;
 }
 
 .product-item__stock {

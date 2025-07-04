@@ -1,10 +1,8 @@
-"use client"
-
 import { useState, useEffect } from "react"
 import type { Client } from "../../types/User"
 import type { Product } from "../../types/Product"
 import { getClientsService } from "../../api/services/ClientService"
-import { createOrderService, addDetailService } from "../../api/services/OrderService"
+import { createOrderService, addDetailService, getNextOrderService } from "../../api/services/OrderService"
 import { adaptarCliente } from "../../adapters/userAdapter"
 import ClientSelector from "./ClientSelector"
 import ProductSelector from "./ProductSelector"
@@ -26,6 +24,8 @@ export interface InvoiceData {
   total: number
 }
 
+
+
 export default function InvoiceManager() {
   const [clients, setClients] = useState<Client[]>([])
   const [invoiceData, setInvoiceData] = useState<InvoiceData>({
@@ -37,23 +37,31 @@ export default function InvoiceManager() {
   const [showProductModal, setShowProductModal] = useState(false)
   const [alert, setAlert] = useState<{ type: "success" | "error" | "info" | "warning"; message: string } | null>(null)
   const [loading, setLoading] = useState(false)
-  // Add state for confirmation dialog:
   const [confirmDialog, setConfirmDialog] = useState<{
     isOpen: boolean
     title: string
     message: string
     onConfirm: () => void
   } | null>(null)
+  const [nextOrderId, setNextOrderId] = useState<number | null>(null);
 
   useEffect(() => {
     fetchClients()
+    getNextOrderId();
   }, [])
 
   useEffect(() => {
     const total = invoiceData.items.reduce((sum, item) => sum + item.subtotal, 0)
     setInvoiceData((prev) => ({ ...prev, total }))
   }, [invoiceData.items])
-
+  async function getNextOrderId() {
+    const result = await getNextOrderService();
+    if (result.NextOrderID) {
+      setNextOrderId(result.NextOrderID);
+    } else {
+      setNextOrderId(null);
+    }
+  }
   const fetchClients = async () => {
     try {
       const result = await getClientsService()
@@ -163,7 +171,7 @@ export default function InvoiceManager() {
     setLoading(true)
     try {
       const orderData = {
-        clientId: invoiceData.client.id,
+        clientId: invoiceData.client.clientId,
         items: invoiceData.items.map((item) => ({
           productId: item.product.id,
           quantity: item.quantity,
@@ -186,6 +194,7 @@ export default function InvoiceManager() {
           }
           )
           showAlert("success", "Orden creada exitosamente")
+          getNextOrderId();
         }
       }
     } catch (error) {
@@ -200,7 +209,7 @@ export default function InvoiceManager() {
     <div className="invoice-manager">
       <header className="invoice-header">
         <h1>Sistema de Facturación</h1>
-        <p>Crear nueva factura</p>
+        <p>Crear nueva factura #{nextOrderId}</p>
       </header>
 
       {alert && <Alert type={alert.type} message={alert.message} onClose={() => setAlert(null)} />}

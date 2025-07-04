@@ -20,25 +20,34 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!_formKey.currentState!.validate()) return;
     setState(() { _isLoading = true; _error = null; });
     try {
-      print('DEBUG: LoginScreen._login iniciado');
-      final result = await UserService.login(_emailController.text, _passwordController.text);
-      print('DEBUG: UserService.login exitoso: $result');
+      await UserService.login(_emailController.text, _passwordController.text);
       
       // Resetear el endpoint de órdenes para el nuevo usuario
       CartService.resetOrdersEndpoint();
-      print('DEBUG: Endpoint de órdenes reseteado para nuevo usuario');
       
       widget.onLoginSuccess();
-      print('DEBUG: onLoginSuccess ejecutado');
     } catch (e) {
-      print('DEBUG: Error en LoginScreen._login: $e');
-      print('DEBUG: Error type: ${e.runtimeType}');
-      print('DEBUG: Stack trace: ${StackTrace.current}');
-      setState(() { _error = e.toString(); });
+      // Extraer el mensaje de error más limpio
+      String errorMessage = e.toString();
+      if (errorMessage.startsWith('Exception: ')) {
+        errorMessage = errorMessage.substring(11);
+      }
+      
+      // Mostrar errores más específicos
+      if (errorMessage.contains('Credenciales incorrectas')) {
+        errorMessage = 'Email o contraseña incorrectos. Verifica tus datos.';
+      } else if (errorMessage.contains('error de red')) {
+        errorMessage = 'Error de conexión. Verifica tu internet.';
+      } else if (errorMessage.contains('Connection failed') || errorMessage.contains('SocketException')) {
+        errorMessage = 'No se puede conectar al servidor. Verifica tu conexión a internet.';
+      }
+      
+      setState(() { _error = errorMessage; });
     } finally {
       setState(() { _isLoading = false; });
     }
   }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);

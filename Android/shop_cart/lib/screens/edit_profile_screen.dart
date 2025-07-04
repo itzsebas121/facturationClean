@@ -131,6 +131,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget _buildProfilePictureSection() {
     final currentImageUrl = _newProfileImageUrl ?? widget.client.picture;
     
+    print('=== _buildProfilePictureSection DEBUG ===');
+    print('_newProfileImageUrl: $_newProfileImageUrl');
+    print('widget.client.picture: ${widget.client.picture}');
+    print('currentImageUrl (final): $currentImageUrl');
+    print('Timestamp: ${DateTime.now()}');
+    
     return Card(
       color: AppColors.backgroundLight,
       child: Padding(
@@ -514,6 +520,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       // Determinar la URL de imagen final a usar
       final finalImageUrl = _newProfileImageUrl ?? widget.client.picture;
       
+      print('=== _saveProfile DEBUG ANTES ===');
+      print('_newProfileImageUrl: $_newProfileImageUrl');
+      print('widget.client.picture: ${widget.client.picture}');
+      print('finalImageUrl que se usará: $finalImageUrl');
+      
       // Crear cliente actualizado para retornar
       final updatedClient = widget.client.copyWith(
         firstName: _firstNameController.text.trim(),
@@ -523,6 +534,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         picture: finalImageUrl,
       );
 
+      print('=== _saveProfile DEBUG DESPUÉS ===');
+      print('updatedClient.picture: ${updatedClient.picture}');
+      print('updatedClient completo: $updatedClient');
+      
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -618,9 +633,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       if (mounted) Navigator.of(context).pop();
       
       if (imageUrl != null) {
+        print('=== _selectAndUploadProfilePicture DEBUG ===');
+        print('Nueva imageUrl recibida: $imageUrl');
+        print('_newProfileImageUrl antes del setState: $_newProfileImageUrl');
+        
         setState(() {
           _newProfileImageUrl = imageUrl;
         });
+        
+        print('_newProfileImageUrl después del setState: $_newProfileImageUrl');
         
         // Actualizar inmediatamente la foto de perfil en la base de datos
         try {
@@ -635,6 +656,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           );
         } catch (updateError) {
           // Si falla la actualización del perfil, mostrar advertencia pero mantener la imagen localmente
+          print('Error al actualizar foto en base de datos: $updateError');
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Foto subida pero no se pudo actualizar en la base de datos: ${updateError.toString().replaceAll('Exception: ', '')}'),

@@ -7,16 +7,26 @@ class UserService {
   static const String baseUrl = 'https://facturationclean.vercel.app/api/user';
   static Future<Map<String, dynamic>> login(String email, String password) async {
     try {
-      print('DEBUG: UserService.login iniciado');
+      print('DEBUG: UserService.login iniciado con URL: $baseUrl');
+      print('DEBUG: Email: $email');
+      print('DEBUG: Password length: ${password.length}');
+      
       final response = await http.post(
         Uri.parse(baseUrl),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': email, 'password': password}),
+      ).timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          throw Exception('Tiempo de espera agotado. Verifica tu conexión a internet.');
+        },
       );
       
       print('DEBUG: Response status: ${response.statusCode}');
+      print('DEBUG: Response headers: ${response.headers}');
       print('DEBUG: Response body: ${response.body}');
-        if (response.statusCode == 200) {
+      
+      if (response.statusCode == 200) {
         final data = json.decode(response.body);
         print('DEBUG: Parsed data: $data');
         print('DEBUG: Token exists: ${data['token'] != null}');
@@ -66,9 +76,16 @@ class UserService {
           }
         }
         return data;
+      } else if (response.statusCode == 401) {
+        print('DEBUG: Credenciales incorrectas');
+        throw Exception('Email o contraseña incorrectos');
+      } else if (response.statusCode == 404) {
+        print('DEBUG: Endpoint no encontrado');
+        throw Exception('Servicio no disponible. Contacta al administrador.');
       } else {
         print('DEBUG: Error response: ${response.statusCode}');
-        throw Exception('Credenciales incorrectas o error de red');
+        print('DEBUG: Error body: ${response.body}');
+        throw Exception('Error del servidor (${response.statusCode}). Intenta más tarde.');
       }
     } catch (e) {
       print('DEBUG: Exception en UserService.login: $e');
@@ -77,10 +94,38 @@ class UserService {
     }
   }
 
+  /// Verifica si el usuario tiene una sesión válida
+  static Future<bool> isLoggedIn() async {
+    try {
+      final token = await getToken();
+      
+      if (token == null) {
+        return false;
+      }
+      
+      // Verificar si el token no ha expirado
+      if (JwtDecoder.isExpired(token)) {
+        // Token expirado, limpiarlo
+        await logout();
+        return false;
+      }
+      
+      return true;
+    } catch (e) {
+      // Si hay error verificando el token, considerarlo como no logueado
+      await logout(); // Limpiar token corrupto
+      return false;
+    }
+  }
+
+  /// Limpia la sesión del usuario (mejorado)
   static Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('token');
+    await prefs.remove('userId');
+    // Limpiar cualquier otro dato de sesión que pueda existir
   }
+
   static Future<Map<String, dynamic>> register({
     required String email,
     required String password,
@@ -122,4 +167,35 @@ class UserService {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getInt('userId');
   }
+
+  /// Verifica si el token sigue siendo válido durante el uso de la aplicación
+  static Future<bool> isTokenValid() async {
+    try {
+      final token = await getToken();
+      if (token == null) return false;
+      
+      // Verificar si el token no ha expirado
+      return !JwtDecoder.isExpired(token);
+    } catch (e) {
+      return false;
+    }
+  }
+  
+  /// Obtiene información del usuario desde el token
+  static Future<Map<String, dynamic>?> getUserInfo() async {
+    try {
+      final token = await getToken();
+      if (token == null) return null;
+      
+      if (JwtDecoder.isExpired(token)) {
+        await logout();
+        return null;
+      }
+      
+      return JwtDecoder.decode(token);
+    } catch (e) {
+      return null;
+    }
+  }
+
 }

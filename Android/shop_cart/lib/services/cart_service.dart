@@ -1,5 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
+import 'package:path_provider/path_provider.dart';
 import '../models/cart_item.dart';
 import '../models/product.dart';
 import 'client_service.dart';
@@ -507,5 +512,468 @@ class CartService {
         'OrderDate': DateTime.now().toIso8601String(),
       };
     }
+  }
+
+  // Método para imprimir recibo usando el servicio de impresión nativo
+  static Future<bool> printReceipt(int orderId) async {
+    try {
+      // Obtener los detalles de la orden y los datos del cliente
+      final orderDetails = await getOrderDetails(orderId);
+      final clientData = await ClientService.getCurrentClient();
+      
+      if (orderDetails['Items'] == null || orderDetails['Items'].isEmpty) {
+        throw Exception('No se encontraron items en la orden');
+      }
+      
+      // Crear el documento PDF
+      final pdf = pw.Document();
+      
+      // Agregar página al PDF
+      pdf.addPage(
+        pw.Page(
+          pageFormat: PdfPageFormat.a4,
+          build: (pw.Context context) {
+            return pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                // Header
+                pw.Container(
+                  padding: const pw.EdgeInsets.all(20),
+                  decoration: pw.BoxDecoration(
+                    color: PdfColors.blue,
+                    borderRadius: pw.BorderRadius.circular(8),
+                  ),
+                  child: pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      pw.Text(
+                        'RECIBO DE ORDEN',
+                        style: pw.TextStyle(
+                          color: PdfColors.white,
+                          fontSize: 24,
+                          fontWeight: pw.FontWeight.bold,
+                        ),
+                      ),
+                      pw.SizedBox(height: 8),
+                      pw.Text(
+                        'Orden #${orderDetails['OrderId']}',
+                        style: pw.TextStyle(
+                          color: PdfColors.white,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                
+                pw.SizedBox(height: 20),
+                
+                // Información del cliente
+                _buildClientInfoSection(clientData),
+                
+                pw.SizedBox(height: 20),
+                
+                // Información de la orden
+                _buildOrderInfoSection(orderDetails),
+                
+                pw.SizedBox(height: 20),
+                
+                // Tabla de productos
+                _buildProductsTable(orderDetails['Items']),
+                
+                pw.SizedBox(height: 20),
+                
+                // Totales
+                _buildTotalsSection(orderDetails),
+                
+                pw.Spacer(),
+                
+                // Footer
+                pw.Container(
+                  padding: const pw.EdgeInsets.all(12),
+                  decoration: pw.BoxDecoration(
+                    color: PdfColors.grey300,
+                    borderRadius: pw.BorderRadius.circular(4),
+                  ),
+                  child: pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.center,
+                    children: [
+                      pw.Text(
+                        'Gracias por su compra',
+                        style: pw.TextStyle(
+                          fontSize: 14,
+                          fontWeight: pw.FontWeight.bold,
+                        ),
+                      ),
+                      pw.SizedBox(height: 4),
+                      pw.Text(
+                        'Documento generado el ${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}',
+                        style: const pw.TextStyle(fontSize: 10),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      );
+      
+      // Enviar al servicio de impresión nativo
+      await Printing.layoutPdf(
+        onLayout: (PdfPageFormat format) async => pdf.save(),
+        name: 'Recibo_Orden_$orderId',
+        format: PdfPageFormat.a4,
+      );
+      
+      return true;
+      
+    } catch (e) {
+      throw Exception('Error al preparar el documento para impresión: ${e.toString().replaceAll('Exception: ', '')}');
+    }
+  }
+
+  static Future<bool> generatePdf(int orderId) async {
+    try {
+      // Obtener los detalles de la orden y los datos del cliente
+      final orderDetails = await getOrderDetails(orderId);
+      final clientData = await ClientService.getCurrentClient();
+      
+      if (orderDetails['Items'] == null || orderDetails['Items'].isEmpty) {
+        throw Exception('No se encontraron items en la orden');
+      }
+      
+      // Crear el documento PDF
+      final pdf = pw.Document();
+      
+      // Agregar página al PDF
+      pdf.addPage(
+        pw.Page(
+          pageFormat: PdfPageFormat.a4,
+          build: (pw.Context context) {
+            return pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                // Header
+                pw.Container(
+                  padding: const pw.EdgeInsets.all(20),
+                  decoration: pw.BoxDecoration(
+                    color: PdfColors.blue,
+                    borderRadius: pw.BorderRadius.circular(8),
+                  ),
+                  child: pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      pw.Text(
+                        'FACTURA / RECIBO',
+                        style: pw.TextStyle(
+                          color: PdfColors.white,
+                          fontSize: 24,
+                          fontWeight: pw.FontWeight.bold,
+                        ),
+                      ),
+                      pw.SizedBox(height: 8),
+                      pw.Text(
+                        'Orden #${orderDetails['OrderId']}',
+                        style: pw.TextStyle(
+                          color: PdfColors.white,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                
+                pw.SizedBox(height: 20),
+                
+                // Información del cliente
+                _buildClientInfoSection(clientData),
+                
+                pw.SizedBox(height: 20),
+                
+                // Información de la orden
+                _buildOrderInfoSection(orderDetails),
+                
+                pw.SizedBox(height: 20),
+                
+                // Tabla de productos
+                _buildProductsTable(orderDetails['Items']),
+                
+                pw.SizedBox(height: 20),
+                
+                // Totales
+                _buildTotalsSection(orderDetails),
+                
+                pw.Spacer(),
+                
+                // Footer
+                pw.Container(
+                  padding: const pw.EdgeInsets.all(12),
+                  decoration: pw.BoxDecoration(
+                    color: PdfColors.grey300,
+                    borderRadius: pw.BorderRadius.circular(4),
+                  ),
+                  child: pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.center,
+                    children: [
+                      pw.Text(
+                        'Gracias por su compra',
+                        style: pw.TextStyle(
+                          fontSize: 14,
+                          fontWeight: pw.FontWeight.bold,
+                        ),
+                      ),
+                      pw.SizedBox(height: 4),
+                      pw.Text(
+                        'Documento generado el ${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}',
+                        style: const pw.TextStyle(fontSize: 10),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      );
+      
+      // Guardar el PDF
+      final output = await getApplicationDocumentsDirectory();
+      final file = File('${output.path}/orden_${orderId}_${DateTime.now().millisecondsSinceEpoch}.pdf');
+      await file.writeAsBytes(await pdf.save());
+      
+      return true;
+      
+    } catch (e) {
+      throw Exception('Error al generar PDF: ${e.toString().replaceAll('Exception: ', '')}');
+    }
+  }
+  
+  static pw.Widget _buildOrderInfoSection(Map<String, dynamic> orderDetails) {
+    return pw.Container(
+      padding: const pw.EdgeInsets.all(16),
+      decoration: pw.BoxDecoration(
+        border: pw.Border.all(color: PdfColors.grey),
+        borderRadius: pw.BorderRadius.circular(4),
+      ),
+      child: pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Text(
+            'Información de la Orden',
+            style: pw.TextStyle(
+              fontSize: 16,
+              fontWeight: pw.FontWeight.bold,
+            ),
+          ),
+          pw.SizedBox(height: 12),
+          pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+            children: [
+              pw.Text('Número de Orden:', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+              pw.Text('${orderDetails['OrderId']}'),
+            ],
+          ),
+          pw.SizedBox(height: 8),
+          pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+            children: [
+              pw.Text('Fecha:', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+              pw.Text(_formatDate(orderDetails['OrderDate'])),
+            ],
+          ),
+          pw.SizedBox(height: 8),
+          pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+            children: [
+              pw.Text('Estado:', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+              pw.Text('${orderDetails['Status']}'),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+  
+  static pw.Widget _buildProductsTable(List<dynamic> items) {
+    return pw.Table(
+      border: pw.TableBorder.all(color: PdfColors.grey),
+      columnWidths: {
+        0: const pw.FlexColumnWidth(3), // Producto - más espacio
+        1: const pw.FlexColumnWidth(1), // Cantidad
+        2: const pw.FlexColumnWidth(1.5), // Precio Unit.
+        3: const pw.FlexColumnWidth(1.5), // Subtotal
+      },
+      children: [
+        // Header
+        pw.TableRow(
+          decoration: const pw.BoxDecoration(color: PdfColors.grey300),
+          children: [
+            pw.Padding(
+              padding: const pw.EdgeInsets.all(8),
+              child: pw.Text('Producto', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+            ),
+            pw.Padding(
+              padding: const pw.EdgeInsets.all(8),
+              child: pw.Text('Cantidad', style: pw.TextStyle(fontWeight: pw.FontWeight.bold), textAlign: pw.TextAlign.center),
+            ),
+            pw.Padding(
+              padding: const pw.EdgeInsets.all(8),
+              child: pw.Text('Precio Unit.', style: pw.TextStyle(fontWeight: pw.FontWeight.bold), textAlign: pw.TextAlign.right),
+            ),
+            pw.Padding(
+              padding: const pw.EdgeInsets.all(8),
+              child: pw.Text('Subtotal', style: pw.TextStyle(fontWeight: pw.FontWeight.bold), textAlign: pw.TextAlign.right),
+            ),
+          ],
+        ),
+        // Items
+        ...items.map((item) => pw.TableRow(
+          children: [
+            pw.Padding(
+              padding: const pw.EdgeInsets.all(8),
+              child: pw.Text('${item['ProductName'] ?? item['Name'] ?? 'Producto'}'),
+            ),
+            pw.Padding(
+              padding: const pw.EdgeInsets.all(8),
+              child: pw.Text('${item['Quantity'] ?? 1}', textAlign: pw.TextAlign.center),
+            ),
+            pw.Padding(
+              padding: const pw.EdgeInsets.all(8),
+              child: pw.Text('\$${(item['UnitPrice'] ?? 0.0).toStringAsFixed(2)}', textAlign: pw.TextAlign.right),
+            ),
+            pw.Padding(
+              padding: const pw.EdgeInsets.all(8),
+              child: pw.Text('\$${(item['SubTotal'] ?? 0.0).toStringAsFixed(2)}', textAlign: pw.TextAlign.right),
+            ),
+          ],
+        )).toList(),
+      ],
+    );
+  }
+  
+  static pw.Widget _buildTotalsSection(Map<String, dynamic> orderDetails) {
+    return pw.Container(
+      padding: const pw.EdgeInsets.all(16),
+      decoration: pw.BoxDecoration(
+        border: pw.Border.all(color: PdfColors.grey),
+        borderRadius: pw.BorderRadius.circular(4),
+      ),
+      child: pw.Column(
+        children: [
+          pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+            children: [
+              pw.Text('Subtotal:', style: pw.TextStyle(fontSize: 14)),
+              pw.Text('\$${(orderDetails['SubTotal'] ?? 0.0).toStringAsFixed(2)}', 
+                style: pw.TextStyle(fontSize: 14), textAlign: pw.TextAlign.right),
+            ],
+          ),
+          pw.SizedBox(height: 8),
+          pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+            children: [
+              pw.Text('Impuestos:', style: pw.TextStyle(fontSize: 14)),
+              pw.Text('\$${(orderDetails['Tax'] ?? 0.0).toStringAsFixed(2)}', 
+                style: pw.TextStyle(fontSize: 14), textAlign: pw.TextAlign.right),
+            ],
+          ),
+          pw.SizedBox(height: 8),
+          pw.Divider(color: PdfColors.grey),
+          pw.SizedBox(height: 8),
+          pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+            children: [
+              pw.Text('TOTAL:', style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+              pw.Text('\$${(orderDetails['Total'] ?? 0.0).toStringAsFixed(2)}', 
+                style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold), textAlign: pw.TextAlign.right),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+  
+  static String _formatDate(String? dateString) {
+    if (dateString == null) return 'N/A';
+    try {
+      final date = DateTime.parse(dateString);
+      return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+    } catch (e) {
+      return dateString;
+    }
+  }
+
+  static pw.Widget _buildClientInfoSection(dynamic clientData) {
+    return pw.Container(
+      padding: const pw.EdgeInsets.all(16),
+      decoration: pw.BoxDecoration(
+        border: pw.Border.all(color: PdfColors.grey),
+        borderRadius: pw.BorderRadius.circular(4),
+      ),
+      child: pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Text(
+            'Información del Cliente',
+            style: pw.TextStyle(
+              fontSize: 16,
+              fontWeight: pw.FontWeight.bold,
+            ),
+          ),
+          pw.SizedBox(height: 12),
+          pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+            children: [
+              pw.Text('Nombre:', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+              pw.Text('${clientData?.firstName ?? 'N/A'} ${clientData?.lastName ?? ''}'),
+            ],
+          ),
+          pw.SizedBox(height: 8),
+          pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+            children: [
+              pw.Text('Email:', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+              pw.Text('${clientData?.email ?? 'N/A'}'),
+            ],
+          ),
+          pw.SizedBox(height: 8),
+          pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+            children: [
+              pw.Text('Teléfono:', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+              pw.Text('${clientData?.phone ?? 'N/A'}'),
+            ],
+          ),
+          pw.SizedBox(height: 8),
+          pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+            children: [
+              pw.Text('Dirección:', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+              pw.Expanded(
+                child: pw.Text(
+                  '${clientData?.address ?? 'N/A'}',
+                  textAlign: pw.TextAlign.right,
+                  maxLines: 2,
+                ),
+              ),
+            ],
+          ),
+          if (clientData?.cedula != null && clientData?.cedula != 'No disponible')
+            pw.Column(
+              children: [
+                pw.SizedBox(height: 8),
+                pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                  children: [
+                    pw.Text('Cédula:', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                    pw.Text('${clientData?.cedula}'),
+                  ],
+                ),
+              ],
+            ),
+        ],
+      ),
+    );
   }
 }

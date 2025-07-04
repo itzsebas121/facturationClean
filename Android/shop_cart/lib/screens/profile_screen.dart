@@ -419,6 +419,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
   Future<void> _navigateToEditProfile() async {
+    print('=== ProfileScreen: _navigateToEditProfile DEBUG ===');
+    print('Cliente antes de navegar: ${_client?.picture}');
+    
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -426,42 +429,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
 
+    print('=== ProfileScreen: Resultado recibido ===');
+    print('result: $result');
+    print('result es Client?: ${result is Client}');
+    if (result is Client) {
+      print('Cliente actualizado recibido: ${result.picture}');
+    }
+
     if (result != null) {
       if (result is Client) {
         // Se recibió un cliente actualizado
+        print('Actualizando cliente en ProfileScreen');
         setState(() {
           _client = result;
           _lastUpdate = DateTime.now(); // Marcar que acabamos de actualizar
         });
         
-        // NO volver a cargar desde el servidor, ya tenemos el cliente actualizado
-        // NO hacer pop() para evitar crear nueva instancia al volver a entrar
-        // if (mounted) {
-        //   Navigator.of(context).pop(result);
-        // }
+        print('Cliente actualizado en ProfileScreen: ${_client?.picture}');
+        print('Marcado como actualizado en: $_lastUpdate');
         
-        // Simplemente mostrar mensaje de éxito y mantener la pantalla
+        // NO volver a cargar desde el servidor, ya tenemos el cliente actualizado
+        // No hacer: await _loadClientData();
+        
+        // Notificar a la pantalla anterior que hubo cambios
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text('Perfil actualizado correctamente'),
-              backgroundColor: Colors.green,
-              duration: const Duration(seconds: 2),
-            ),
-          );
+          Navigator.of(context).pop(result);
         }
       } else if (result == true) {
         // Comportamiento antiguo (por si acaso)
         await _loadClientData();
         
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text('Perfil actualizado correctamente'),
-              backgroundColor: Colors.green,
-              duration: const Duration(seconds: 2),
-            ),
-          );
+          Navigator.of(context).pop(true);
         }
       }
     }
@@ -477,8 +476,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildProfileAvatar() {
+    print('=== ProfileScreen: _buildProfileAvatar DEBUG ===');
+    print('_client?.picture: ${_client?.picture}');
+    print('Picture no es null?: ${_client?.picture != null}');
+    print('Picture no está vacía?: ${_client?.picture?.isNotEmpty}');
+    
     // Verificar si el cliente tiene una foto de perfil
     if (_client?.picture != null && _client!.picture!.isNotEmpty) {
+      print('Mostrando imagen: ${_client!.picture}');
       return Container(
         decoration: BoxDecoration(
           shape: BoxShape.circle,

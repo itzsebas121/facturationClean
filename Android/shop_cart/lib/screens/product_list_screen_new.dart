@@ -6,8 +6,8 @@ import '../models/category.dart';
 import '../services/product_service.dart';
 import '../services/category_service.dart';
 import '../services/user_service.dart';
-import '../presentation/widgets/search_filters.dart';
-import '../presentation/widgets/pagination_widget.dart';
+import '../widgets/search_filters.dart';
+import '../widgets/pagination_widget.dart';
 import './cart_screen.dart';
 import 'order_history_screen_new.dart';
 import 'profile_screen.dart';
@@ -148,9 +148,9 @@ class _ProductListScreenNewState extends State<ProductListScreenNew> {
   }
 
   // Manejo de cambio de categoría (similar a handleCategoryChange en React)
-  void _handleCategoryChange(String categoryId) {
+  void _handleCategoryChange(String? categoryId) {
     setState(() {
-      _selectedCategory = categoryId;
+      _selectedCategory = categoryId ?? '';
     });
     _fetchProducts(1, _searchTerm, _selectedCategory);
   }

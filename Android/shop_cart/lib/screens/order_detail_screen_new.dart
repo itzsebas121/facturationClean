@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../theme/app_theme.dart';
 import '../services/cart_service.dart';
-import '../presentation/widgets/receipt_print_button.dart';
+import '../widgets/receipt_print_button.dart';
 
 class OrderDetailScreen extends StatefulWidget {
   final dynamic order;

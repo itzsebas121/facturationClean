@@ -9,7 +9,7 @@ async function getCart(clientID) {
             .execute('getCartClient');
         return result.recordset;
     } catch (err) {
-        logErrorToDB('CartService', 'getCart', err.message, err.stack);
+        await logErrorToDB('CartService', 'getCart', err.message, err.stack);
     }
 }
 
@@ -24,7 +24,7 @@ async function insertItem(product) {
 
         return result.recordset[0];
     } catch (err) {
-        logErrorToDB('CartService', 'insertItem', err.message, err.stack);
+        await logErrorToDB('CartService', 'insertItem', err.message, err.stack);
     }
 }
 async function updateProducto(producto) {
@@ -37,7 +37,7 @@ async function updateProducto(producto) {
             .execute('UpdateCartItemQuantity');
         return result.recordset?.[0];
     } catch (err) {
-        logErrorToDB('CartService', 'updateProducto', err.message, err.stack);
+        await logErrorToDB('CartService', 'updateProducto', err.message, err.stack);
     }
 }
 async function cartToOrder(cartID) {
@@ -48,7 +48,7 @@ async function cartToOrder(cartID) {
             .execute('ConvertCartToOrder');
         return result.recordset?.[0];
     } catch (err) {
-       logErrorToDB('CartService', 'cartToOrder', err.message, err.stack);
+       await logErrorToDB('CartService', 'cartToOrder', err.message, err.stack);
     }
 }
 async function deleteItem(cartID, productID) {
@@ -60,7 +60,7 @@ async function deleteItem(cartID, productID) {
             .execute('DeleteCartItem');
         return result.recordset?.[0];
     } catch (err) {
-       logErrorToDB('CartService', 'deleteItem', err.message, err.stack);
+       await logErrorToDB('CartService', 'deleteItem', err.message, err.stack);
     }
 }
 module.exports = {

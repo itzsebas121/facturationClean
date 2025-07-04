@@ -7,7 +7,7 @@ async function getAll(req, res) {
         res.json(clients);
     }
     catch (error) {
-        logErrorToDB('ClientController', 'getAll', error.message, error.stack);
+        await logErrorToDB('ClientController', 'getAll', error.message, error.stack);
         res.status(500).json({ message: "Error al obtener clientes", error });
     }
 }
@@ -18,7 +18,7 @@ async function getById(req, res) {
         res.json(client);
     }
     catch (error) {
-        logErrorToDB('ClientController', 'getById', error.message, error.stack);
+        await logErrorToDB('ClientController', 'getById', error.message, error.stack);
         res.status(500).json({ message: "Error al obtener cliente", error });
     }
 }
@@ -27,14 +27,14 @@ async function create(req, res) {
         const client = req.body;
         const newClient = await clientService.createClient(client);
         if (newClient.error || newClient.ERROR || newClient.Error) {
-            logErrorToDB('ClientController', 'create', newClient.error || newClient.ERROR || newClient.Error, "");
+            await logErrorToDB('ClientController', 'create', newClient.error || newClient.ERROR || newClient.Error, "");
             return res.status(400).json({ error: newClient.error || newClient.ERROR || newClient.Error });
         }
         res.status(201).json({ message: "Cliente creado con éxito", newClient });
     }
     catch (error) {
         res.status(500).json({ error: "Error al crear cliente", error });
-        logErrorToDB('ClientController', 'create', error.message, error.stack);
+        await logErrorToDB('ClientController', 'create', error.message, error.stack);
     }
 }
 async function update(req, res) {
@@ -45,7 +45,7 @@ async function update(req, res) {
     }
     catch (error) {
         res.status(500).json({ error: "Error al actualizar cliente", error });
-        logErrorToDB('ClientController', 'update', error.message, error.stack);
+        await logErrorToDB('ClientController', 'update', error.message, error.stack);
     }
 }
 async function changePassword(req, res) {
@@ -56,7 +56,7 @@ async function changePassword(req, res) {
     }
     catch (error) {
         res.status(500).json({ message: "Error al cambiar contraseña", error });
-        logErrorToDB('ClientController', 'changePassword', error.message, error.stack);
+        await logErrorToDB('ClientController', 'changePassword', error.message, error.stack);
     }
 }
 async function recoverPassword(req, res) {
@@ -67,7 +67,7 @@ async function recoverPassword(req, res) {
     }
     catch (error) {
         res.status(500).json({ message: "Error al recuperar contraseña", error });
-        logErrorToDB('ClientController', 'recoverPassword', error.message, error.stack);
+        await logErrorToDB('ClientController', 'recoverPassword', error.message, error.stack);
     }
 }
 async function enable(req, res) {
@@ -75,13 +75,13 @@ async function enable(req, res) {
         const clientId = req.params.id;
         const updatedClient = await clientService.enableClient(clientId);
         if (!updatedClient) {
-            logErrorToDB('ClientController', 'enable', updatedClient.error || updatedClient.ERROR || updatedClient.Error||"No se pudo habilitar el cliente", "");
+            await logErrorToDB('ClientController', 'enable', updatedClient.error || updatedClient.ERROR || updatedClient.Error||"No se pudo habilitar el cliente", "");
             return res.status(404).json({ enable: false, error: "No se pudo habilitar el cliente" });
         }
         return res.json({ enable: true, message: "Cliente habilitado exitosamente" });
     }
     catch (error) {
-        logErrorToDB('ClientController', 'enable', error.message, error.stack);
+        await logErrorToDB('ClientController', 'enable', error.message, error.stack);
         res.status(500).json({ error: "Error al habilitar cliente", error });
     }
 
@@ -91,7 +91,7 @@ async function disable(req, res) {
         const clientId = req.params.id;
         const updatedClient = await clientService.disableClient(clientId);
         if (!updatedClient) {
-            logErrorToDB('ClientController', 'disable', updatedClient.error || updatedClient.ERROR || updatedClient.Error||"No se pudo deshabilitar el cliente", "");
+            await logErrorToDB('ClientController', 'disable', updatedClient.error || updatedClient.ERROR || updatedClient.Error||"No se pudo deshabilitar el cliente", "");
             return res.status(404).json({ disable: false, error: "No se pudo deshabilitar el cliente" });
         }
         return res.json({ disable: true, message: "Cliente deshabilitado exitosamente" });
@@ -109,7 +109,7 @@ async function updatePicture(req, res) {
     }
     catch (error) {
         res.status(500).json({ error: "Error al actualizar cliente", error });
-        logErrorToDB('ClientController', 'updatePicture', error.message, error.stack);
+        await logErrorToDB('ClientController', 'updatePicture', error.message, error.stack);
     }
 }
 module.exports = {

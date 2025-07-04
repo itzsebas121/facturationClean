@@ -32,7 +32,7 @@ async function createProducto(producto) {
     .input('ImageUrl', sql.VarChar(255), ImageUrl)
     .execute('CreateProduct');
   if (result.rowsAffected[0] === 0) {
-    logErrorToDB('ProductService', 'createProducto', 'No se pudo crear el producto', null);
+    await logErrorToDB('ProductService', 'createProducto', 'No se pudo crear el producto', null);
     return false
   };
   return result.recordset[0];
@@ -51,7 +51,7 @@ async function updateProducto(id, producto) {
     .input('ImageUrl', sql.VarChar(255), ImageUrl)
     .execute('UpdateProduct');
   if (result.rowsAffected[0] === 0) {
-    logErrorToDB('ProductService', 'updateProducto', `No se pudo actualizar ${producto.id} el producto`, null);
+    await logErrorToDB('ProductService', 'updateProducto', `No se pudo actualizar ${producto.id} el producto`, null);
     return false
   };
   return true;
@@ -64,7 +64,7 @@ async function disableProduct(id) {
     .input('ProductId', sql.Int, id)
     .execute('disableProduct');
   if (result.rowsAffected[0] === 0) {
-    logErrorToDB('ProductService', 'disableProduct', `No se pudo deshabilitar el producto ${id}`, null);
+    await logErrorToDB('ProductService', 'disableProduct', `No se pudo deshabilitar el producto ${id}`, null);
     return false
   };
   return true;
@@ -75,7 +75,7 @@ async function enableProduct(id) {
     .input('ProductId', sql.Int, id)
     .execute('enableProduct');
   if (result.rowsAffected[0] === 0) {
-    logErrorToDB('ProductService', 'enableProduct', `No se pudo habilitar el producto ${id}`, null);
+    await logErrorToDB('ProductService', 'enableProduct', `No se pudo habilitar el producto ${id}`, null);
     return false
   };
   return true;

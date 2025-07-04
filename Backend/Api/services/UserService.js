@@ -15,7 +15,7 @@ async function ValidateUserLogin(user) {
         const userData = result.recordset[0];
 
         if (!userData) {
-            logErrorToDB('UserService', 'ValidateUserLogin', `User with email: ${email} not found`, "");
+            await logErrorToDB('UserService', 'ValidateUserLogin', `User with email: ${email} not found`, "");
             return null
         };
         if (!userData.UserId) return userData;
@@ -34,7 +34,7 @@ async function ValidateUserLogin(user) {
         }
         return jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: '24h' });
     } catch (error) {
-        logErrorToDB('UserService', 'ValidateUserLogin', error.message, error.stack);
+        await logErrorToDB('UserService', 'ValidateUserLogin', error.message, error.stack);
     }
 }
 

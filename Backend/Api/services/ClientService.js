@@ -1,5 +1,5 @@
 const { poolPromise, sql } = require('../db/db');
-const { logErrorToDB } = require('./errorLog');
+const {  logErrorToDB } = require('./errorLog');
 
 async function getAllClients() {
   try {
@@ -7,7 +7,7 @@ async function getAllClients() {
     const result = await pool.request().execute('getClients');
     return result.recordset;
   } catch (error) {
-    logErrorToDB('ClientService', 'getAllClients', error.message, error.stack);
+    await logErrorToDB('ClientService', 'getAllClients', error.message, error.stack);
     throw error;
   }
 
@@ -20,7 +20,7 @@ async function getClientById(id) {
       .execute('getClientById');
     return result.recordset[0];
   } catch (error) {
-    logErrorToDB('ClientService', 'getClientById', error.message, error.stack);
+    await logErrorToDB('ClientService', 'getClientById', error.message, error.stack);
   }
 
 }
@@ -39,7 +39,7 @@ async function createClient(client) {
     return result.recordset[0];
   }
   catch (error) {
-    logErrorToDB('ClientService', 'createClient', error.message, error.stack);
+    await logErrorToDB('ClientService', 'createClient', error.message, error.stack);
   }
 
 }
@@ -58,7 +58,7 @@ async function updateClient(client) {
     const result = await request.execute('UpdateClient');
     return result.recordset[0];
   } catch (error) {
-    logErrorToDB('ClientService', 'updateClient', error.message, error.stack);
+    await logErrorToDB('ClientService', 'updateClient', error.message, error.stack);
   }
 }
 async function changePassword(userId, currentPassword, newPassword) {
@@ -71,7 +71,7 @@ async function changePassword(userId, currentPassword, newPassword) {
     const result = await request.execute('ChangePassword');
     return result.recordset[0];
   } catch (error) {
-    logErrorToDB('ClientService', 'changePassword', error.message, error.stack);
+    await logErrorToDB('ClientService', 'changePassword', error.message, error.stack);
   }
 }
 
@@ -83,7 +83,7 @@ async function recoverPassword(email) {
     const result = await request.execute('RecoverPassword');
     return result.recordset[0];
   } catch (error) {
-    logErrorToDB('ClientService', 'recoverPassword', error.message, error.stack);
+    await logErrorToDB('ClientService', 'recoverPassword', error.message, error.stack);
   }
 }
 async function enableClient(clientId) {
@@ -92,7 +92,7 @@ async function enableClient(clientId) {
   request.input('ClientID', sql.Int, clientId);
   const result = await request.execute('enableClient');
   if (result.rowsAffected[0] === 0) {
-    logErrorToDB('ClientService', 'enableClient', 'No se encontró el cliente con el ID proporcionado', null);
+    await logErrorToDB('ClientService', 'enableClient', 'No se encontró el cliente con el ID proporcionado', null);
     return false;
   }
   return true;
@@ -103,7 +103,7 @@ async function disableClient(clientId) {
   request.input('ClientID', sql.Int, clientId);
   const result = await request.execute('disableClient');
   if (result.rowsAffected[0] === 0) {
-    logErrorToDB('ClientService', 'disableClient', 'No se encontró el cliente con el ID proporcionado', null);
+    await logErrorToDB('ClientService', 'disableClient', 'No se encontró el cliente con el ID proporcionado', null);
     return false;
   }
   return true;
@@ -117,7 +117,7 @@ async function updatePicture(client) {
     const result = await request.execute('UpdateClientPicture');
     return result.recordset[0];
   } catch (error) {
-    logErrorToDB('ClientService', 'updatePicture', error.message, error.stack);
+    await logErrorToDB('ClientService', 'updatePicture', error.message, error.stack);
   }
 }
 module.exports = {

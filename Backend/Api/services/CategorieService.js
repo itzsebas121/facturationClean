@@ -7,7 +7,7 @@ async function getAllCategorias() {
     const result = await pool.request().execute('getCategories');
     return result.recordset;
   } catch (error) {
-    logErrorToDB('CategorieService', 'getAllCategorias', error.message, error.stack);
+    await logErrorToDB('CategorieService', 'getAllCategorias', error.message, error.stack);
   }
 }
 

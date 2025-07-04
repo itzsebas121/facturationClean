@@ -5,7 +5,7 @@ async function getAll(req, res) {
     const categorias = await categorieService.getAllCategorias();
     res.json(categorias);
   } catch (error) {
-    logErrorToDB('CategorieController', 'getAll', error.message, error.stack);
+    await logErrorToDB('CategorieController', 'getAll', error.message, error.stack);
     res.status(500).json({ message: "Error al obtener categorías", error });
   }
 }

@@ -149,33 +149,46 @@ END
 
 CREATE OR ALTER PROCEDURE ChangePassword
     @UserId INT,
-    @CurrentPassword VARCHAR(100),
-    @NewPassword VARCHAR(100)
+    @NewPassword VARCHAR(10)
 AS
 BEGIN
     SET NOCOUNT ON;
 
     BEGIN TRY
-    DECLARE @PasswordError VARCHAR(200) = dbo.ValidatePassword(@NewPassword);
-        IF @PasswordError IS NOT NULL
+        
+        DECLARE @ValidacionCedula TABLE (Resultado VARCHAR(100));
+        INSERT INTO @ValidacionCedula
+        SELECT Resultado FROM dbo.ValidarCedulaTungurahua(@NewPassword);
+
+        DECLARE @CedulaMensaje VARCHAR(100);
+        SELECT @CedulaMensaje = Resultado FROM @ValidacionCedula;
+
+        IF @CedulaMensaje <> 'Cédula válida de Tungurahua'
         BEGIN
-            SELECT @PasswordError AS ERROR;
+            SELECT @CedulaMensaje AS Error;
             RETURN;
         END
 
-        IF NOT EXISTS (
-            SELECT 1 FROM Users 
-            WHERE UserId = @UserId 
-              AND PasswordHash = HASHBYTES('SHA2_256', CONVERT(VARBINARY(MAX), @CurrentPassword))
+        DECLARE @NewPasswordHash VARBINARY(MAX);
+        SET @NewPasswordHash = HASHBYTES('SHA2_256', CONVERT(VARBINARY(MAX), @NewPassword));
+
+        IF EXISTS (
+            SELECT 1
+            FROM PasswordCed 
+             WHERE UserId = @UserId 
+              AND Cedula = @NewPassword
         )
         BEGIN
-            SELECT 'Contraseña actual incorrecta' AS Error;
+            SELECT 'Ya usaste esta contraseña anteriormente' AS Error;
             RETURN;
         END
 
         UPDATE Users
-        SET PasswordHash = HASHBYTES('SHA2_256', CONVERT(VARBINARY(MAX), @NewPassword))
+        SET PasswordHash = @NewPasswordHash
         WHERE UserId = @UserId;
+
+        INSERT INTO PasswordCed (UserId, Cedula)
+        VALUES (@UserId, CONVERT(VARCHAR(10), @NewPassword, 1));
 
         SELECT 'Contraseña actualizada correctamente' AS Message;
     END TRY
@@ -183,3 +196,13 @@ BEGIN
         SELECT ERROR_MESSAGE() AS Error;
     END CATCH
 END
+
+
+select * from passwordced
+
+exec ChangePassword
+    @UserId =2,
+    @NewPassword = '1850553593'
+
+
+    

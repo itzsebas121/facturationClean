@@ -146,23 +146,6 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
             ),
             const SizedBox(height: 16),
 
-            // Contraseña actual
-            _buildPasswordField(
-              controller: _currentPasswordController,
-              label: 'Contraseña Actual',
-              icon: Icons.lock_outline,
-              obscureText: _obscureCurrentPassword,
-              onToggleVisibility: () => setState(() {
-                _obscureCurrentPassword = !_obscureCurrentPassword;
-              }),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'La contraseña actual es obligatoria';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
 
             // Nueva contraseña
             _buildPasswordField(
@@ -180,9 +163,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 if (value.length < 8) {
                   return 'La contraseña debe tener al menos 8 caracteres';
                 }
-                if (value == _currentPasswordController.text) {
-                  return 'La nueva contraseña debe ser diferente a la actual';
-                }
+                
                 return null;
               },
             ),
@@ -339,7 +320,6 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
     try {
       final success = await ClientService.changePassword(
-        currentPassword: _currentPasswordController.text,
         newPassword: _newPasswordController.text,
       );
 

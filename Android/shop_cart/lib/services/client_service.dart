@@ -193,7 +193,6 @@ class ClientService {
   }
   /// Cambia la contraseña del cliente
   static Future<bool> changePassword({
-    required String currentPassword,
     required String newPassword,
   }) async {
     try {
@@ -218,7 +217,6 @@ class ClientService {
 
       final requestData = {
         'userId': userId,
-        'currentPassword': currentPassword,
         'newPassword': newPassword,
       };
 
@@ -239,24 +237,24 @@ class ClientService {
       print('changePassword - Status: ${response.statusCode}');
       print('changePassword - Response: ${response.body}');
 
-      if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
+      if (response.statusCode == 200) {
         if (responseData['Message'] != null) {
           print('changePassword - Success: ${responseData['Message']}');
           return true;
         }
       }
-
       // Manejar errores específicos
+      if (responseData['Error'] != null) {
+        throw Exception(responseData['Error']);
+      }
       if (response.statusCode == 400) {
         final errorData = json.decode(response.body);
         if (errorData['Error'] != null) {
           throw Exception(errorData['Error']);
         }
         throw Exception('Datos inválidos');
-      } else if (response.statusCode == 401) {
-        throw Exception('Contraseña actual incorrecta');
-      } else if (response.statusCode == 404) {
+      }else if (response.statusCode == 404) {
         throw Exception('El endpoint de cambio de contraseña no está disponible en el servidor');
       } else {
         throw Exception('Error del servidor: ${response.statusCode}');

@@ -50,8 +50,8 @@ async function update(req, res) {
 }
 async function changePassword(req, res) {
     try {
-        const { userId, currentPassword, newPassword } = req.body;
-        const updatedClient = await clientService.changePassword(userId, currentPassword, newPassword);
+        const { userId, newPassword } = req.body;
+        const updatedClient = await clientService.changePassword(userId, newPassword);
         res.json(updatedClient);
     }
     catch (error) {

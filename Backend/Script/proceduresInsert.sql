@@ -56,10 +56,17 @@ CREATE OR ALTER PROCEDURE CreateClient
 AS
 BEGIN
     BEGIN TRY
-        DECLARE @PasswordError VARCHAR(200) = dbo.ValidatePassword(@Password);
-        IF @PasswordError IS NOT NULL
+        
+        DECLARE @CedulaResultado TABLE (Resultado VARCHAR(100));
+        INSERT INTO @CedulaResultado
+        SELECT Resultado FROM dbo.ValidarCedulaTungurahua(@Cedula);
+
+        DECLARE @ValidacionMensaje VARCHAR(100);
+        SELECT @ValidacionMensaje = Resultado FROM @CedulaResultado;
+
+        IF @ValidacionMensaje <> 'Cédula válida de Tungurahua'
         BEGIN
-            SELECT @PasswordError AS ERROR;
+            RAISERROR(@ValidacionMensaje, 16, 1);
             RETURN;
         END
 
@@ -98,6 +105,7 @@ BEGIN
         THROW;
     END CATCH
 END;
+
 
 
 

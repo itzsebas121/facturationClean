@@ -62,10 +62,6 @@ class Validators {
       return 'La contraseña no puede exceder 50 caracteres';
     }
     
-    // Verificar que tenga al menos una letra y un número
-    if (!RegExp(r'^(?=.*[a-zA-Z])(?=.*[0-9])').hasMatch(value)) {
-      return 'La contraseña debe contener al menos una letra y un número';
-    }
     
     return null;
   }

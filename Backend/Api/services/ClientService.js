@@ -61,12 +61,11 @@ async function updateClient(client) {
     await logErrorToDB('ClientService', 'updateClient', error.message, error.stack);
   }
 }
-async function changePassword(userId, currentPassword, newPassword) {
+async function changePassword(userId,  newPassword) {
   try {
     const pool = await poolPromise;
     const request = pool.request();
     request.input('UserId', sql.Int, userId);
-    request.input('CurrentPassword', sql.VarChar(100), currentPassword);
     request.input('NewPassword', sql.VarChar(100), newPassword);
     const result = await request.execute('ChangePassword');
     return result.recordset[0];

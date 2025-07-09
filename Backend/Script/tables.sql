@@ -17,7 +17,6 @@ CREATE TABLE Users (
     CONSTRAINT FK_Users_Roles FOREIGN KEY (RoleId) REFERENCES Roles(RoleId)
 );
 
--- Tabla Clients: datos específicos para clientes
 CREATE TABLE Clients (
     ClientId INT PRIMARY KEY IDENTITY,
     UserId INT UNIQUE NOT NULL,
@@ -111,3 +110,69 @@ CREATE TABLE ErrorLogs (
     DateOccurred DATETIME DEFAULT GETDATE()
 );
 
+CREATE TABLE PasswordCed (
+    PassId INT PRIMARY KEY IDENTITY,
+    UserId INT NOT NULL,
+    Cedula VARCHAR(10) NOT NULL,
+    CONSTRAINT FK_PASS_Users FOREIGN KEY (UserId) REFERENCES Users(UserId)
+);
+
+CREATE FUNCTION dbo.CalcularDigitoVerificador
+(
+    @Cedula VARCHAR(10)
+)
+RETURNS INT
+AS
+BEGIN
+    DECLARE @suma INT = 0
+    DECLARE @i INT = 1
+    DECLARE @digito INT
+    DECLARE @coef INT
+
+    WHILE @i <= 9
+    BEGIN
+        SET @digito = CAST(SUBSTRING(@Cedula, @i, 1) AS INT)
+        IF @i % 2 = 1
+        BEGIN
+            SET @coef = @digito * 2
+            IF @coef > 9 SET @coef = @coef - 9
+        END
+        ELSE
+            SET @coef = @digito
+
+        SET @suma = @suma + @coef
+        SET @i = @i + 1
+    END
+
+    DECLARE @verificador INT = (10 - (@suma % 10)) % 10
+    RETURN @verificador
+END
+
+CREATE or alter FUNCTION dbo.ValidarCedulaTungurahua
+
+(
+    @Cedula VARCHAR(10)
+)
+RETURNS TABLE
+AS
+RETURN
+(
+    SELECT 
+        CASE 
+            WHEN LEN(@Cedula) <> 10 THEN 'La cédula debe tener 10 dígitos'
+            WHEN ISNUMERIC(@Cedula) = 0 THEN 'La cédula debe contener solo números'
+            WHEN LEFT(@Cedula, 2) <> '18' THEN 'La cédula no pertenece a Tungurahua'
+            WHEN CAST(SUBSTRING(@Cedula, 3, 1) AS INT) >= 6 THEN 'El tercer dígito no puede ser mayor o igual a 6 para personas naturales'
+            WHEN dbo.CalcularDigitoVerificador(@Cedula) <> CAST(RIGHT(@Cedula, 1) AS INT) THEN 'Cédula inválida'
+            ELSE NULL
+        END AS Error,
+        CASE 
+            WHEN LEN(@Cedula) = 10 
+             AND ISNUMERIC(@Cedula) = 1
+             AND LEFT(@Cedula, 2) = '18'
+             AND CAST(SUBSTRING(@Cedula, 3, 1) AS INT) < 6
+             AND dbo.CalcularDigitoVerificador(@Cedula) = CAST(RIGHT(@Cedula, 1) AS INT)
+            THEN 'Cédula válida de Tungurahua'
+            ELSE NULL
+        END AS Message
+)

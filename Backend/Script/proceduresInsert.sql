@@ -91,7 +91,7 @@ BEGIN
 
         INSERT INTO Clients (UserId, FirstName, LastName, Address, Phone)
         VALUES (@UserId, @FirstName, @LastName, @Address, @Phone);
-
+        
         DECLARE @ClientId INT = SCOPE_IDENTITY();
 
         COMMIT TRANSACTION;
@@ -106,7 +106,7 @@ BEGIN
     END CATCH
 END;
 
-
+select * from passwordced
 
 
 CREATE OR ALTER PROCEDURE AddItemToCart
